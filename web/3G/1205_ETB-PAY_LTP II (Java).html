@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY: Masterclass POO</title>
+    <!-- Fontes e Ícones -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- JSZip CDN: Para gerar o arquivo ZIP dinamicamente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <style>
+        /* === VARIÁVEIS DE TEMA === */
+        :root {
+            /* Tema Escuro (Fintech Night) */
+            --bg-color: #0B0E14;
+            --bg-gradient: radial-gradient(circle at top left, #121A2F, #0B0E14);
+            --sidebar-bg: rgba(18, 26, 47, 0.6);
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --accent-primary: #00F0FF;
+            /* Ciano Neon */
+            --accent-secondary: #7000FF;
+            /* Roxo Profundo */
+            --code-bg: #05080F;
+            --code-text: #E2E8F0;
+        }
+
+        [data-theme="light"] {
+            /* Tema Claro (Fintech Day) */
+            --bg-color: #F8FAFC;
+            --bg-gradient: radial-gradient(circle at top left, #FFFFFF, #EDF2F7);
+            --sidebar-bg: rgba(255, 255, 255, 0.8);
+            --panel-bg: rgba(255, 255, 255, 0.6);
+            --panel-border: rgba(0, 0, 0, 0.1);
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --accent-primary: #0284C7;
+            /* Azul Forte */
+            --accent-secondary: #4F46E5;
+            /* Indigo */
+            --code-bg: #F1F5F9;
+            --code-text: #0F172A;
+        }
+
+        /* === RESET E BASE === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg-color);
+            background-image: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* === LAYOUT ESTRUTURAL === */
+        #app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* === BARRA LATERAL (SIDEBAR) === */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 100;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .logo span {
+            color: var(--accent-primary);
+        }
+
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+
+        #toggle-sidebar {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-btn:hover {
+            background: var(--panel-bg);
+            color: var(--text-main);
+        }
+
+        .nav-btn.active {
+            background: var(--accent-primary);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+
+        .nav-btn i {
+            font-size: 1.4rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* === ÁREA PRINCIPAL === */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* HEADER SUPERIOR (TEMA) */
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        .theme-toggle {
+            pointer-events: auto;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* SEÇÕES DA AULA */
+        .section-container {
+            padding: 0 60px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .section-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--accent-primary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        /* GLASSMORPHISM CARDS */
+        .glass-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(112, 0, 255, 0.1), rgba(0, 240, 255, 0.05));
+            border-left: 4px solid var(--accent-secondary);
+            padding: 20px 30px;
+            border-radius: 0 15px 15px 0;
+            margin: 30px 0;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .info-box i {
+            font-size: 2rem;
+            color: var(--accent-secondary);
+        }
+
+        /* COMPONENTES ESPECÍFICOS DE DOWNLOAD */
+        .download-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed var(--accent-primary);
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(0, 240, 255, 0.05), transparent);
+        }
+
+        .btn-download {
+            background: var(--accent-primary);
+            color: #000;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            padding: 18px 40px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        #download-feedback {
+            margin-top: 20px;
+            color: #10B981;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* CÓDIGO FONTE SIMPLIFICADO */
+        .code-window {
+            background: var(--code-bg);
+            border-radius: 15px;
+            border: 1px solid var(--panel-border);
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--panel-border);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .mac-btns {
+            display: flex;
+            gap: 6px;
+            margin-right: 15px;
+        }
+
+        .mac-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .mac-r {
+            background: #FF5F56;
+        }
+
+        .mac-y {
+            background: #FFBD2E;
+        }
+
+        .mac-g {
+            background: #27C93F;
+        }
+
+        pre {
+            padding: 25px;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--code-text);
+        }
+
+        .war-room {
+            border: 2px dashed #FF5F56;
+            background: rgba(255, 95, 86, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app-container">
+
+        <!-- BARRA LATERAL -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo"><i class="ph-fill ph-wallet"></i> <span class="logo-text">ETB<span>PAY</span></span>
+                </div>
+                <button id="toggle-sidebar"><i class="ph ph-list"></i></button>
+            </div>
+            <ul class="nav-links">
+                <!-- NOVA ABA: DOWNLOAD -->
+                <li><button class="nav-btn" data-target="m0" style="color: var(--accent-primary);"><i
+                            class="ph-fill ph-file-zip"></i> <span class="nav-text">Baixar Projeto ZIP</span></button>
+                </li>
+
+                <!-- ABAS DE CONTEÚDO -->
+                <li><button class="nav-btn active" data-target="m1"><i class="ph-fill ph-cube"></i> <span
+                            class="nav-text">01. Modelagem Base</span></button></li>
+                <li><button class="nav-btn" data-target="m2"><i class="ph-fill ph-copy"></i> <span class="nav-text">02.
+                            Sobrecarga (Conta)</span></button></li>
+                <li><button class="nav-btn" data-target="m3"><i class="ph-fill ph-arrow-fat-lines-up"></i> <span
+                            class="nav-text">03. Sobrescrita (Herança)</span></button></li>
+                <li><button class="nav-btn" style="color: #FF5F56;" data-target="m4"><i
+                            class="ph-fill ph-warning-circle"></i> <span class="nav-text">04. War Room
+                            (Desafio)</span></button></li>
+            </ul>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            <div class="topbar">
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="ph-fill ph-moon"></i> <span>Dark Mode</span>
+                </button>
+            </div>
+
+            <!-- MOMENTO 00: DOWNLOAD DO PROJETO BASE -->
+            <section id="m0" class="section-container">
+                <span class="tag">Workspace</span>
+                <h1>Baixar <span>Projeto Base</span></h1>
+                <p>Antes de começarmos a codificar a nossa Masterclass de POO, garanta que seu ambiente VS Code está
+                    sincronizado com o restante da Squad. Baixe as classes propostas no exercício abaixo.</p>
+
+                <div class="download-box">
+                    <i class="ph-fill ph-folder-open"
+                        style="font-size: 5rem; color: var(--accent-primary); margin-bottom: 15px;"></i>
+                    <h2 style="font-size: 1.8rem; margin-bottom: 10px;">ETB_PAY_Masterclass_POO.zip</h2>
+                    <p style="margin-bottom: 0;">Contém as 4 classes: <code>App.java</code>, <code>Cliente.java</code>,
+                        <code>Conta.java</code> e <code>ContaEmpresarial.java</code> (com o Desafio do War Room).</p>
+
+                    <button id="btn-gerar-zip" class="btn-download">
+                        <i class="ph-bold ph-download-simple"></i> Baixar Arquivo ZIP
+                    </button>
+
+                    <div id="download-feedback">
+                        <i class="ph-fill ph-check-circle"></i> Download concluído! Extraia os arquivos na sua pasta
+                        'src'.
+                    </div>
+                </div>
+            </section>
+
+            <!-- MOMENTO 01: Modelagem Base -->
+            <section id="m1" class="section-container active">
+                <span class="tag">Momento 01</span>
+                <h1>A Base do <span>Cofre</span></h1>
+                <p>Analisando nossa classe <code>Conta.java</code> do projeto, temos atributos como numero, saldo e o
+                    titular (Cliente). Vamos consolidar um único método responsável pelas transferências PIX.</p>
+
+                <div class="glass-card">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="mac-btns">
+                                <div class="mac-btn mac-r"></div>
+                                <div class="mac-btn mac-y"></div>
+                                <div class="mac-btn mac-g"></div>
+                            </div>
+                            Conta.java
+                        </div>
+                        <pre><code>
+public class Conta {
+    protected int numero;
+    protected double saldo;
+    protected Cliente cliente;
+
+    public Conta(int numero, Cliente cliente) {
+        this.numero = numero;
+        this.cliente = cliente;
+        this.saldo = 0.0;
+    }
+
+    // Método Único Original
+    public boolean realizarOperacaoPIX(String chavePix, double valor) {
+        System.out.println("Enviando PIX para a chave: " + chavePix);
+        System.out.println("Valor da Transferência: R$ " + valor);
+        return true;
+    }
+}
+                    </code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MOMENTO 02: Sobrecarga (Overload) -->
+            <section id="m2" class="section-container">
+                <span class="tag">Momento 02</span>
+                <h1><span>Sobrecarga</span> (Alterando Parâmetros)</h1>
+                <p>A <strong>Sobrecarga (Overload)</strong> acontece dentro da <strong>MESMA classe</strong>. Nós usamos
+                    exatamente o mesmo nome de método, mas alteramos os parâmetros para que ele se comporte de maneiras
+                    diferentes.</p>
+
+                <div class="info-box">
+                    <i class="ph-fill ph-warning"></i>
+                    <div>
+                        <h3 style="margin-bottom: 5px; font-size: 1.2rem;">Regra do Java</h3>
+                        <p style="margin: 0; font-size: 1rem;">O Java não diferencia os métodos pelo nome da variável.
+                            Se você criar <code>(String cpf, double valor)</code> e
+                            <code>(String email, double valor)</code>, vai dar erro! Para resolver isso na Sobrecarga,
+                            precisamos mudar a quantidade ou o tipo dos parâmetros.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="mac-btns">
+                                <div class="mac-btn mac-r"></div>
+                                <div class="mac-btn mac-y"></div>
+                                <div class="mac-btn mac-g"></div>
+                            </div>
+                            Conta.java (Métodos Lado a Lado)
+                        </div>
+                        <pre><code>
+public class Conta {
+    
+    // 1. O Método Original
+    public boolean realizarOperacaoPIX(String chavePix, double valor) {
+        System.out.println("PIX via Chave: " + chavePix);
+        return true;
+    }
+
+    // 2. SOBRECARGA: Mudando a quantidade de parâmetros
+    public boolean realizarOperacaoPIX(String chavePix, double valor, boolean enviaRecibo) {
+        System.out.println("PIX via Chave: " + chavePix);
+        if (enviaRecibo) {
+            System.out.println("Recibo em PDF enviado para o cliente!");
+        }
+        return true;
+    }
+
+    // 3. SOBRECARGA: Mudando o tipo de parâmetro (POO Pura)
+    public boolean realizarOperacaoPIX(Conta contaDestino, double valor) {
+        System.out.println("PIX Direto para a Conta Número: " + contaDestino.getNumero());
+        return true;
+    }
+}
+                    </code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MOMENTO 03: Sobrescrita (Override) -->
+            <section id="m3" class="section-container">
+                <span class="tag">Momento 03</span>
+                <h1><span>Sobrescrita</span> (Alterando a Regra)</h1>
+                <p>A <strong>Sobrescrita (Override)</strong> acontece quando criamos uma classe Filha. A nossa sugestão
+                    aqui é criar uma <code>ContaEmpresarial</code> que herda de Conta. Ela usa a mesma assinatura do
+                    método original, mas <strong>sobrescreve</strong> a regra para cobrar uma taxa de serviço.</p>
+
+                <div class="info-box"
+                    style="border-color: var(--accent-primary); background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), transparent);">
+                    <i class="ph-fill ph-arrow-fat-lines-up" style="color: var(--accent-primary)"></i>
+                    <div>
+                        <h3 style="margin-bottom: 5px; font-size: 1.2rem;">@Override</h3>
+                        <p style="margin: 0; font-size: 1rem;">O @Override é uma anotação que diz ao Java: "Estou
+                            ignorando o método do meu pai e criando o meu próprio comportamento, mas mantendo a exata
+                            mesma estrutura".</p>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="mac-btns">
+                                <div class="mac-btn mac-r"></div>
+                                <div class="mac-btn mac-y"></div>
+                                <div class="mac-btn mac-g"></div>
+                            </div>
+                            ContaEmpresarial.java
+                        </div>
+                        <pre><code>
+// ContaEmpresarial herda de Conta (Extends)
+public class ContaEmpresarial extends Conta {
+    
+    // Taxa específica para contas PJ
+    private static final double TAXA_SERVICO = 1.50;
+
+    public ContaEmpresarial(int numero, Cliente cliente) {
+        super(numero, cliente);
+    }
+
+    // SUGESTÃO DE SOBRESCRITA: Mudando o comportamento do Pai
+    @Override
+    public boolean realizarOperacaoPIX(String chavePix, double valor) {
+        
+        double valorTotalDesconto = valor + TAXA_SERVICO;
+        
+        System.out.println("[CONTA PJ] Iniciando transferência com tarifa...");
+        System.out.println("Valor enviado: R$ " + valor);
+        System.out.println("Custo total debitado: R$ " + valorTotalDesconto);
+        
+        return true; 
+    }
+}
+                    </code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MOMENTO 04: War Room -->
+            <section id="m4" class="section-container">
+                <span class="tag"
+                    style="background: rgba(255, 95, 86, 0.1); color: #FF5F56; border-color: #FF5F56;">Desafio
+                    Prático</span>
+                <h1 style="color: #FF5F56;">War Room: <span>Segurança do Saldo</span></h1>
+                <p>Alerta na Squad! Nossos métodos de PIX estão aceitando transferências de valores negativos e para
+                    contas sem saldo. Sua missão é implementar a validação rigorosa utilizando o operador lógico de
+                    <strong>Curto-Circuito (&&)</strong>.</p>
+
+                <div class="glass-card war-room">
+                    <div class="code-window">
+                        <div class="code-header" style="background: rgba(255, 95, 86, 0.1);">
+                            <div class="mac-btns">
+                                <div class="mac-btn mac-r"></div>
+                                <div class="mac-btn mac-y"></div>
+                                <div class="mac-btn mac-g"></div>
+                            </div>
+                            Conta.java (O Motor Principal)
+                        </div>
+                        <pre><code>
+public class Conta {
+    protected double saldo;
+
+    public boolean realizarOperacaoPIX(String chaveDestino, double valor) {
+        
+        // TODO: SQUAD, IMPLEMENTEM A VALIDAÇÃO DO CURTO-CIRCUITO!
+        // 1. O 'valor' tentado deve ser maior que ZERO.
+        // 2. O 'saldo' atual tem que ser maior ou igual ao 'valor'.
+        
+        /* DESCOMENTE E COMPLETE O CÓDIGO ABAIXO:
+        
+        if ( ??????? && ??????? ) {
+            this.saldo -= valor;
+            System.out.println("✅ PIX Enviado com sucesso!");
+            return true;
+        } else {
+            System.out.println("❌ Erro: Saldo Insuficiente ou Valor Inválido.");
+            return false;
+        }
+        */
+        
+        return false;
+    }
+}
+                    </code></pre>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- SCRIPTS DE INTERATIVIDADE E GERAÇÃO DE ZIP -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. Lógica do Menu (Navegação SPA)
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const sections = document.querySelectorAll('.section-container');
+
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    navBtns.forEach(b => b.classList.remove('active'));
+                    sections.forEach(s => s.classList.remove('active'));
+
+                    btn.classList.add('active');
+                    const targetId = btn.getAttribute('data-target');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+
+            // 2. Alternância de Sidebar
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('toggle-sidebar');
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+
+            // 3. Alternância de Tema (Dark / Light Mode)
+            const themeToggle = document.getElementById('theme-toggle');
+            const htmlTag = document.documentElement;
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlTag.getAttribute('data-theme');
+                const icon = themeToggle.querySelector('i');
+                const span = themeToggle.querySelector('span');
+
+                if (currentTheme === 'dark') {
+                    htmlTag.setAttribute('data-theme', 'light');
+                    icon.className = 'ph-fill ph-sun';
+                    span.textContent = 'Light Mode';
+                } else {
+                    htmlTag.setAttribute('data-theme', 'dark');
+                    icon.className = 'ph-fill ph-moon';
+                    span.textContent = 'Dark Mode';
+                }
+            });
+
+            // 4. Lógica de Geração do ZIP (JSZip)
+            const btnGerarZip = document.getElementById('btn-gerar-zip');
+            const downloadFeedback = document.getElementById('download-feedback');
+
+            btnGerarZip.addEventListener('click', () => {
+                // Efeito de Loading Visual
+                btnGerarZip.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Gerando Arquivo...';
+                btnGerarZip.disabled = true;
+
+                // Criando instância do JSZip
+                const zip = new JSZip();
+
+                // CONTEÚDO DAS CLASSES (Mockadas exatamente como na aula)
+
+                const codigoCliente = `public class Cliente {
+    private String nome;
+    private String cpf;
+    private String email;
+
+    public Cliente(String nome, String cpf, String email) {
+        this.nome = nome;
+        this.cpf = cpf;
+        this.email = email;
+    }
+
+    public String getNome() { return nome; }
+    public String getCpf() { return cpf; }
+    public String getEmail() { return email; }
+}`;
+
+                const codigoConta = `public class Conta {
+    protected int numero;
+    protected double saldo;
+    protected Cliente cliente;
+
+    public Conta(int numero, Cliente cliente) {
+        this.numero = numero;
+        this.cliente = cliente;
+        this.saldo = 0.0;
+    }
+
+    public double getSaldo() { return saldo; }
+    public int getNumero() { return numero; }
+
+    // SOBRECARGA 1: Assinatura Base
+    public boolean realizarOperacaoPIX(String chavePix, double valor) {
+        // TODO: WAR ROOM! Implemente o if (valor > 0 && this.saldo >= valor) aqui.
+        System.out.println("PIX via Chave: " + chavePix);
+        return true;
+    }
+
+    // SOBRECARGA 2: Quantidade diferente de parâmetros
+    public boolean realizarOperacaoPIX(String chavePix, double valor, boolean enviaRecibo) {
+        System.out.println("PIX via Chave: " + chavePix);
+        if (enviaRecibo) {
+            System.out.println("Recibo em PDF enviado para o cliente!");
+        }
+        return true;
+    }
+
+    // SOBRECARGA 3: Tipo diferente de parâmetro
+    public boolean realizarOperacaoPIX(Conta contaDestino, double valor) {
+        System.out.println("PIX Direto para a Conta Número: " + contaDestino.getNumero());
+        return true;
+    }
+}`;
+
+                const codigoContaEmpresarial = `public class ContaEmpresarial extends Conta {
+    
+    private static final double TAXA_SERVICO = 1.50;
+
+    public ContaEmpresarial(int numero, Cliente cliente) {
+        super(numero, cliente);
+    }
+
+    // SOBRESCRITA: Alterando a regra para clientes PJ
+    @Override
+    public boolean realizarOperacaoPIX(String chavePix, double valor) {
+        double valorTotalDesconto = valor + TAXA_SERVICO;
+        
+        System.out.println("[CONTA PJ] Iniciando transferência com tarifa...");
+        System.out.println("Custo total debitado: R$ " + valorTotalDesconto);
+        
+        return true; 
+    }
+}`;
+
+                const codigoApp = `public class App {
+    public static void main(String[] args) {
+        System.out.println("=== ETB-PAY INICIALIZADO ===");
+        
+        Cliente clienteFisico = new Cliente("Alex Alves", "123.456.789-00", "alex@etb.com.br");
+        Conta minhaConta = new Conta(2026, clienteFisico);
+        
+        Cliente empresa = new Cliente("ETB Tech", "00.000.000/0001-00", "contato@etb.com");
+        ContaEmpresarial contaPJ = new ContaEmpresarial(9999, empresa);
+        
+        // Testando a Sobrecarga
+        minhaConta.realizarOperacaoPIX("telefone@chave.pix", 150.0);
+        minhaConta.realizarOperacaoPIX(contaPJ, 200.0); // Transfere usando o Objeto!
+        
+        System.out.println("--------------------");
+        
+        // Testando a Sobrescrita
+        contaPJ.realizarOperacaoPIX("fornecedor@email.com", 500.0); // Vai cobrar taxa!
+    }
+}`;
+
+                // Criando a estrutura de diretórios raiz para o VS Code
+                const rootFolder = zip.folder("workspace");
+                const projectFolder = rootFolder.folder("etb-pay");
+                const srcFolder = projectFolder.folder("src");
+
+                // Adicionando arquivos ao diretório src/
+                srcFolder.file("Cliente.java", codigoCliente);
+                srcFolder.file("Conta.java", codigoConta);
+                srcFolder.file("ContaEmpresarial.java", codigoContaEmpresarial);
+                srcFolder.file("App.java", codigoApp);
+
+                // Gerando o arquivo e disparando o download no navegador
+                zip.generateAsync({ type: "blob" }).then(function (content) {
+                    const url = window.URL.createObjectURL(content);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "ETB_PAY_Masterclass_POO.zip";
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // Cleanup
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    // Feedback Visual
+                    btnGerarZip.innerHTML = '<i class="ph-bold ph-download-simple"></i> Baixar Arquivo ZIP';
+                    btnGerarZip.disabled = false;
+                    downloadFeedback.style.display = "flex";
+
+                    setTimeout(() => {
+                        downloadFeedback.style.display = "none";
+                    }, 4000);
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missão ETB-PAY: Blueprint de Governança</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 800: '#1e293b', 900: '#0f172a' },
+                        brand: { 500: '#2563eb', 600: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .table-header {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: #334155;
+            width: 35%;
+        }
+
+        .table-cell {
+            background-color: #ffffff;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th,
+        td {
+            border: 1px solid #cbd5e1;
+            padding: 1rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        /* Configurações específicas para Impressão e PDF */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background-color: #ffffff !important;
+            }
+
+            .print-shadow-none {
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            /* Garantia de manutenção das cores nas Tabelas */
+            .bg-navy-900 {
+                background-color: #0f172a !important;
+                color: #ffffff !important;
+            }
+
+            .table-header {
+                background-color: #f1f5f9 !important;
+                color: #334155 !important;
+            }
+
+            .table-cell {
+                background-color: #ffffff !important;
+                color: #64748b !important;
+            }
+
+            th,
+            td {
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            table {
+                page-break-inside: avoid;
+                min-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Navbar / Header -->
+    <header class="bg-navy-900 text-white border-b-4 border-brand-500 print-shadow-none">
+        <div class="max-w-5xl mx-auto px-6 py-10 md:py-12">
+            <div class="flex justify-between items-start md:items-center flex-col md:flex-row gap-6">
+                <div>
+                    <div
+                        class="inline-block px-3 py-1 bg-brand-600 text-xs font-bold uppercase tracking-wider rounded-full mb-4">
+                        Projeto de Avaliação Contínua
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-2">Blueprint de Governança</h1>
+                    <p class="text-base md:text-xl text-slate-300 font-light">Documentação Estratégica: Projeto ETB-PAY
+                    </p>
+                </div>
+                <div class="bg-navy-800 p-4 rounded-xl border border-slate-700 w-full md:w-auto">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">Professor Responsável</p>
+                    <p class="font-medium text-lg">Alex Alves</p>
+                    <p class="text-sm text-brand-400">Gestão e Governança de TI</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-10 print-shadow-none">
+
+        <!-- Toolbar (No Print) -->
+        <div class="flex justify-end mb-8 no-print">
+            <button onclick="window.print()"
+                class="flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-lg text-sm font-medium shadow-sm transition-all active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span class="hidden sm:inline">Imprimir / Guardar PDF</span>
+                <span class="sm:hidden">Gerar PDF</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left Column: Instructions (Stacks on top on mobile) -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Info Card -->
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Prazos e Entregas</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <div class="mt-0.5 text-brand-500"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                    height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg></div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm md:text-base">13 de Maio de 2026</p>
+                                <p class="text-xs md:text-sm text-slate-500">Quarta-feira, até às 23h59</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="mt-0.5 text-brand-500"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                    height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg></div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm md:text-base">Trabalho Individual</p>
+                                <p class="text-xs md:text-sm text-slate-500">Cada aluno deverá submeter o seu próprio
+                                    artefato.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="mt-0.5 text-brand-500"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                    height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg></div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm md:text-base">Formatos Aceitos</p>
+                                <p class="text-xs md:text-sm text-slate-500">Link do Google Docs, Word (.docx) ou PDF.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contacts Card -->
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Canais de Envio</h3>
+                    <div class="space-y-3">
+                        <a href="mailto:alexfernandess@gmail.com"
+                            class="flex items-center gap-3 text-slate-600 hover:text-brand-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="shrink-0">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                </path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <span class="text-xs md:text-sm break-all">alexfernandess@gmail.com</span>
+                        </a>
+                        <a href="https://wa.me/5561981700005" target="_blank"
+                            class="flex items-center gap-3 text-slate-600 hover:text-green-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="shrink-0">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                </path>
+                            </svg>
+                            <span class="text-xs md:text-sm">(61) 98170-0005</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- AI Instructions -->
+                <div
+                    class="bg-gradient-to-br from-indigo-50 to-purple-50 p-5 md:p-6 rounded-2xl border border-indigo-100 shadow-sm">
+                    <div class="flex items-center gap-2 mb-3 text-indigo-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="shrink-0">
+                            <path d="M12 2v20"></path>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        <h3 class="font-bold text-sm md:text-base">Motor de IA Sugerido</h3>
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-700 leading-relaxed mb-3">
+                        Para o desenvolvimento deste documento, é sugerida a utilização do <strong>Google
+                            Gemini</strong> como assistente de pesquisa e estruturação.
+                    </p>
+                    <p
+                        class="text-xs text-slate-700 leading-relaxed font-medium bg-white/60 p-3 rounded-lg border border-indigo-200">
+                        ⚠️ Dica: Mantenha a sessão iniciada (log in) na sua conta Google para armazenar o histórico de
+                        interação para consulta.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Column: Context and Template -->
+            <div class="lg:col-span-2 space-y-8">
+
+                <section>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4 border-b pb-2">1. O Cenário (Contexto)
+                    </h2>
+                    <div class="prose prose-slate max-w-none text-sm md:text-base text-slate-600 leading-relaxed">
+                        <p>O <strong>ETB-PAY</strong>, o processador de pagamentos oficial, encontra-se em negociações
+                            avançadas para aquisição por parte de uma instituição financeira de grande dimensão. No
+                            entanto, para a concretização do negócio, o comprador exige uma "Due Diligence" (Auditoria)
+                            completa aos pilares de Governança do sistema.</p>
+                        <p>A sua missão é elaborar o documento que oficializa a maturidade inicial deste produto: o
+                            <strong>Termo de Abertura de Projeto (TAP)</strong>, focado na adequação da aplicação às
+                            normas de Compliance, RGPD/LGPD e Segurança exigidas pelo mercado financeiro.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4 border-b pb-2">2. Modelo de Referência
+                        (TAP em Branco)</h2>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">
+                        Utilize a estrutura de tabelas abaixo como base para o seu trabalho. Os campos devem ser
+                        pesquisados, discutidos e preenchidos com clareza.
+                    </p>
+
+                    <!-- TABELA 1: Identificação -->
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-8 pb-1">
+                        <!-- min-w-[600px] força o scroll horizontal no celular, evitando que o texto amasse demais -->
+                        <table class="min-w-[600px] md:min-w-full">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class="bg-navy-900 text-white text-base md:text-lg">1. Identificação
+                                        do Projeto</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm md:text-base">
+                                <tr>
+                                    <td class="table-header">Nome do Projeto:</td>
+                                    <td class="table-cell">[A definir pelo aluno: Ex. Implementação de...]</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Área Requisitante:</td>
+                                    <td class="table-cell">[A definir pelo aluno: Qual o departamento que pede o
+                                        projeto?]</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Área Executora:</td>
+                                    <td class="table-cell">[A definir pelo aluno]</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Patrocinador (Sponsor):</td>
+                                    <td class="table-cell">[A definir: Quem autoriza e financia o projeto?]</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Gerente de Projeto:</td>
+                                    <td class="table-cell">[Inserir o nome do aluno]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- TABELA 2: Alinhamento e Justificativa -->
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-8 pb-1">
+                        <table class="min-w-[600px] md:min-w-full">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class="bg-navy-900 text-white text-base md:text-lg">2. Alinhamento e
+                                        Objetivos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm md:text-base">
+                                <tr>
+                                    <td class="table-header">Alinhamento Estratégico:</td>
+                                    <td class="table-cell">[Descrever a ligação do projeto às metas globais da
+                                        instituição]</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Justificativa (Contexto):</td>
+                                    <td class="table-cell">[Qual o problema ou oportunidade de conformidade a ser
+                                        resolvido?]</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Objetivo SMART:</td>
+                                    <td class="table-cell">[O que será alcançado de forma Específica, Mensurável,
+                                        Atingível, Realista e Temporal?]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- TABELA 3: Escopo e Restrições -->
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-8 pb-1">
+                        <table class="min-w-[600px] md:min-w-full">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class="bg-navy-900 text-white text-base md:text-lg">3. Escopo e
+                                        Tríplice Restrição</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm md:text-base">
+                                <tr>
+                                    <td class="table-header">Escopo (O que será feito):</td>
+                                    <td class="table-cell">
+                                        <ul class="list-disc pl-4 space-y-1 md:space-y-2">
+                                            <li>[Listar entrega 1]</li>
+                                            <li>[Listar entrega 2]</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Exclusões (Não-Escopo):</td>
+                                    <td class="table-cell">
+                                        <ul class="list-disc pl-4 space-y-1 md:space-y-2">
+                                            <li>[O que está estritamente fora do projeto para evitar desvios?]</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Orçamento Estimado:</td>
+                                    <td class="table-cell">[Estimativa de custos ou fonte de financiamento]</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Cronograma de Marcos:</td>
+                                    <td class="table-cell">
+                                        <ul class="list-disc pl-4 space-y-1 md:space-y-2">
+                                            <li>[Mês/Ano] - [Marco 1]</li>
+                                            <li>[Mês/Ano] - [Marco 2]</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- TABELA 4: Riscos e Stakeholders -->
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-8 pb-1">
+                        <table class="min-w-[600px] md:min-w-full">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class="bg-navy-900 text-white text-base md:text-lg">4. Riscos e
+                                        Stakeholders</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm md:text-base">
+                                <tr>
+                                    <td class="table-header">Premissas:</td>
+                                    <td class="table-cell">[Hipóteses assumidas como verdadeiras para o planeamento]
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Restrições Gerais:</td>
+                                    <td class="table-cell">[Limitações técnicas, legislativas ou orçamentais]</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Riscos Preliminares:</td>
+                                    <td class="table-cell">
+                                        <ul class="list-disc pl-4 space-y-1 md:space-y-2">
+                                            <li>[Risco 1 - Ex. Inviabilidade técnica...]</li>
+                                            <li>[Risco 2 - Ex. Mudanças regulatórias...]</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Partes Interessadas (Stakeholders):</td>
+                                    <td class="table-cell">
+                                        <ul class="list-disc pl-4 space-y-1 md:space-y-2">
+                                            <li>[Stakeholder 1 e seu papel]</li>
+                                            <li>[Stakeholder 2 e seu papel]</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- TABELA 5: Assinaturas -->
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 pb-1">
+                        <table class="min-w-[600px] md:min-w-full">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class="bg-navy-900 text-white text-base md:text-lg">5. Autorização e
+                                        Assinaturas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="table-header w-1/2 text-center py-8 md:py-10">
+                                        <div class="border-b border-slate-400 w-3/4 mx-auto mb-2"></div>
+                                        <p class="text-xs md:text-sm font-bold text-slate-700">Patrocinador do Projeto
+                                        </p>
+                                        <p class="text-[10px] md:text-xs font-normal text-slate-500">[Inserir
+                                            Cargo/Entidade]</p>
+                                    </td>
+                                    <td class="table-header w-1/2 text-center py-8 md:py-10">
+                                        <div class="border-b border-slate-400 w-3/4 mx-auto mb-2"></div>
+                                        <p class="text-xs md:text-sm font-bold text-slate-700">Gerente de Projeto</p>
+                                        <p class="text-[10px] md:text-xs font-normal text-slate-500">[Nome do Aluno]</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-navy-900 text-center py-8 px-4 text-slate-400 text-xs md:text-sm mt-12 print-shadow-none">
+        <p>Disciplina de Gestão e Governança de TI • Prof. Alex Alves</p>
+        <p class="mt-2 italic">"No mercado financeiro, a confiança não vem apenas do código, mas da excelência na
+            Governança e na documentação."</p>
+    </footer>
+
+</body>
+
+</html>

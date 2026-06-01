@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Missão Cheat Sheet</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { mono: ['Consolas', 'Monaco', 'monospace'] },
+                    colors: {
+                        navy: { 800: '#111827', 900: '#0F172A' },
+                        cyan: { 400: '#22D3EE', 500: '#06B6D4' },
+                        silver: { 300: '#CBD5E1', 400: '#94A3B8' }
+                    },
+                    animation: { 'fade-in': 'fadeIn 0.5s ease-out' },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            background-color: #0F172A;
+            color: #CBD5E1;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilização da Tabela Fictícia */
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .db-table th {
+            background-color: rgba(15, 23, 42, 0.8);
+            color: #22D3EE;
+            font-family: monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+        .db-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #CBD5E1;
+        }
+        .db-table tr:hover td {
+            background-color: rgba(34, 211, 238, 0.05);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 1); }
+        ::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.8); }
+
+        /* Estilos de Impressão (PDF Fiel ao Dark Mode) */
+        @media print {
+            /* Força a impressão exata das cores e fundos */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            /* Mantém o fundo escuro e texto claro */
+            body, html { 
+                background-color: #0F172A !important; 
+                color: #CBD5E1 !important; 
+                height: auto !important;
+            }
+            
+            /* Remove a barra lateral para ganhar espaço no papel */
+            .no-print, #sidebar { display: none !important; }
+            
+            /* Ajusta a área principal */
+            main { 
+                margin: 0 !important; 
+                width: 100% !important; 
+                background: #0F172A !important; 
+                overflow: visible !important;
+            }
+            
+            /* Mantém os blocos Glassmorphism escuros */
+            .glass { 
+                background: rgba(30, 41, 59, 0.8) !important; 
+                border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+                box-shadow: none !important; 
+                break-inside: avoid; 
+                margin-bottom: 1.5rem !important;
+            }
+            
+            /* Tabelas e blocos de código */
+            .db-table th { 
+                background-color: rgba(15, 23, 42, 0.8) !important; 
+                color: #22D3EE !important; 
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; 
+            }
+            
+            /* Evita que blocos quebrem no meio da página */
+            .print-avoid-break { 
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important; 
+            }
+        }
+    </style>
+</head>
+
+<body class="h-screen flex overflow-hidden font-sans antialiased selection:bg-cyan-500/30 selection:text-cyan-200">
+
+    <aside id="sidebar" class="w-80 h-full glass border-r border-slate-700/50 flex flex-col z-20 shrink-0">
+        <div class="p-6 border-b border-slate-700/50 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                <i class="ph-bold ph-exam text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-white font-bold tracking-tight">ETB-PAY</h2>
+                <p class="text-xs text-purple-400 font-medium tracking-wider uppercase">Missão Oficial</p>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-2">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 px-2 mt-2">Navegação</h3>
+            <button class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                <i class="ph-fill ph-target text-xl"></i>
+                <span class="font-medium text-sm">O Guia do DBA</span>
+            </button>
+        </div>
+
+        <div class="p-4 border-t border-slate-700/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center text-white font-bold">SN</div>
+                <div>
+                    <p class="text-white text-sm font-semibold">Squad Nexus</p>
+                    <p class="text-xs text-cyan-400">Turma 2G</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 h-full overflow-y-auto bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-5 relative">
+        <div class="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy-900 to-slate-900/90 -z-10 no-print"></div>
+
+        <div class="p-8 max-w-full flex flex-col items-center justify-start h-full">
+            <div class="w-full max-w-5xl space-y-8 animate-fade-in">
+
+                <div class="flex items-center gap-2 text-sm text-silver-400 no-print">
+                    <span>Engenharia de Dados</span>
+                    <i class="ph-bold ph-caret-right text-xs text-slate-600"></i>
+                    <span class="text-purple-400 font-medium">Trabalho Prático</span>
+                </div>
+
+                <div>
+                    <div class="flex items-center gap-4 mb-3">
+                        <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-purple-400 bg-purple-400/10 border border-purple-400/20 rounded-full">Trabalho Oficial</span>
+                        <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 rounded-full">Saneamento & ETL</span>
+                    </div>
+                    <h1 class="text-4xl font-bold text-white tracking-tight">
+                        Missão: O <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500">"Cheat Sheet"</span> do DBA Sênior
+                    </h1>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-2xl border border-slate-700/50 md:col-span-2">
+                        <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="ph-bold ph-rocket-launch text-purple-400"></i> Fala, Squad!
+                        </h3>
+                        <p class="text-slate-300 leading-relaxed text-justify mb-4">
+                            Um verdadeiro Engenheiro de Dados não precisa decorar todas as sintaxes de cabeça, mas ele sabe exatamente <strong>onde consultar a documentação correta</strong>. Para consolidar a nossa operação de Saneamento de Dados, o desafio de vocês será construir o seu próprio <strong>Guia de Bolso (Cheat Sheet) de Comandos SQL</strong>.
+                        </p>
+                        <p class="text-slate-300 leading-relaxed text-justify">
+                            Este documento será o seu "canivete suíço". Ele servirá como base oficial e guia de consulta para que vocês tenham autonomia total na execução dos comandos SQL nos próximos laboratórios práticos e projetos da nossa aplicação.
+                        </p>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border border-cyan-500/30 bg-cyan-900/10 relative overflow-hidden print-avoid-break">
+                        <i class="ph-fill ph-list-checks absolute -top-4 -right-4 text-7xl text-cyan-500/10"></i>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="ph-bold ph-code text-cyan-400"></i> O que deve conter no Guia?
+                        </h3>
+                        <p class="text-sm text-slate-400 mb-4">Seu guia deve explicar o propósito e demonstrar a sintaxe funcional dos seguintes tópicos:</p>
+                        <ul class="space-y-3 text-sm text-slate-300">
+                            <li class="flex items-start gap-2"><i class="ph-bold ph-check text-cyan-400 mt-0.5"></i> <span><strong>SELECT & WHERE:</strong> Como auditar e filtrar dados corrompidos.</span></li>
+                            <li class="flex items-start gap-2"><i class="ph-bold ph-check text-cyan-400 mt-0.5"></i> <span><strong>INSERT & UPDATE:</strong> Injeção e cirurgia em registros legados.</span></li>
+                            <li class="flex items-start gap-2"><i class="ph-bold ph-check text-cyan-400 mt-0.5"></i> <span><strong>CREATE TABLE:</strong> Estruturação com <code>PRIMARY KEY</code> e <code>AUTOINCREMENT</code>.</span></li>
+                            <li class="flex items-start gap-2"><i class="ph-bold ph-check text-cyan-400 mt-0.5"></i> <span><strong>Constraints:</strong> Uso de <code>CHECK</code> e <code>UNIQUE</code> para blindar o banco.</span></li>
+                            <li class="flex items-start gap-2"><i class="ph-bold ph-check text-cyan-400 mt-0.5"></i> <span><strong>REPLACE():</strong> O triturador de impurezas em tempo de execução.</span></li>
+                            <li class="flex items-start gap-2"><i class="ph-bold ph-check text-cyan-400 mt-0.5"></i> <span><strong>GLOB:</strong> O leitor biométrico para validar padrões rigorosos.</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border border-slate-700/50 print-avoid-break">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="ph-bold ph-scales text-purple-400"></i> Avaliação & Entrega
+                        </h3>
+                        
+                        <div class="mb-5">
+                            <h4 class="text-xs font-bold uppercase text-slate-500 mb-2 font-mono">Formatos de Entrega Aceitos:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-slate-800 border border-slate-600 rounded text-xs font-mono text-slate-300">Página Web (HTML/CSS)</span>
+                                <span class="px-3 py-1 bg-slate-800 border border-slate-600 rounded text-xs font-mono text-slate-300">Documento (PDF/Word)</span>
+                                <span class="px-3 py-1 bg-slate-800 border border-slate-600 rounded text-xs font-mono text-slate-300">Markdown (.md)</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xs font-bold uppercase text-slate-500 mb-2 font-mono">Critérios de Aceite:</h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Os trabalhos serão validados rigorosamente com base em dois pilares: a <strong>precisão técnica</strong> dos exemplos de código fornecidos e a <strong>qualidade e clareza da informação</strong> gerada (explique para você mesmo do futuro como o código funciona).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border border-slate-700/50 md:col-span-2 print-avoid-break">
+                        <div class="flex justify-between items-end mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <i class="ph-bold ph-table text-cyan-400"></i> O Padrão Ouro (Referência)
+                                </h3>
+                                <p class="text-sm text-slate-400 mt-1">Este é o formato esperado da nossa estrutura blindada <code>tb_clientes</code> após o ETL.</p>
+                            </div>
+                            <span class="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded border border-emerald-400/20 no-print">System: Online</span>
+                        </div>
+                        
+                        <div class="overflow-x-auto rounded-lg border border-slate-700/50">
+                            <table class="db-table">
+                                <thead>
+                                    <tr>
+                                        <th title="PRIMARY KEY AUTOINCREMENT"><i class="ph-fill ph-key text-amber-400 mr-1"></i> id_cliente</th>
+                                        <th title="TEXT UNIQUE NOT NULL CHECK"><i class="ph-bold ph-lock-key text-cyan-400 mr-1"></i> cpf</th>
+                                        <th title="TEXT NOT NULL">nome</th>
+                                        <th title="TEXT UNIQUE NOT NULL"><i class="ph-bold ph-lock-key text-cyan-400 mr-1"></i> email</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td class="text-emerald-400">11122233344</td>
+                                        <td>Bruno Lima</td>
+                                        <td>brunolima@email.com</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td class="text-emerald-400">22233344455</td>
+                                        <td>João da Silva</td>
+                                        <td>erro1@etb.com</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td class="text-emerald-400">33344455566</td>
+                                        <td>Ana Silva</td>
+                                        <td>ana@exemplo.com</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td class="text-emerald-400">07762634177</td>
+                                        <td>Alex F B Alves</td>
+                                        <td>alexalves@etb.df.gov.br</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border border-slate-700/50 md:col-span-2 print-avoid-break">
+                        <div class="flex justify-between items-end mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <i class="ph-bold ph-blueprint text-purple-400"></i> Esqueleto do Cheat Sheet (Template)
+                                </h3>
+                                <p class="text-sm text-slate-400 mt-1">Utilize as descrições abaixo como guia e substitua os espaços em branco com as instruções SQL correspondentes que utilizamos em laboratório.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="bg-navy-950/50 border border-slate-700/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-cyan-400 text-sm mb-2 flex items-center gap-2"><i class="ph-bold ph-magnifying-glass"></i> Busca e Filtro (DQL)</h4>
+                                <p class="text-xs text-slate-400 mb-3">Selecionar colunas de uma tabela aplicando uma condição de filtragem.</p>
+                                <div class="bg-slate-900/80 border border-slate-700 rounded p-3 font-mono text-xs text-slate-500">
+                                    <span class="text-slate-400 italic">/* Comando para buscar dados */</span><br><br>
+                                    <span class="text-slate-600">[ INSERIR SINTAXE SQL AQUI ]</span><br><br><br>
+                                </div>
+                            </div>
+
+                            <div class="bg-navy-950/50 border border-slate-700/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-green-400 text-sm mb-2 flex items-center gap-2"><i class="ph-bold ph-pencil-simple"></i> Manipulação (DML)</h4>
+                                <p class="text-xs text-slate-400 mb-3">Inserir novos registros e atualizar dados de um registro existente.</p>
+                                <div class="bg-slate-900/80 border border-slate-700 rounded p-3 font-mono text-xs text-slate-500">
+                                    <span class="text-slate-400 italic">/* Atualizar registro */</span><br>
+                                    <span class="text-slate-600">[ INSERIR SINTAXE SQL AQUI ]</span><br><br>
+                                    <span class="text-slate-400 italic">/* Inserir registro */</span><br>
+                                    <span class="text-slate-600">[ INSERIR SINTAXE SQL AQUI ]</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-navy-950/50 border border-slate-700/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-amber-400 text-sm mb-2 flex items-center gap-2"><i class="ph-bold ph-table"></i> Estrutura (DDL)</h4>
+                                <p class="text-xs text-slate-400 mb-3">Criar uma tabela com Chave Primária e Autoincremento.</p>
+                                <div class="bg-slate-900/80 border border-slate-700 rounded p-3 font-mono text-xs text-slate-500">
+                                    <span class="text-slate-400 italic">/* Criação de Tabela */</span><br><br>
+                                    <span class="text-slate-600">[ INSERIR SINTAXE SQL AQUI ]</span><br><br><br>
+                                </div>
+                            </div>
+
+                            <div class="bg-navy-950/50 border border-slate-700/50 p-4 rounded-xl print-avoid-break">
+                                <h4 class="font-bold text-purple-400 text-sm mb-2 flex items-center gap-2"><i class="ph-bold ph-shield-check"></i> Regras de Blindagem</h4>
+                                <p class="text-xs text-slate-400 mb-3">Impedir dados duplicados e validar regras na inserção.</p>
+                                <div class="bg-slate-900/80 border border-slate-700 rounded p-3 font-mono text-xs text-slate-500">
+                                    <span class="text-slate-400 italic">/* Restrições Unique / Check */</span><br><br>
+                                    <span class="text-slate-600">[ INSERIR SINTAXE SQL AQUI ]</span><br><br><br>
+                                </div>
+                            </div>
+
+                            <div class="bg-navy-950/50 border border-slate-700/50 p-4 rounded-xl md:col-span-2 lg:col-span-2 print-avoid-break">
+                                <h4 class="font-bold text-rose-400 text-sm mb-2 flex items-center gap-2"><i class="ph-bold ph-funnel"></i> Tratamento e Validação</h4>
+                                <p class="text-xs text-slate-400 mb-3">Substituir caracteres e validar padrão de formatação com Expressão Regular (Regex).</p>
+                                <div class="bg-slate-900/80 border border-slate-700 rounded p-3 font-mono text-xs text-slate-500 flex flex-col sm:flex-row gap-4 h-[104px]">
+                                    <div class="flex-1">
+                                        <span class="text-slate-400 italic">/* Limpar traços e pontos */</span><br><br>
+                                        <span class="text-slate-600">[ INSERIR SINTAXE SQL AQUI ]</span>
+                                    </div>
+                                    <div class="hidden sm:block w-px bg-slate-700"></div>
+                                    <div class="flex-1">
+                                        <span class="text-slate-400 italic">/* Padrão Apenas Números */</span><br><br>
+                                        <span class="text-slate-600">[ INSERIR SINTAXE SQL AQUI ]</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2 flex justify-end no-print mt-4">
+                        <button onclick="window.print()" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3.5 rounded-xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all hover:-translate-y-1 active:scale-95">
+                            <i class="ph-bold ph-printer text-xl"></i>
+                            Imprimir Missão / Gerar PDF
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

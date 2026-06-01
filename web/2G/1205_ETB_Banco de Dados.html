@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Squad DBA</title>
+    <style>
+        :root {
+            /* Tema Escuro (Padrão) */
+            --bg-color: #020617;
+            --sidebar-bg: rgba(15, 23, 42, 0.9);
+            --card-bg: rgba(30, 41, 59, 0.5);
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --code-bg: #020617;
+            --code-text: #e2e8f0;
+            --gradient: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1), transparent 40%);
+        }
+
+        body.light-mode {
+            /* Tema Claro */
+            --bg-color: #f1f5f9;
+            --sidebar-bg: rgba(248, 250, 252, 0.95);
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --accent-blue: #0284c7;
+            --accent-green: #16a34a;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: rgba(0, 0, 0, 0.1);
+            --code-bg: #f8fafc;
+            --code-text: #1e293b;
+            --gradient: radial-gradient(circle at 10% 20%, rgba(2, 132, 199, 0.05), transparent 40%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image: var(--gradient);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- SIDEBAR RECOLHÍVEL --- */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--border);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--accent-blue);
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .brand {
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .toggle-btn {
+            background: var(--border);
+            border: none;
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 1rem;
+        }
+
+        .nav-item {
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.2s;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+
+        .nav-item:hover {
+            background: rgba(56, 189, 248, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .icon {
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--accent-green);
+        }
+
+        .label {
+            transition: 0.3s;
+        }
+
+        .sidebar.collapsed .label {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- CONTEÚDO PRINCIPAL --- */
+        .main-content {
+            flex: 1;
+            padding: 4rem;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        /* --- BOTÃO DE TEMA (CANTO DIREITO) --- */
+        .theme-control-wrapper {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 100;
+        }
+
+        .theme-btn {
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .theme-icon {
+            font-size: 1.4rem;
+        }
+
+        .section {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-blue);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+            color: var(--accent-green);
+        }
+
+        p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: 'Fira Code', monospace;
+            color: var(--code-text);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .path-card {
+            background: var(--card-bg);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .keyword {
+            color: #c678dd;
+        }
+
+        .string {
+            color: #98c379;
+        }
+
+        .sql-comment {
+            color: #636e7b;
+            font-style: italic;
+        }
+
+        /* Ajuste para dispositivos móveis */
+        @media (max-width: 768px) {
+            .theme-control-wrapper {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .main-content {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">ETB-PAY <span>DBA</span></div>
+            <div class="controls">
+                <button class="toggle-btn" onclick="toggleSidebar()" title="Menu">☰</button>
+            </div>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item active" onclick="showSection('s1')"><span class="icon">1</span> <span
+                    class="label">Setup Inicial</span></li>
+            <li class="nav-item" onclick="showSection('s2')"><span class="icon">2</span> <span class="label">Executar
+                    SQLite</span></li>
+            <li class="nav-item" onclick="showSection('s3')"><span class="icon">3</span> <span class="label">Consultar
+                    Tabelas</span></li>
+            <li class="nav-item" onclick="showSection('s4')"><span class="icon">4</span> <span class="label">Criação
+                    (DDL)</span></li>
+            <li class="nav-item" onclick="showSection('s5')"><span class="icon">5</span> <span class="label">Inserção
+                    (DML)</span></li>
+            <li class="nav-item" onclick="showSection('s6')"><span class="icon">6</span> <span class="label">Operações
+                    PIX</span></li>
+        </ul>
+    </aside>
+
+    <div class="theme-control-wrapper">
+        <button class="theme-btn" onclick="toggleTheme()" title="Trocar Tema">
+            <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+    </div>
+
+    <main class="main-content">
+
+        <section id="s1" class="section active">
+            <h1>01. Setup da Infraestrutura</h1>
+            <p>Para garantir que toda a Squad utilize a mesma versão do motor e do projeto, acesse a pasta da rede e
+                copie os arquivos para seu ambiente de trabalho local.</p>
+            <div class="path-card">
+                <strong>Diretório na Rede:</strong><br>
+                <code>\\nsi12\Alex Alves\Banco de Dados</code>
+            </div>
+            <p style="margin-top:1rem;">Certifique-se de copiar o executável <strong>sqlite3.exe</strong> e o arquivo
+                <strong>agencia_bancaria.db</strong>.</p>
+        </section>
+
+        <section id="s2" class="section">
+            <h1>02. Execução no Ambiente Local</h1>
+            <p>Como um DBA Raiz, utilize o terminal para abrir o arquivo de banco de dados diretamente.</p>
+            <div class="code-block">
+                ./sqlite3.exe agencia_bancaria.db
+            </div>
+        </section>
+
+        <section id="s3" class="section">
+            <h1>03. Consulta das Tabelas</h1>
+            <p>Verifique quais tabelas já existem na estrutura física do banco.</p>
+            <div class="code-block">
+                sqlite> .tables<br>
+                sqlite> .schema clientes
+            </div>
+        </section>
+
+        <section id="s4" class="section">
+            <h1>04. Criação das Tabelas (DDL)</h1>
+            <p>Implemente a fundação do ETB-PAY seguindo o padrão snake_case para integração com Java.</p>
+            <div class="code-block">
+                <span class="keyword">CREATE TABLE</span> clientes (
+                id_cliente <span class="keyword">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+                nome_completo <span class="keyword">TEXT NOT NULL</span>,
+                cpf <span class="keyword">TEXT UNIQUE NOT NULL</span>
+                );
+
+                <span class="keyword">CREATE TABLE</span> contas (
+                id_conta <span class="keyword">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+                id_cliente <span class="keyword">INTEGER NOT NULL</span>,
+                saldo <span class="keyword">REAL DEFAULT 0.0</span>,
+                <span class="keyword">FOREIGN KEY</span> (id_cliente) <span class="keyword">REFERENCES</span>
+                clientes(id_cliente)
+                );
+            </div>
+        </section>
+
+        <section id="s5" class="section">
+            <h1>05. Inserção de Dados Fictícios</h1>
+            <p>Povoamento da base com os quatro registros de referência da Squad.</p>
+            <div class="code-block">
+                <span class="keyword">INSERT INTO</span> clientes (nome_completo, cpf) <span
+                    class="keyword">VALUES</span>
+                (<span class="string">'Ada Lovelace'</span>, <span class="string">'101.202.303-44'</span>),
+                (<span class="string">'Alan Turing'</span>, <span class="string">'505.606.707-88'</span>),
+                (<span class="string">'Margaret Hamilton'</span>, <span class="string">'909.808.707-11'</span>),
+                (<span class="string">'Grace Hopper'</span>, <span class="string">'111.222.333-44'</span>);
+
+                <span class="keyword">INSERT INTO</span> contas (id_cliente, saldo) <span class="keyword">VALUES</span>
+                (1, 15000.00), (2, 8000.00), (3, 12000.50), (4, 9500.25);
+            </div>
+        </section>
+
+        <section id="s6" class="section">
+            <h1>06. Operações PIX entre Contas</h1>
+            <p>Matemática de banco nativa: débitos e créditos simultâneos para manter a integridade.</p>
+            <div class="code-block">
+                <span class="sql-comment">-- PIX de R$ 500: Ada Lovelace enviando para Alan Turing</span>
+                <span class="keyword">UPDATE</span> contas <span class="keyword">SET</span> saldo = saldo - 500.0 <span
+                    class="keyword">WHERE</span> id_conta = 1;
+                <span class="keyword">UPDATE</span> contas <span class="keyword">SET</span> saldo = saldo + 500.0 <span
+                    class="keyword">WHERE</span> id_conta = 2;
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            body.classList.toggle('light-mode');
+
+            if (body.classList.contains('light-mode')) {
+                icon.textContent = '☀️';
+            } else {
+                icon.textContent = '🌙';
+            }
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('onclick').includes(id)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

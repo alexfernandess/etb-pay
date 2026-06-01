@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Gestão Ágil - Scrum & Kanban</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        navy: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
+                        silver: { 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b' },
+                        cyan: { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        .dark body {
+            background-color: #020617;
+            color: #cbd5e1;
+        }
+
+        body:not(.dark) {
+            background-color: #f8fafc;
+            color: #334155;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dark ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 3px;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(34, 211, 238, 0.1);
+        }
+
+        body:not(.dark) .glass {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Timer Pulse */
+        .timer-active {
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px #06b6d4, 0 0 10px #06b6d4;
+            }
+
+            to {
+                text-shadow: 0 0 10px #22d3ee, 0 0 20px #22d3ee;
+            }
+        }
+
+        /* Estilos de Impressão (Geração de PDF FIEL) */
+        @media print {
+            @page {
+                margin: 1.5cm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                overflow: auto;
+                display: block;
+            }
+
+            .no-print,
+            #sidebar,
+            header,
+            .glass::before {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            main {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+            }
+
+            .overflow-y-auto {
+                overflow: visible !important;
+                height: auto !important;
+                padding-bottom: 0 !important;
+            }
+
+            .glass {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+                filter: none !important;
+                break-inside: avoid;
+            }
+
+            /* --- REGRAS PARA EVITAR CORTES DE CAIXAS ENTRE AS PÁGINAS --- */
+            .mb-8,
+            .mt-8,
+            .space-y-3>div,
+            .space-y-6>div,
+            .grid>div,
+            .print-page-break {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-bottom: 0.5cm !important;
+            }
+
+            .print-page-break {
+                page-break-before: always !important;
+                break-before: page !important;
+                margin-top: 1cm !important;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4 {
+                color: #0f172a !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+
+            /* ------------------------------------------------------------- */
+
+            .bg-navy-900,
+            .bg-navy-950 {
+                background: white !important;
+            }
+
+            .bg-cyan-500\/10 {
+                background: #f1f5f9 !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            .text-cyan-400,
+            .text-cyan-700 {
+                color: #0369a1 !important;
+            }
+
+            .print-input {
+                border: none !important;
+                background: transparent !important;
+                color: black !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                font-weight: bold !important;
+            }
+
+            .print-input::placeholder {
+                color: transparent !important;
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="flex h-screen w-full antialiased selection:bg-cyan-500 selection:text-white dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] dark:from-navy-900 dark:via-navy-950 dark:to-navy-950">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+        class="w-72 border-r transition-colors duration-300 dark:bg-navy-900 dark:border-navy-800 bg-white border-slate-200 flex flex-col z-20 absolute md:relative h-full transform -translate-x-full md:translate-x-0">
+        <!-- Logo -->
+        <div
+            class="h-20 flex items-center justify-between px-6 border-b transition-colors duration-300 dark:border-navy-800 border-slate-200 bg-navy-950/20">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-br from-cyan-500 to-blue-600 p-2 rounded-lg shadow-lg">
+                    <i class="ph-bold ph-rocket-launch text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold tracking-wider text-sm dark:text-white text-slate-800">LEAN PMO</h1>
+                    <p class="text-[10px] text-cyan-500 font-mono tracking-widest uppercase font-bold">Squad 4F</p>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" class="md:hidden dark:text-silver-400 text-slate-500">
+                <i class="ph-bold ph-x text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 py-6 px-4 space-y-2">
+            <p
+                class="px-2 text-[10px] font-mono dark:text-silver-500 text-slate-500 mb-4 tracking-widest uppercase font-bold">
+                Jornada de Sprints</p>
+            <div class="px-4 py-3 opacity-50 flex items-center gap-3 dark:text-silver-400 text-slate-600 font-bold"><i
+                    class="ph-fill ph-flag-banner text-xl"></i> <span class="text-sm font-semibold">Aula 1: Iniciação
+                    (TAP)</span></div>
+
+            <div class="px-4 py-3 opacity-50 flex items-center gap-3 dark:text-silver-400 text-slate-600 font-bold"><i
+                    class="ph-fill ph-shield-warning text-xl"></i> <span class="text-sm font-semibold">Aula 2: Riscos &
+                    LGPD</span></div>
+
+            <!-- Aula Ativa -->
+            <div
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 dark:bg-cyan-900/20 bg-cyan-50 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+                <i class="ph-fill ph-kanban text-xl"></i>
+                <span class="text-sm font-bold">Aula 3: Gestão Ágil - Scrum & Kanban</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Overlay Mobile -->
+    <div id="mobile-overlay" onclick="toggleSidebar()"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-10 hidden md:hidden no-print"></div>
+
+    <!-- MAIN AREA -->
+    <main class="flex-1 flex flex-col relative w-full h-full">
+
+        <!-- Top Header (Global Timer) -->
+        <header
+            class="h-20 flex items-center justify-between px-6 md:px-8 border-b transition-colors duration-300 dark:border-navy-800 border-slate-200 glass z-10 no-print">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden dark:text-silver-400 text-slate-500">
+                    <i class="ph-bold ph-list text-2xl"></i>
+                </button>
+                <div>
+                    <h2 class="text-lg md:text-xl font-bold dark:text-white text-slate-800 tracking-tight">Aula 3:
+                        Gestão Ágil - Scrum & Kanban</h2>
+                    <p class="text-xs font-mono dark:text-cyan-400 text-cyan-600 font-bold">Gestão Visual do ETB-PAY</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 md:gap-6">
+                <!-- Theme Toggle (Dark/Light) -->
+                <button id="themeToggle"
+                    class="p-2.5 rounded-full dark:bg-navy-800 bg-white dark:text-silver-300 text-slate-600 hover:text-cyan-500 dark:hover:text-cyan-400 border dark:border-navy-700 border-slate-200 transition-colors shadow-sm focus:outline-none no-print"
+                    title="Alternar Modo Claro/Escuro">
+                    <i class="ph-bold ph-sun text-xl" id="themeIcon"></i>
+                </button>
+
+                <!-- Class Timer (75m Hands-on) -->
+                <div
+                    class="flex items-center gap-3 dark:bg-navy-950 bg-white border dark:border-cyan-500/30 border-slate-200 px-4 py-1.5 rounded-lg shadow-inner">
+                    <button onclick="toggleClassTimer()" id="btn-timer"
+                        class="dark:text-cyan-400 text-cyan-600 hover:text-cyan-500 focus:outline-none">
+                        <i class="ph-fill ph-play text-xl" id="icon-timer"></i>
+                    </button>
+                    <div class="flex flex-col items-end">
+                        <span
+                            class="text-[9px] dark:text-silver-400 text-slate-500 font-bold uppercase tracking-widest">Hands-On
+                            Timer</span>
+                        <span id="class-timer"
+                            class="font-mono font-bold text-lg dark:text-white text-slate-800 leading-none">75:00</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-6 md:p-10 relative pb-10">
+            <div class="max-w-4xl mx-auto space-y-8">
+
+                <!-- Título do Documento -->
+                <div class="border-b dark:border-navy-700 border-slate-200 pb-6">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div
+                            class="bg-cyan-500/20 text-cyan-500 px-3 py-1 rounded text-xs font-bold font-mono border border-cyan-500/30 w-max uppercase tracking-widest">
+                            Plano de Trabalho
+                        </div>
+                        <span
+                            class="dark:text-silver-400 text-slate-500 text-sm font-bold font-mono flex items-center gap-1 no-print"><i
+                                class="ph-bold ph-clock"></i> 75 min</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold dark:text-white text-slate-900 tracking-tight">
+                        Desafio: Setup do Board Estratégico no Jira</h1>
+                    <p class="mt-4 dark:text-silver-300 text-slate-600 text-lg font-bold leading-relaxed">
+                        A Squad deve configurar o ambiente oficial no Jira Software. O objetivo é estabelecer a
+                        <strong>visibilidade total da Governança</strong> exigida pelo Lean PMO.
+                    </p>
+                </div>
+
+                <!-- GUIA DE CONFIGURAÇÃO -->
+                <div
+                    class="glass p-8 md:p-10 rounded-2xl shadow-lg border-l-4 border-l-cyan-500 dark:bg-navy-900/50 bg-white">
+
+                    <div
+                        class="flex justify-between items-start border-b dark:border-navy-700 border-slate-200 pb-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold dark:text-white text-slate-800 uppercase tracking-tight">GUIA
+                                DE CONFIGURAÇÃO: JIRA SOFTWARE</h2>
+                            <p class="text-sm font-mono font-bold dark:text-cyan-400 text-cyan-600 mt-2">
+                                <strong>Squad:</strong> 4F - Gestão de TI | <strong>Projeto:</strong> ETB-PAY</p>
+                        </div>
+                        <i class="ph-fill ph-kanban text-4xl dark:text-navy-700 text-slate-200"></i>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-bold dark:text-white text-slate-800 mb-3 flex items-center gap-2">
+                            <span
+                                class="bg-cyan-500 text-white w-6 h-6 rounded flex items-center justify-center text-sm">1</span>
+                            Criação do Workspace e Projeto
+                        </h3>
+                        <ul class="list-decimal pl-12 space-y-2 dark:text-silver-300 text-slate-600 font-bold">
+                            <li>Acesse o Jira e crie um ambiente de trabalho (Workspace) chamado <strong
+                                    class="dark:text-white text-slate-900">etb-workspace</strong>:<br>
+                                <a href="https://www.atlassian.com/software/jira" target="_blank"
+                                    class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 underline break-all mt-1 inline-block">https://www.atlassian.com/software/jira</a>
+                            </li>
+                            <li>Clique em "Criar Projeto" e selecione o template de desenvolvimento de software: <strong
+                                    class="dark:text-white text-slate-900">Scrum</strong> ou <strong
+                                    class="dark:text-white text-slate-900">Kanban</strong>.</li>
+                            <li>Defina o tipo de projeto como <strong class="dark:text-white text-slate-900">"Gerenciado
+                                    pela Empresa"</strong>.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-bold dark:text-white text-slate-800 mb-3 flex items-center gap-2">
+                            <span
+                                class="bg-cyan-500 text-white w-6 h-6 rounded flex items-center justify-center text-sm">2</span>
+                            Configuração do Fluxo de Trabalho (Workflow)
+                        </h3>
+                        <p class="dark:text-silver-400 text-slate-500 text-sm mb-4 pl-10 font-bold">O Lean PMO exige as
+                            seguintes colunas obrigatórias no Kanban:</p>
+
+                        <div class="pl-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div
+                                class="dark:bg-navy-950 bg-slate-50 p-4 rounded-lg border dark:border-navy-800 border-slate-200">
+                                <h4 class="font-bold dark:text-white text-slate-800 text-sm mb-1">TO DO (Backlog)</h4>
+                                <p class="text-xs font-bold dark:text-silver-400 text-slate-500">Demandas aprovadas para
+                                    a Sprint.</p>
+                            </div>
+                            <div
+                                class="dark:bg-navy-950 bg-slate-50 p-4 rounded-lg border dark:border-navy-800 border-slate-200">
+                                <h4 class="font-bold dark:text-white text-slate-800 text-sm mb-1">IN PROGRESS</h4>
+                                <p class="text-xs font-bold dark:text-silver-400 text-slate-500">Em desenvolvimento
+                                    técnico.</p>
+                            </div>
+                            <div
+                                class="dark:bg-cyan-950/30 bg-cyan-50 p-4 rounded-lg border dark:border-cyan-900/50 border-cyan-200">
+                                <h4 class="font-bold dark:text-cyan-400 text-cyan-700 text-sm mb-1">CODE REVIEW / QA
+                                </h4>
+                                <p class="text-xs font-bold dark:text-cyan-300 text-cyan-800">Auditoria da Squad 4F -
+                                    Gestão de TI (Critérios de Aceite e LGPD).</p>
+                            </div>
+                            <div
+                                class="dark:bg-navy-950 bg-slate-50 p-4 rounded-lg border dark:border-navy-800 border-slate-200">
+                                <h4 class="font-bold dark:text-white text-slate-800 text-sm mb-1">DONE</h4>
+                                <p class="text-xs font-bold dark:text-silver-400 text-slate-500">Em produção, gerando
+                                    valor.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-bold dark:text-white text-slate-800 mb-3 flex items-center gap-2">
+                            <span
+                                class="bg-cyan-500 text-white w-6 h-6 rounded flex items-center justify-center text-sm">3</span>
+                            Histórias de Usuário (User Stories) Iniciais
+                        </h3>
+                        <p class="dark:text-silver-400 text-slate-500 text-sm mb-4 pl-10 font-bold">Cadastre as 3
+                            primeiras histórias do MVP:</p>
+
+                        <div class="pl-10 space-y-3">
+                            <div
+                                class="dark:bg-navy-950 bg-white p-4 rounded-lg border-l-2 border-l-cyan-500 border dark:border-navy-800 border-slate-200">
+                                <p class="dark:text-silver-300 text-slate-700 text-sm italic font-bold">"1. Como
+                                    usuário, quero me cadastrar com validação estrita de CPF para evitar fraudes."</p>
+                            </div>
+                            <div
+                                class="dark:bg-navy-950 bg-white p-4 rounded-lg border-l-2 border-l-cyan-500 border dark:border-navy-800 border-slate-200">
+                                <p class="dark:text-silver-300 text-slate-700 text-sm italic font-bold">"2. Como
+                                    administrador, quero visualizar transações em um painel central."</p>
+                            </div>
+                            <div
+                                class="dark:bg-navy-950 bg-white p-4 rounded-lg border-l-2 border-l-cyan-500 border dark:border-navy-800 border-slate-200">
+                                <p class="dark:text-silver-300 text-slate-700 text-sm italic font-bold">"3. Como PMO,
+                                    quero que a estrutura de banco de dados siga regras de integridade relacional."</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- META DA SPRINT E IDENTIFICAÇÃO -->
+                    <div class="mt-8 space-y-6">
+
+                        <!-- Bloco Meta da Sprint -->
+                        <div class="p-5 bg-cyan-500/10 border border-cyan-500/30 rounded-xl flex items-start gap-4">
+                            <i class="ph-fill ph-target text-cyan-400 text-2xl mt-1"></i>
+                            <div>
+                                <h4
+                                    class="font-bold dark:text-cyan-400 text-cyan-700 uppercase tracking-widest text-sm mb-2">
+                                    Meta da Sprint</h4>
+                                <ul
+                                    class="dark:text-silver-300 text-slate-700 font-bold leading-relaxed list-disc pl-5 space-y-1">
+                                    <li>Desenvolver o Quadro Kanban no Jira;</li>
+                                    <li>Compartilhar o board do projeto concedendo permissão de visualização para o
+                                        e-mail <strong>alexfernandess@gmail.com</strong>;</li>
+                                    <li>Gerar o documento PDF deste projeto (botão no final da página) e enviá-lo
+                                        <strong>exclusivamente</strong> para o e-mail acima.</li>
+                                </ul>
+                                <p
+                                    class="text-sm dark:text-cyan-500 text-cyan-700 mt-3 font-bold border-t border-cyan-500/20 pt-2 inline-block">
+                                    <i class="ph-bold ph-whatsapp"></i> Dúvidas e Suporte: (61) 98170-0005 (Não utilizar
+                                    para envio do projeto).
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- SEÇÃO ADICIONAL: EXEMPLO VISUAL E IDENTIFICAÇÃO (Com quebra de página automática na impressão) -->
+                <div class="print-page-break pt-8 border-t dark:border-navy-800 border-slate-200 mt-12">
+                    <h2
+                        class="text-2xl font-extrabold dark:text-white text-slate-800 uppercase tracking-tight mb-6 flex items-center gap-3">
+                        <i class="ph-fill ph-presentation-chart text-cyan-500"></i> Exemplo de Entrega
+                    </h2>
+
+                    <!-- Alerta de Ficção -->
+                    <div class="bg-amber-500/10 border-l-4 border-amber-500 p-4 rounded-r-lg mb-8">
+                        <p
+                            class="text-amber-700 dark:text-amber-500 text-sm font-bold flex items-start sm:items-center gap-3">
+                            <i class="ph-bold ph-warning text-2xl mt-0.5 sm:mt-0"></i>
+                            AVISO IMPORTANTE: As histórias de usuário, identificações e o quadro Kanban abaixo são
+                            estritamente FICTÍCIOS. Não estão em conformidade com a proposta do ETB-PAY e servem APENAS
+                            como diretriz visual para a estrutura do seu trabalho.
+                        </p>
+                    </div>
+
+                    <!-- Bloco Identificação do Aluno (Preenchido/Mock) -->
+                    <div
+                        class="p-6 dark:bg-navy-950 bg-slate-50 border dark:border-navy-800 border-slate-300 rounded-xl mb-8">
+                        <h4
+                            class="font-bold dark:text-white text-slate-800 uppercase tracking-widest text-sm mb-4 flex items-center gap-2">
+                            <i class="ph-bold ph-identification-card text-cyan-500 text-lg"></i> Identificação e Entrega
+                        </h4>
+                        <div class="space-y-4 font-mono text-sm dark:text-silver-300 text-slate-700">
+                            <div
+                                class="border-b border-dashed dark:border-navy-700 border-slate-400 pb-1 flex flex-col sm:flex-row sm:items-center gap-2">
+                                <strong class="dark:text-cyan-400 text-cyan-700 shrink-0">Nome do aluno:</strong>
+                                <!-- Input editável para o aluno preencher antes de gerar o PDF -->
+                                <input type="text"
+                                    class="flex-1 bg-transparent border-none outline-none dark:text-white text-slate-800 font-mono text-sm print-input font-bold"
+                                    placeholder="Digite seu nome completo aqui..." value="Fulano de Tal (Exemplo)">
+                            </div>
+                            <div
+                                class="border-b border-dashed dark:border-navy-700 border-slate-400 pb-1 flex flex-col sm:flex-row sm:items-center gap-2">
+                                <strong class="dark:text-cyan-400 text-cyan-700 shrink-0">Turma e Disciplina:</strong>
+                                <input type="text"
+                                    class="flex-1 bg-transparent border-none outline-none dark:text-white text-slate-800 font-mono text-sm print-input font-bold"
+                                    placeholder="Ex: 4F - Gestão de TI" value="4F - Gestão de TI">
+                            </div>
+                            <div
+                                class="border-b border-dashed dark:border-navy-700 border-slate-400 pb-1 flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
+                                <strong class="dark:text-cyan-400 text-cyan-700 shrink-0">Link do Board (Jira):</strong>
+                                <input type="url"
+                                    class="flex-1 bg-transparent border-none outline-none dark:text-white text-slate-800 font-mono text-sm print-input font-bold"
+                                    placeholder="Cole a URL do seu Kanban aqui..."
+                                    value="https://seunome.atlassian.net/jira/software/projects/ETB/boards/1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MOCK JIRA BOARD -->
+                    <div class="p-5 bg-[#f4f5f7] border border-slate-300 rounded-xl overflow-x-auto shadow-inner">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white"><i
+                                    class="ph-bold ph-rocket"></i></div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg leading-tight">Board de Desenvolvimento</h3>
+                                <p class="text-xs text-slate-500 uppercase tracking-widest font-bold">Projeto Fictício:
+                                    Viagem Espacial</p>
+                            </div>
+                        </div>
+
+                        <!-- Columns Container -->
+                        <div class="flex gap-4 min-w-[850px]">
+
+                            <!-- COL 1: TO DO -->
+                            <div class="flex-1 bg-[#ebecf0] rounded-lg p-3 flex flex-col">
+                                <h4 class="text-[11px] font-bold text-slate-500 uppercase mb-3 px-1 tracking-wider">To
+                                    Do <span class="font-normal ml-1">2</span></h4>
+                                <div class="space-y-2">
+                                    <div
+                                        class="bg-white p-3 rounded shadow-sm border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                        <p class="text-sm text-slate-700 font-medium mb-3">Engajar Jupiter Express para
+                                            viagens ao sistema solar exterior.</p>
+                                        <div class="flex justify-between items-center">
+                                            <span
+                                                class="bg-yellow-200 text-yellow-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Space
+                                                Travel</span>
+                                            <div class="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                                                <i class="ph-fill ph-arrow-up text-red-500 text-sm"></i> TIS-25
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="bg-white p-3 rounded shadow-sm border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                        <p class="text-sm text-slate-700 font-medium mb-3">Criar planos de 90 dias para
+                                            todos os departamentos em Marte.</p>
+                                        <div class="flex justify-between items-center">
+                                            <span
+                                                class="bg-orange-200 text-orange-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Local
+                                                Mars</span>
+                                            <div class="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                                                <i class="ph-bold ph-prohibit text-red-500 text-sm"></i> TIS-12
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- COL 2: IN PROGRESS -->
+                            <div class="flex-1 bg-[#ebecf0] rounded-lg p-3 flex flex-col">
+                                <h4 class="text-[11px] font-bold text-slate-500 uppercase mb-3 px-1 tracking-wider">In
+                                    Progress <span class="font-normal ml-1">1</span></h4>
+                                <div class="space-y-2">
+                                    <div
+                                        class="bg-white p-3 rounded shadow-sm border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                        <p class="text-sm text-slate-700 font-medium mb-3">Solicitar voos
+                                            intergalácticos disponíveis. (Levando > 5 seg)</p>
+                                        <div class="flex justify-between items-center">
+                                            <span
+                                                class="bg-cyan-200 text-cyan-800 text-[10px] font-bold px-1.5 py-0.5 rounded">SeeSpace
+                                                EZ</span>
+                                            <div class="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                                                <i class="ph-fill ph-arrow-up text-red-500 text-sm"></i> TIS-8
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- COL 3: CODE REVIEW / QA -->
+                            <div class="flex-1 bg-[#ebecf0] rounded-lg p-3 flex flex-col border border-blue-400/30">
+                                <h4 class="text-[11px] font-bold text-slate-500 uppercase mb-3 px-1 tracking-wider">Code
+                                    Review / QA <span class="font-normal ml-1">1</span></h4>
+                                <div class="space-y-2">
+                                    <div
+                                        class="bg-white p-3 rounded shadow-sm border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                        <p class="text-sm text-slate-700 font-medium mb-3">Registrar taxas no Ministério
+                                            de Receita de Marte.</p>
+                                        <div class="flex justify-between items-center">
+                                            <span
+                                                class="bg-orange-200 text-orange-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Local
+                                                Mars</span>
+                                            <div class="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                                                <i class="ph-fill ph-arrow-up text-red-500 text-sm"></i> TIS-11
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- COL 4: DONE -->
+                            <div class="flex-1 bg-[#ebecf0] rounded-lg p-3 flex flex-col">
+                                <h4 class="text-[11px] font-bold text-slate-500 uppercase mb-3 px-1 tracking-wider">Done
+                                    <span class="font-normal ml-1">2</span></h4>
+                                <div class="space-y-2">
+                                    <div
+                                        class="bg-white p-3 rounded shadow-sm border border-slate-200 hover:bg-slate-50 cursor-pointer opacity-70">
+                                        <p class="text-sm text-slate-700 font-medium line-through mb-3">Engajar
+                                            JetShuttle SpaceWays para pacotes turísticos.</p>
+                                        <div class="flex justify-between items-center">
+                                            <span
+                                                class="bg-yellow-200 text-yellow-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Space
+                                                Travel</span>
+                                            <div class="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+                                                <i class="ph-fill ph-arrow-up text-red-500 text-sm"></i> TIS-23
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOOOTER BAR QUE APARECE COMO BLOCO NO FINAL DA PÁGINA -->
+                <div
+                    class="glass border dark:border-cyan-900/30 border-slate-200 p-6 rounded-2xl w-full flex flex-col sm:flex-row justify-between items-center gap-4 z-40 no-print mt-12 mb-8">
+                    <div
+                        class="text-sm font-mono font-bold dark:text-silver-500 text-slate-500 text-center sm:text-left">
+                        ETB-PAY Gestão Ágil
+                    </div>
+
+                    <button onclick="window.print()"
+                        class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-cyan-900/50 transition-all hover:-translate-y-1 active:scale-95 text-sm border border-cyan-400/30">
+                        <i class="ph-bold ph-file-pdf text-xl"></i>
+                        <span>Gerar PDF do Projeto</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. SIDEBAR MOBILE TOGGLE ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // --- 2. CLASS TIMER (75 Minutos de Desafio) ---
+        let totalSeconds = 75 * 60;
+        let timerInterval = null;
+        let isRunning = false;
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function toggleClassTimer() {
+            const timerDisplay = document.getElementById('class-timer');
+            const btnIcon = document.getElementById('icon-timer');
+
+            isRunning = !isRunning;
+
+            if (isRunning) {
+                btnIcon.classList.replace('ph-play', 'ph-pause');
+                timerDisplay.classList.add('timer-active', 'text-cyan-400');
+
+                timerInterval = setInterval(() => {
+                    if (totalSeconds > 0) totalSeconds--;
+                    timerDisplay.innerText = formatTime(totalSeconds);
+                    if (totalSeconds <= 0) toggleClassTimer(); // Stop at zero
+                }, 1000);
+            } else {
+                btnIcon.classList.replace('ph-pause', 'ph-play');
+                timerDisplay.classList.remove('timer-active', 'text-cyan-400');
+                clearInterval(timerInterval);
+            }
+        }
+
+        // --- 3. DARK/LIGHT MODE TOGGLE ---
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const htmlElement = document.documentElement;
+
+        themeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            if (htmlElement.classList.contains('dark')) {
+                themeIcon.classList.replace('ph-moon', 'ph-sun');
+            } else {
+                themeIcon.classList.replace('ph-sun', 'ph-moon');
+            }
+        });
+    </script>
+</body>
+
+</html>

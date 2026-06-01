@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Painel do Laboratório</title>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- HTML2PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --fintech-bg: #0B192C;
+            --fintech-card: rgba(15, 23, 42, 0.7);
+            --fintech-border: rgba(255, 255, 255, 0.1);
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--fintech-bg);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12), transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(74, 222, 128, 0.08), transparent 45%);
+        }
+
+        .glass {
+            background: var(--fintech-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--fintech-border);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* --- TIMER --- */
+        .timer-widget {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 100;
+        }
+
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-size: 2.3rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 1.2rem;
+        }
+
+        .timer-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .timer-btn:hover {
+            color: var(--accent-blue);
+            transform: scale(1.15);
+        }
+
+        /* --- SLIDES --- */
+        .slides-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+            width: 100%;
+            max-width: 1150px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-height: 85vh;
+            padding: 3.5rem 4rem;
+            animation: fadeIn 0.4s ease-out forwards;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- TYPOGRAPHY & TAGS --- */
+        h1 {
+            font-size: 2.6rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2 {
+            font-size: 1.7rem;
+            margin-bottom: 1rem;
+            color: var(--accent-green);
+            border-bottom: 1px solid var(--fintech-border);
+            padding-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+            margin-bottom: 1.2rem;
+        }
+
+        .pill {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 0.95rem;
+            margin-right: 5px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .pill-ddl {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-blue);
+        }
+
+        .pill-dml {
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: var(--accent-green);
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .code-block {
+            background: #020617;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            color: var(--accent-green);
+            font-size: 1.1rem;
+            margin: 1.2rem 0;
+            border: 1px solid var(--fintech-border);
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        /* --- BUTTONS --- */
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            font-size: 1.05rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.35);
+        }
+
+        .reveal-box {
+            display: none;
+            margin-top: 1rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* --- NAVIGATION --- */
+        .nav-controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            background: var(--fintech-card);
+            border: 1px solid var(--fintech-border);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 3rem;
+            right: 3rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        #pdf-template {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TIMER -->
+    <div class="timer-widget glass">
+        <div class="time-display" id="timeDisplay">35:00</div>
+        <div class="timer-controls">
+            <button class="timer-btn" onclick="toggleTimer()" id="playPauseBtn"><i class="ph ph-play"></i></button>
+            <button class="timer-btn" onclick="resetTimer()"><i class="ph ph-arrow-counter-clockwise"></i></button>
+        </div>
+    </div>
+
+    <!-- SLIDES -->
+    <div class="slides-container">
+
+        <!-- Slide 0 -->
+        <div class="slide glass active" id="slide-0">
+            <h1 style="font-size: 3.2rem; justify-content: center; margin-bottom: 1.5rem;">ETB-PAY <i
+                    class="ph ph-bank"></i></h1>
+            <h2 style="text-align: center; color: var(--text-main); margin-bottom: 2rem; border-bottom: none;">
+                Refatoração Estrutural e Guardrails</h2>
+            <p style="text-align: center; color: var(--accent-blue); font-weight: bold; margin-bottom: 2rem;">
+                Laboratório Avançado de Banco de Dados (Parte 1)</p>
+
+            <div class="info-box" style="border-color: var(--accent-blue); max-width: 850px; margin: 0 auto 2rem;">
+                <h3 style="color: var(--accent-blue); margin-bottom: 10px;"><i class="ph ph-code"></i> Toolbox de
+                    Integridade (DDL):</h3>
+                <div style="text-align: center;">
+                    <span class="pill pill-ddl">ALTER TABLE (DDL)</span>
+                    <span class="pill pill-ddl">CREATE TABLE (DDL)</span>
+                    <span class="pill pill-ddl">CHECK (DDL)</span>
+                    <span class="pill pill-ddl">UNIQUE (DDL)</span>
+                    <span class="pill pill-ddl">NOT NULL (DDL)</span>
+                </div>
+            </div>
+
+            <div class="info-box" style="border-color: var(--accent-green); max-width: 850px; margin: 0 auto;">
+                <h3 style="color: var(--accent-green); margin-bottom: 5px;"><i class="ph ph-target"></i> Meta da Sprint:
+                </h3>
+                <p style="font-size: 1.1rem; margin-bottom: 0;">Isolar o ambiente corrompido contendo dados sujos,
+                    implementar restrições rígidas em nível de engine relacional utilizando a Tabela Espelho e blindar o
+                    sistema corporativo contra falhas futuras.</p>
+            </div>
+        </div>
+
+        <!-- Slide 1 -->
+        <div class="slide glass" id="slide-1">
+            <h1><i class="ph ph-warning-circle" style="color: var(--accent-red);"></i> O Incidente do Dado Sujo</h1>
+
+            <div class="info-box"
+                style="border-color: var(--accent-yellow); background: rgba(245, 158, 11, 0.05); margin-bottom: 1.5rem;">
+                <p style="margin-bottom: 0.5rem;"><strong style="color: var(--accent-yellow);"><i
+                            class="ph ph-folder-open"></i> INSTRUÇÃO DE INICIALIZAÇÃO OBRIGATÓRIA:</strong></p>
+                <p style="font-size: 1.05rem; margin-bottom: 0;">Squad, antes de abrir o VS Code, acessem o diretório da
+                    rede local: <code
+                        style="color: var(--accent-yellow); background: rgba(0,0,0,0.5);">\\NSI12\Alex Alves\2G - Banco de Dados</code>.
+                    Copiem o arquivo de banco de dados vulnerável pré-configurado <strong>ETBPay.db</strong> para a
+                    máquina local de vocês. Faremos a engenharia em cima dele.</p>
+            </div>
+
+            <p>O SQLite aceitou silenciosamente um Nome Completo dentro da coluna de CPF porque a estrutura legada
+                operava puramente sob o tipo genérico <code>TEXT</code> sem validação.</p>
+
+            <div class="code-block" style="border-color: var(--accent-red); color: var(--text-main);">
+                <span style="color: #636e7b;">-- A inserção anômala que o banco acatou no passado:</span><br>
+                <span style="color: var(--accent-red);">INSERT INTO</span> clientes (cpf, nome, email)<br>
+                <span style="color: var(--accent-red);">VALUES</span> (<span style="color: #f59e0b;">'Desenvolvedor
+                    Junior'</span>, <span style="color: #f59e0b;">'033.456.789-11'</span>, <span
+                    style="color: #f59e0b;">'dev.jr@fintech.com'</span>);
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide glass" id="slide-2">
+            <h1><i class="ph ph-shield-check"></i> Constraints: A Linha de Defesa Final</h1>
+            <p>A integridade real não ocorre no Front-end ou Back-end, mas no disco físico. As <span
+                    class="pill pill-ddl">Constraints</span> são guardrails irremovíveis de mercado corporativo.</p>
+            <div class="grid-2">
+                <div class="info-box" style="border-color: var(--accent-green);">
+                    <h3 style="color: var(--accent-green);"><i class="ph ph-lock-key"></i> NOT NULL & UNIQUE</h3>
+                    <p style="font-size: 1rem; margin-top: 10px;">O <code>NOT NULL</code> impede a inserção nula de
+                        dados sensíveis. O <code>UNIQUE</code> cria uma trava absoluta no disco contra a duplicidade de
+                        chaves, como múltiplos cadastros com um único CPF ou E-mail.</p>
+                </div>
+                <div class="info-box" style="border-color: var(--accent-blue);">
+                    <h3 style="color: var(--accent-blue);"><i class="ph ph-math-operations"></i> CHECK Constraint</h3>
+                    <p style="font-size: 1rem; margin-top: 10px;">Atua como uma barreira algébrica e lógica nativa da
+                        engine. A instrução <code>CHECK</code> avalia expressões matemáticas ou strings antes de
+                        autorizar qualquer gravação de I/O física.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide glass" id="slide-3">
+            <h1><i class="ph ph-users-three"></i> Pair Programming Ágil</h1>
+            <p>Dividam a Squad para executar a resposta ao incidente de dados:</p>
+            <div class="grid-2">
+                <div class="info-box" style="border-color: var(--accent-green);">
+                    <h3 style="color: var(--accent-green); margin-bottom: 8px;">Engenheiro de Dados</h3>
+                    <p style="font-size: 1rem;">Responsável pelas regras lógicas de integridade. Valida a extensão do
+                        dano e dita as restrições que devem compor a nova estrutura blindada.</p>
+                </div>
+                <div class="info-box" style="border-color: var(--accent-blue);">
+                    <h3 style="color: var(--accent-blue); margin-bottom: 8px;">DBA Piloto</h3>
+                    <p style="font-size: 1rem;">Executa as operações em linha de comando no console do SQLite.
+                        Transcreve o plano de engenharia para scripts rigorosos e avalia exceções.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide glass" id="slide-4">
+            <h1><i class="ph ph-stack"></i> A Estratégia Corporativa (Shadow Table)</h1>
+            <p>O SQLite impõe limitações em modificar tabelas ativas em produção. Para resolver, utilizamos o padrão
+                profissional de Tabela Espelho (Shadow Table):</p>
+            <div class="code-block">
+                <span style="color: #636e7b;">-- 1. Isolar a tabela legada mantendo os dados intactos</span><br>
+                <span class="pill pill-ddl">ALTER TABLE</span> clientes RENAME TO clientes_old;<br><br>
+                <span style="color: #636e7b;">-- 2. Engenharia do novo esquema blindado (Prefixo 'tb_')</span><br>
+                <span class="pill pill-ddl">CREATE TABLE</span> tb_clientes (<br>
+                &nbsp;&nbsp;id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,<br>
+                &nbsp;&nbsp;nome_completo TEXT <span style="color: var(--accent-red);">NOT NULL</span>,<br>
+                &nbsp;&nbsp;cpf TEXT <span style="color: var(--accent-red);">UNIQUE NOT NULL</span>,<br>
+                &nbsp;&nbsp;email TEXT <span style="color: var(--accent-red);">UNIQUE NOT NULL</span>,<br>
+                &nbsp;&nbsp;<span style="color: var(--accent-blue);">CHECK (length(cpf) = 14)</span><br>
+                );
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide glass" id="slide-5">
+            <h1><i class="ph ph-export"></i> Migração Condicional e Saneamento</h1>
+            <p>A estrutura `tb_clientes` está pronta. Precisamos reaver a massa de dados extraída da rede, ignorando
+                ativamente os registros anômalos.</p>
+
+            <button class="btn-primary" onclick="toggleReveal('prompt1')"><i class="ph ph-eye"></i> Revelar Script de
+                Saneamento</button>
+
+            <div id="prompt1" class="reveal-box">
+                <div class="code-block" style="border-color: var(--accent-green);">
+                    <span style="color: #636e7b;">-- DML: Pipeline de migração com filtragem cirúrgica</span><br>
+                    <span class="pill pill-dml">INSERT INTO</span> tb_clientes (cpf, nome_completo, email)<br>
+                    SELECT cpf, nome, email <br>
+                    FROM clientes_old <br>
+                    WHERE length(cpf) = 14; <span style="color: #636e7b;">-- Apenas CPFs formatados passam</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide glass" id="slide-6">
+            <h1><i class="ph ph-shield-warning"></i> O Teste de Estresse da Esteira</h1>
+            <p>Squad, vão ao terminal do VS Code. Desafio prático: Tentem forçar a inserção do registro sujo original na
+                nova tabela <code>tb_clientes</code>.</p>
+            <div class="code-block">
+                INSERT INTO tb_clientes (cpf, nome_completo, email)<br>
+                VALUES ('Desenvolvedor Junior', '033.456.789-11', 'dev.jr@fintech.com');
+            </div>
+            <div class="info-box" style="border-color: var(--accent-yellow); margin-top: 1rem;">
+                <p style="margin:0; color: var(--accent-yellow);"><strong>O Veredito da Engine:</strong> O SQLite
+                    abortará a I/O imediatamente retornando o erro absoluto: <br><em>Runtime error: CHECK constraint
+                        failed: tb_clientes</em>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide glass" id="slide-7">
+            <h1><i class="ph ph-flag-checkered"></i> Sprint Concluída</h1>
+            <p>Parabéns, Squad! Vocês fecharam a porta para corrupções de dados no ETB-PAY. A integridade da FinTech
+                agora é mantida pelo motor relacional de baixo nível.</p>
+
+            <div style="margin-top: 3rem; text-align: center;">
+                <button class="btn-primary" onclick="generatePDF()"><i class="ph ph-file-pdf"></i> Download Manual de
+                    Refatoração DDL</button>
+                <p style="font-size: 0.95rem; margin-top: 1rem; color: var(--text-muted);">Consolida as estruturas DDL
+                    no formato corporativo da ETB.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CONTROLES DE NAVEGAÇÃO -->
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="prevSlide()"><i class="ph ph-caret-left"></i></button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()"><i class="ph ph-caret-right"></i></button>
+    </div>
+
+    <div class="slide-counter" id="slideCounter">1 / 8</div>
+
+    <!-- TEMPLATE PDF (HIDDEN) -->
+    <div id="pdf-template">
+        <div
+            style="padding: 40px; background-color: #0B192C; color: #f8fafc; font-family: 'Segoe UI', sans-serif; line-height: 1.6;">
+            <div
+                style="border-bottom: 3px solid #38bdf8; padding-bottom: 20px; margin-bottom: 30px; text-align: center;">
+                <h1
+                    style="color: #38bdf8; font-size: 26px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">
+                    ETB-PAY | Manual de Refatoração DDL</h1>
+                <p style="color: #4ade80; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin: 0;">
+                    LABORATÓRIO AVANÇADO DE BANCO DE DADOS (PARTE 1)</p>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <h2
+                    style="color: #4ade80; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                    Proteção Atômica via Shadow Table</h2>
+                <p style="color: #cbd5e1; font-size: 13px;">A adoção do padrão de Shadow Table permitiu a higienização
+                    da massa de dados corrompida e a inserção de guardrails físicos na tabela sem downtime destrutivo.
+                </p>
+            </div>
+
+            <div
+                style="background-color: rgba(255,255,255,0.02); padding: 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                <h3 style="color: #38bdf8; font-size: 15px; margin-bottom: 10px;">Pipeline de Comandos Técnicos
+                    Consolidado:</h3>
+                <pre style="font-family: monospace; font-size: 12px; color: #4ade80; margin: 0; line-height: 1.5;">
+-- 1. Isolamento Corporativo (Tabela Legada)
+ALTER TABLE clientes RENAME TO clientes_old;
+
+-- 2. Engenharia de Schema Blindado (Constraints)
+CREATE TABLE tb_clientes (
+    id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome_completo TEXT NOT NULL,
+    cpf TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    CHECK (length(cpf) = 14)
+);
+
+-- 3. Migração Cirúrgica com Higienização (Filtro)
+INSERT INTO tb_clientes (cpf, nome_completo, email)
+SELECT cpf, nome, email FROM clientes_old 
+WHERE length(cpf) = 14;</pre>
+            </div>
+
+            <div style="margin-top: 30px; text-align: center; color: #94a3b8; font-size: 11px;">PROFESSOR ALEX ALVES
+                &bull; ETB-PAY &bull; ESCOLA TÉCNICA DE BRASÍLIA</div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 8;
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach((slide, idx) => {
+                slide.classList.toggle('active', idx === currentSlide);
+            });
+            document.getElementById('slideCounter').innerText = `${currentSlide + 1} / ${totalSlides}`;
+            document.getElementById('nextBtn').style.visibility = (currentSlide === totalSlides - 1) ? 'hidden' : 'visible';
+        }
+
+        function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } }
+        function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        function toggleReveal(id) {
+            const el = document.getElementById(id);
+            el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function playBeep() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            osc.connect(gainNode); gainNode.connect(ctx.destination);
+            osc.type = 'sine'; osc.frequency.value = 880;
+            gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+            osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+        }
+
+        let timeLeft = 35 * 60, timerInterval = null, isPlaying = false, t25 = false, t15 = false;
+
+        function updateTimerDisplay() {
+            document.getElementById('timeDisplay').innerText =
+                `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
+
+            if (timeLeft === 1500 && !t25) { playBeep(); currentSlide = 5; updateSlide(); t25 = true; }
+            if (timeLeft === 900 && !t15) { playBeep(); currentSlide = 6; updateSlide(); t15 = true; }
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('playPauseBtn');
+            if (isPlaying) { clearInterval(timerInterval); btn.innerHTML = '<i class="ph ph-play"></i>'; }
+            else { timerInterval = setInterval(() => { if (timeLeft > 0) timeLeft--; updateTimerDisplay(); }, 1000); btn.innerHTML = '<i class="ph ph-pause"></i>'; }
+            isPlaying = !isPlaying;
+        }
+
+        function resetTimer() { clearInterval(timerInterval); timeLeft = 35 * 60; isPlaying = false; t25 = t15 = false; document.getElementById('playPauseBtn').innerHTML = '<i class="ph ph-play"></i>'; updateTimerDisplay(); }
+
+        function generatePDF() {
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block';
+            html2pdf().set({ margin: 10, filename: 'ETB_PAY_Manual_Refatoracao_DDL.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#0B192C' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(element).save().then(() => { element.style.display = 'none'; });
+        }
+
+        updateSlide(); updateTimerDisplay();
+    </script>
+</body>
+
+</html>

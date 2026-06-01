@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Java & JDBC</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'], },
+                    animation: { 'fade-in-up': 'fadeInUp 0.5s ease-out' },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 20px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #334155;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .slide-transition {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        pre {
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 1rem;
+            font-size: 0.8rem;
+        }
+
+        html {
+            font-size: 16px;
+            transition: font-size 0.3s ease;
+        }
+
+        .code-container {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body
+    class="h-screen flex flex-col bg-slate-50 text-slate-800 dark:bg-[#0f172a] dark:text-slate-100 overflow-hidden font-sans">
+
+    <header
+        class="px-6 py-4 flex justify-between items-center shadow-sm z-20 bg-white border-b border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 transition-colors shrink-0">
+        <div class="flex items-center gap-3">
+            <button id="sidebar-toggle"
+                class="bg-cyan-500 p-2 rounded-lg hover:bg-cyan-400 transition-colors shadow-md shadow-cyan-500/20"
+                title="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-slate-900">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+            </button>
+            <div>
+                <h1 class="font-black text-sm md:text-base uppercase tracking-tight leading-tight">ETB-PAY: Java & JDBC
+                </h1>
+                <p class="text-[10px] font-bold tracking-widest uppercase opacity-60 text-cyan-500">Persistência de
+                    Dados v2</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 md:gap-4">
+            <div class="flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden">
+                <button id="btn-font-minus"
+                    class="px-3 py-1.5 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-slate-700 dark:text-cyan-400 font-bold">A-</button>
+                <div class="w-px h-5 bg-slate-300 dark:bg-slate-600"></div>
+                <button id="btn-font-plus"
+                    class="px-3 py-1.5 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-slate-700 dark:text-cyan-400 font-bold">A+</button>
+            </div>
+            <span id="slide-counter" class="text-sm font-bold opacity-50 hidden md:block">SLIDE 1 / 7</span>
+            <button id="theme-toggle"
+                class="p-2 rounded-full transition-all hover:scale-110 bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-cyan-400">
+                <span id="theme-icon"></span>
+            </button>
+        </div>
+    </header>
+
+    <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 relative shrink-0 z-20">
+        <div id="progress-bar" class="h-full bg-cyan-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden relative w-full">
+
+        <aside id="sidebar"
+            class="w-72 shrink-0 bg-white dark:bg-[#1e293b] border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300 absolute md:relative z-30 md:z-10 h-full transform translate-x-0">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Navegação da Sprint</h3>
+            </div>
+            <ul id="sidebar-nav" class="flex-1 overflow-y-auto p-2 space-y-1"></ul>
+        </aside>
+
+        <main
+            class="flex-1 flex flex-col items-center justify-center p-4 md:p-6 overflow-hidden relative transition-all duration-300 w-full">
+            <div
+                class="w-full max-w-5xl h-full max-h-[80vh] rounded-3xl shadow-xl overflow-hidden border flex flex-col transition-all duration-500 bg-white border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 dark:shadow-cyan-900/10">
+
+                <div
+                    class="p-5 md:p-8 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4 shrink-0">
+                    <span id="slide-icon-container"></span>
+                    <h2 id="slide-title"
+                        class="text-2xl md:text-3xl font-black tracking-tight text-cyan-600 dark:text-cyan-400"></h2>
+                </div>
+
+                <div id="slide-content-container"
+                    class="p-5 md:p-8 flex-1 overflow-y-auto slide-transition flex flex-col"></div>
+
+                <div id="answer-section"
+                    class="hidden p-5 border-t border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 shrink-0">
+                    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <button id="btn-reveal"
+                            class="w-full md:w-auto px-6 py-4 border-2 border-dashed border-cyan-500 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white dark:hover:text-slate-900 font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-sm uppercase tracking-wider shrink-0">
+                        </button>
+                        <div id="answer-feedback"
+                            class="hidden w-full slide-transition bg-cyan-500/10 border border-cyan-500/30 p-5 rounded-xl flex items-start gap-4 overflow-x-auto">
+                            <div id="answer-text"
+                                class="text-sm md:text-base font-medium text-slate-700 dark:text-slate-200 leading-relaxed w-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-4 flex justify-between items-center z-10 w-full max-w-5xl mx-auto shrink-0">
+                <button id="btn-prev"
+                    class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-white active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Anterior
+                </button>
+                <button id="btn-next"
+                    class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-cyan-600 hover:bg-cyan-50 text-white shadow-lg active:scale-95">
+                    Próximo
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </footer>
+        </main>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden"></div>
+    </div>
+
+    <script>
+        // ÍCONES SVG
+        const icons = {
+            strategy: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+            code: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+            database: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
+            ui: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+            exam: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-500"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>`,
+            sun: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+            moon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+            download: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`
+        };
+
+        const slidesData = [
+            {
+                title: "Timebox de 45 Minutos",
+                sidebarTitle: "1. O Desafio",
+                icon: icons.strategy,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-4">
+                        <div class="p-6 rounded-2xl border-l-4 border-cyan-500 bg-cyan-50 dark:bg-cyan-500/10 text-sm">
+                            <h3 class="text-xl font-bold mb-1 text-cyan-700 dark:text-cyan-400">Meta: Inserção Funcional</h3>
+                            <p class="text-slate-700 dark:text-slate-300">Conectar o formulário Swing ao <strong>SQLITE</strong> e persistir o primeiro cliente real do ETB-PAY.</p>
+                        </div>
+                        <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
+                            Na Engenharia de Software, o momento da integração é o mais crítico. Hoje vamos garantir que a interface (Java) respeite as regras de negócio que definimos no banco de dados.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Resgate da Estrutura SQL",
+                sidebarTitle: "2. SQL: Tabela Destino",
+                icon: icons.database,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-4 flex flex-col justify-center h-full">
+                        <div class="p-5 rounded-xl bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-500/30 text-sm">
+                            <p class="text-slate-700 dark:text-slate-300">Certifique-se de que sua <code>tb_clientes</code> possui a constraint simplificada para o telefone:</p>
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                            <li><strong>Telefone:</strong> Apenas números permitidos.</li>
+                            <li><strong>CPF:</strong> Chave Única e Obrigatória.</li>
+                        </ul>
+                        <p class="text-xs text-slate-500 italic mt-2">Clique em Revelar Solução para obter o script exato ou baixá-lo.</p>
+                    </div>`,
+                answer: `
+                    <div class="code-container w-full relative">
+                        <button onclick="downloadSQL()" class="absolute top-2 right-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors shadow-sm font-bold z-10">
+                            ${icons.download} Baixar .sql
+                        </button>
+<pre>DROP TABLE IF EXISTS tb_clientes;
+
+CREATE TABLE tb_clientes (
+    id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
+    cpf TEXT UNIQUE NOT NULL,
+    nome TEXT NOT NULL,
+    email TEXT,
+    telefone TEXT CHECK (telefone IS NULL OR GLOB('*[0-9]*', telefone))
+);</pre>
+                    </div>`
+            },
+            {
+                title: "O Cérebro: ActionListener",
+                sidebarTitle: "3. ActionListener",
+                icon: icons.ui,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-4 flex flex-col justify-center h-full">
+                        <h3 class="text-xl font-bold text-emerald-600 dark:text-emerald-400">Capturando o Clique</h3>
+                        <p class="text-sm text-slate-700 dark:text-slate-300">O botão "Cadastrar" precisa de um escutador para disparar a lógica de salvamento.</p>
+                        <div class="p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg border-l-4 border-emerald-500 text-xs">
+                            <p class="text-slate-600 dark:text-slate-400 italic">"Professor, em qual local do <code>FormCadastro.java</code> eu coloco o código?"</p>
+                            <p class="text-slate-800 dark:text-slate-200 mt-2 font-bold">» Vá até o método <code>adicionarComponentes()</code>, localize a linha onde o <code>btnCadastrar</code> é instanciado e inserido no painel. Cole a ação logo abaixo!</p>
+                        </div>
+                    </div>`,
+                answer: `
+                    <div class="code-container w-full">
+<pre>// ... [código onde cria o btnCadastrar] ...
+
+btnCadastrar.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        cadastrarCliente(); // Chama o método com a regra de negócio
+    }
+});</pre>
+                    </div>`
+            },
+            {
+                title: "A Lógica: Método Cadastrar",
+                sidebarTitle: "4. Lógica de Negócio",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-4 flex flex-col justify-center h-full">
+                        <h3 class="text-xl font-bold text-purple-600 dark:text-purple-400">Higienização e Objeto</h3>
+                        <p class="text-sm text-slate-700 dark:text-slate-300">Crie o método <code>cadastrarCliente()</code>. Precisamos extrair os dados da UI e limpar as máscaras de CPF e Telefone usando <strong>Regex</strong> para o SQLITE não rejeitar a inserção.</p>
+                    </div>`,
+                answer: `
+                    <div class="code-container w-full">
+<pre>private void cadastrarCliente() {
+    Cliente cliente = new Cliente();
+    cliente.setNome(txtNome.getText());
+    cliente.setEmail(txtEmail.getText());
+    
+    // HIGIENIZAÇÃO CRÍTICA (Regex)
+    String cpfLimpo = txtCPF.getText().replaceAll("[^\\d]", "");
+    cliente.setCpf(cpfLimpo);
+    
+    String telLimpo = txtTelefone.getText().replaceAll("[^\\d]", "");
+    cliente.setTelefone(telLimpo);
+
+    ClienteDAO dao = new ClienteDAO();
+    if(dao.inserir(cliente)) {
+        System.out.println("Sucesso: Cliente salvo!");
+    } else {
+        System.out.println("Erro: Falha ao salvar no banco.");
+    }
+}</pre>
+                    </div>`
+            },
+            {
+                title: "Feedback UI: Barra de Status",
+                sidebarTitle: "5. Feedback (Status)",
+                icon: icons.ui,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-4 flex flex-col justify-center h-full text-sm">
+                        <h3 class="text-xl font-bold text-emerald-600">A Experiência do Usuário</h3>
+                        <p class="text-slate-700 dark:text-slate-300">O usuário não pode ficar "no vácuo". Se o cadastro funcionou ou falhou, uma Barra de Status (JLabel) deve informar o resultado visualmente.</p>
+                    </div>`,
+                answer: `
+                    <div class="code-container w-full">
+<pre>// 1. Declare a variável global no FormCadastro: JLabel lblStatus;
+// 2. Adicione no final do método adicionarComponentes():
+lblStatus = new JLabel("Aguardando ação...");
+lblStatus.setForeground(Color.GRAY);
+lblStatus.setAlignmentX(Component.CENTER_ALIGNMENT);
+painel.add(Box.createVerticalStrut(10));
+painel.add(lblStatus);
+
+// 3. Modifique o if/else dentro de cadastrarCliente():
+if(dao.inserir(cliente)) {
+    lblStatus.setText("Operação realizada com sucesso!");
+    lblStatus.setForeground(Color.GREEN);
+} else {
+    lblStatus.setText("Erro crítico: Verifique os dados.");
+    lblStatus.setForeground(Color.RED);
+}</pre>
+                    </div>`
+            },
+            {
+                title: "A Blindagem: DAO (Insert)",
+                sidebarTitle: "6. ClienteDAO.java",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-2 flex flex-col justify-center h-full">
+                        <h3 class="text-xl font-bold text-purple-600">Implementação JDBC Final</h3>
+                        <p class="text-sm text-slate-700 dark:text-slate-300">Uso obrigatório de <code>PreparedStatement</code> dentro do seu DAO.</p>
+                    </div>`,
+                answer: `
+                    <div class="code-container w-full">
+<pre>public boolean inserir(Cliente c) {
+    String sql = "INSERT INTO tb_clientes (cpf, nome, email, telefone) VALUES (?, ?, ?, ?)";
+    try (Connection conn = ConexaoDB.conectar();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        stmt.setString(1, c.getCpf());
+        stmt.setString(2, c.getNome());
+        stmt.setString(3, c.getEmail());
+        stmt.setString(4, c.getTelefone());
+        
+        stmt.executeUpdate();
+        return true;
+    } catch (SQLException e) {
+        System.err.println("Erro DAO: " + e.getMessage());
+        return false;
+    }
+}</pre>
+                    </div>`
+            },
+            {
+                title: "Double Gain: Segurança",
+                sidebarTitle: "7. Questão Cebraspe",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-4 flex flex-col justify-center h-full">
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-cyan-600">CEBRASPE</span>
+                        </div>
+                        <p class="text-base italic p-4 bg-slate-100 dark:bg-slate-800/50 rounded-xl border-l-4 border-yellow-500">
+                            "No desenvolvimento de aplicações Java, a utilização de <code>PreparedStatement</code> mitiga ataques de SQL Injection porque os parâmetros são tratados como dados e não como parte da instrução SQL executável."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2 text-sm">
+                        <strong class="text-emerald-500">Gabarito: CERTO</strong>
+                        <p>O PreparedStatement higieniza a entrada, impedindo que comandos maliciosos alterem a estrutura da query original.</p>
+                    </div>`
+            }
+        ];
+
+        let currentSlide = 0; let isDarkMode = true;
+        const DOM = {
+            html: document.documentElement, sidebar: document.getElementById('sidebar'),
+            sidebarToggle: document.getElementById('sidebar-toggle'), sidebarOverlay: document.getElementById('sidebar-overlay'),
+            themeToggle: document.getElementById('theme-toggle'), themeIcon: document.getElementById('theme-icon'),
+            slideCounter: document.getElementById('slide-counter'), progressBar: document.getElementById('progress-bar'),
+            iconContainer: document.getElementById('slide-icon-container'), title: document.getElementById('slide-title'),
+            contentContainer: document.getElementById('slide-content-container'), answerSection: document.getElementById('answer-section'),
+            btnReveal: document.getElementById('btn-reveal'), answerFeedback: document.getElementById('answer-feedback'),
+            answerText: document.getElementById('answer-text'), btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next'), sidebarNav: document.getElementById('sidebar-nav')
+        };
+
+        // Lógica Global de Download SQL
+        window.downloadSQL = function () {
+            const sqlContent = "DROP TABLE IF EXISTS tb_clientes;\n\nCREATE TABLE tb_clientes (\n    id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,\n    cpf TEXT UNIQUE NOT NULL,\n    nome TEXT NOT NULL,\n    email TEXT,\n    telefone TEXT CHECK (telefone IS NULL OR GLOB('*[0-9]*', telefone))\n);";
+            const blob = new Blob([sqlContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'tb_clientes.sql';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        };
+
+        function updateTheme() {
+            if (isDarkMode) { DOM.html.classList.add('dark'); DOM.themeIcon.innerHTML = icons.sun; }
+            else { DOM.html.classList.remove('dark'); DOM.themeIcon.innerHTML = icons.moon; }
+        }
+
+        let isSidebarOpen = window.innerWidth >= 768;
+        function updateSidebarState() {
+            if (isSidebarOpen) { DOM.sidebar.classList.remove('-translate-x-full', 'md:-ml-72'); DOM.sidebarOverlay.classList.remove('hidden'); }
+            else { DOM.sidebar.classList.add('-translate-x-full', 'md:-ml-72'); DOM.sidebarOverlay.classList.add('hidden'); }
+        }
+
+        DOM.sidebarToggle.addEventListener('click', () => { isSidebarOpen = !isSidebarOpen; updateSidebarState(); });
+        DOM.themeToggle.addEventListener('click', () => { isDarkMode = !isDarkMode; updateTheme(); });
+
+        function populateSidebar() {
+            DOM.sidebarNav.innerHTML = '';
+            slidesData.forEach((slide, index) => {
+                const li = document.createElement('li');
+                li.className = `p-3 rounded-lg cursor-pointer transition-all border-l-4 text-xs font-medium ${index === currentSlide
+                        ? 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-500 text-cyan-700 dark:text-cyan-400 font-bold shadow-sm'
+                        : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`;
+                li.innerHTML = `<div class="flex items-center gap-3">
+                                   <div class="scale-75 opacity-75">${slide.icon}</div>
+                                   <span class="truncate">${slide.sidebarTitle || slide.title}</span>
+                                </div>`;
+                li.onclick = () => { currentSlide = index; renderSlide(); if (window.innerWidth < 768) { isSidebarOpen = false; updateSidebarState(); } };
+                DOM.sidebarNav.appendChild(li);
+            });
+        }
+
+        function renderSlide() {
+            const slide = slidesData[currentSlide];
+            DOM.contentContainer.classList.remove('slide-transition'); void DOM.contentContainer.offsetWidth; DOM.contentContainer.classList.add('slide-transition');
+            DOM.iconContainer.innerHTML = slide.icon; DOM.title.textContent = slide.title; DOM.contentContainer.innerHTML = slide.content;
+            DOM.progressBar.style.width = `${((currentSlide + 1) / slidesData.length) * 100}%`;
+            DOM.slideCounter.textContent = `SLIDE ${currentSlide + 1} / ${slidesData.length}`;
+
+            if (slide.isQuestion) {
+                DOM.answerSection.classList.remove('hidden');
+                DOM.btnReveal.classList.remove('hidden');
+                DOM.answerFeedback.classList.add('hidden');
+                DOM.answerText.innerHTML = slide.answer;
+
+                // Botão sempre reinicia com "Revelar Solução"
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-1">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg> Revelar Solução`;
+            }
+            else { DOM.answerSection.classList.add('hidden'); }
+
+            DOM.btnPrev.disabled = currentSlide === 0; DOM.btnPrev.style.opacity = currentSlide === 0 ? '0.3' : '1';
+            DOM.btnNext.disabled = currentSlide === slidesData.length - 1; DOM.btnNext.style.opacity = currentSlide === slidesData.length - 1 ? '0.3' : '1';
+            populateSidebar();
+        }
+
+        // Lógica de Toggle Corrigida
+        DOM.btnReveal.addEventListener('click', () => {
+            if (DOM.answerFeedback.classList.contains('hidden')) {
+                DOM.answerFeedback.classList.remove('hidden');
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-1">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg> Ocultar Solução`;
+            }
+            else {
+                DOM.answerFeedback.classList.add('hidden');
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-1">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg> Revelar Solução`;
+            }
+        });
+
+        DOM.btnNext.onclick = () => { if (currentSlide < slidesData.length - 1) { currentSlide++; renderSlide(); } };
+        DOM.btnPrev.onclick = () => { if (currentSlide > 0) { currentSlide--; renderSlide(); } };
+        window.onkeydown = (e) => { if (e.key === 'ArrowRight' || e.key === ' ') DOM.btnNext.onclick(); if (e.key === 'ArrowLeft') DOM.btnPrev.onclick(); };
+
+        let currentFontSize = 16;
+        document.getElementById('btn-font-plus').onclick = () => { if (currentFontSize < 24) { currentFontSize += 2; document.documentElement.style.fontSize = currentFontSize + 'px'; } };
+        document.getElementById('btn-font-minus').onclick = () => { if (currentFontSize > 12) { currentFontSize -= 2; document.documentElement.style.fontSize = currentFontSize + 'px'; } };
+
+        updateTheme(); updateSidebarState(); renderSlide();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY: Sprint Persistência</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;800&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* === VARIÁVEIS DE TEMA (AZUL MARINHO E BRANCO) === */
+        :root {
+            --bg-color: #0B192C;
+            /* Azul Marinho */
+            --text-color: #F8FAFC;
+            /* Branco Gelo */
+            --accent-color: #38BDF8;
+            /* Azul Claro para destaques */
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --code-bg: #040D17;
+            --code-text: #A5B4FC;
+            --exercise-bg: rgba(56, 189, 248, 0.1);
+            --exercise-border: #38BDF8;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #FFFFFF;
+            --text-color: #0B192C;
+            --accent-color: #2563EB;
+            --card-bg: #F1F5F9;
+            --border-color: #CBD5E1;
+            --code-bg: #F8FAFC;
+            --code-text: #0F172A;
+            --exercise-bg: rgba(37, 99, 235, 0.05);
+            --exercise-border: #2563EB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Urbanist', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(var(--bg-color), 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        #theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        section {
+            min-height: 100vh;
+            padding: 100px 5% 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px dashed var(--border-color);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 span {
+            color: var(--accent-color);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            border-left: 6px solid var(--accent-color);
+            padding-left: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .exercise-box {
+            background: var(--exercise-bg);
+            border: 3px dashed var(--exercise-border);
+            padding: 35px;
+            border-radius: 20px;
+            height: 100%;
+        }
+
+        .exercise-title {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .exercise-box p {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .exercise-code {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            display: block;
+            border: 1px solid var(--border-color);
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">ETB<span>PAY</span></div>
+        <button id="theme-toggle">
+            <i class="ph ph-sun" id="theme-icon"></i> <span id="theme-text">Modo Claro</span>
+        </button>
+    </nav>
+
+    <section>
+        <h1>Sistema <span>ETB-PAY</span>: Nivelamento da Squad</h1>
+        <div class="grid-2">
+            <div class="exercise-box">
+                <div class="exercise-title"><i class="ph-fill ph-clock-counter-clockwise"></i> Guia de Memória</div>
+                <p>Trabalhem em equipe para consolidar a base:</p>
+                <ul style="list-style: none; font-size: 1.3rem;">
+                    <li style="margin-bottom: 10px;"><i class="ph-bold ph-check-circle"
+                            style="color: var(--accent-color);"></i> 1. Projeto Java criado no VS Code</li>
+                    <li style="margin-bottom: 10px;"><i class="ph-bold ph-check-circle"
+                            style="color: var(--accent-color);"></i> 2. Classes Cliente, Conta e App codificadas</li>
+                    <li style="margin-bottom: 10px;"><i class="ph-bold ph-check-circle"
+                            style="color: var(--accent-color);"></i> 3. Classes compiladas com sucesso</li>
+                    <li><i class="ph-bold ph-check-circle" style="color: var(--accent-color);"></i> 4. App executado e
+                        exibindo relatório inicial</li>
+                </ul>
+                <p style="margin-top: 20px; font-style: italic; font-size: 1.1rem; opacity: 0.8;">Ajudem os colegas que
+                    ainda não completaram estes passos!</p>
+            </div>
+
+            <div class="exercise-box">
+                <div class="exercise-title"><i class="ph-fill ph-lightning"></i> Desafio Tech Leads</div>
+                <p>Ambiente pronto? Evolua a classe <strong>Conta</strong>:</p>
+                <div class="exercise-code">
+                    public boolean realizarPIX(double valor) {<br>
+                    &nbsp;&nbsp;if (valor > 0 && this.saldo >= valor) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;this.saldo -= valor;<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;return true;<br>
+                    &nbsp;&nbsp;}<br>
+                    &nbsp;&nbsp;return false;<br>
+                    }
+                </div>
+                <p style="margin-top: 15px; font-size: 1.2rem;"><strong>Objetivo:</strong> Implementar a validação de
+                    segurança para garantir saldo positivo e evitar valores negativos.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2><i class="ph ph-user"></i> Model: Cliente.java</h2>
+        <pre>
+public class Cliente {
+    private String nome;
+    private String cpf;
+    private String email;
+
+    public Cliente(String n, String c, String e) {
+        this.nome = n;
+        this.cpf = c;
+        this.email = e;
+    }
+    public String getNome() { return nome; }
+    public String getCpf() { return cpf; }
+}</pre>
+    </section>
+
+    <section>
+        <h2><i class="ph ph-database"></i> Persistence: AgenciaDAO.java</h2>
+        <div class="grid-2">
+            <pre>
+public void atualizarSaldo(Conta c) {
+    String sql = "UPDATE contas SET saldo = ? WHERE numero = ?";
+    try (Connection conn = DriverManager.getConnection(url);
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        pstmt.setDouble(1, c.getSaldo());
+        pstmt.setInt(2, c.getNumero());
+        pstmt.executeUpdate();
+    } catch (SQLException e) { ... }
+}</pre>
+            <div class="card">
+                <p><strong>Prompt Gemini:</strong><br><em>"Crie uma classe AgenciaDAO para SQLite que atualize o saldo
+                        de uma Conta usando JDBC."</em></p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            const htmlTag = document.documentElement;
+
+            themeBtn.addEventListener('click', () => {
+                const currentTheme = htmlTag.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    htmlTag.setAttribute('data-theme', 'light');
+                    themeIcon.className = 'ph ph-moon';
+                    themeText.textContent = 'Modo Escuro';
+                } else {
+                    htmlTag.setAttribute('data-theme', 'dark');
+                    themeIcon.className = 'ph ph-sun';
+                    themeText.textContent = 'Modo Claro';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

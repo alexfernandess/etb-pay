@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Sprint Operação Fênix</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --sidebar-bg: rgba(30, 41, 59, 0.8);
+            --glass-bg: rgba(30, 41, 59, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #38bdf8;
+            --neon-green: #4ade80;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --code-bg: #020617;
+            --accent: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15), transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(74, 222, 128, 0.15), transparent 40%);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .brand span {
+            color: var(--neon-blue);
+        }
+
+        .brand .pay {
+            color: var(--neon-green);
+            font-size: 1rem;
+            letter-spacing: 5px;
+            display: block;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .nav-item {
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.3);
+            color: var(--neon-blue);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .step-num {
+            background: var(--glass-border);
+            color: var(--neon-green);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* --- CONTEÚDO PRINCIPAL --- */
+        .main-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4rem;
+            scroll-behavior: smooth;
+        }
+
+        .content-section {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .content-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--neon-blue);
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin: 2.5rem 0 1rem;
+            color: var(--neon-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+            font-size: 1.1rem;
+        }
+
+        .theory-card {
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .theory-card h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1rem;
+        }
+
+        /* --- ESTILO DE CÓDIGO SQL --- */
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            color: #e2e8f0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .sql-comment {
+            color: #6a9955;
+            font-style: italic;
+        }
+
+        .sql-keyword {
+            color: #569cd6;
+            font-weight: bold;
+        }
+
+        .sql-string {
+            color: #ce9178;
+        }
+
+        .sql-number {
+            color: #b5cea8;
+        }
+
+        /* --- CAIXA DE ENTREGÁVEL --- */
+        .deliverable-box {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border: 1px solid var(--neon-blue);
+            padding: 3rem;
+            border-radius: 20px;
+            margin-top: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deliverable-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+        }
+
+        .deadline {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .deliverable-list {
+            margin-left: 1.5rem;
+            line-height: 2;
+            color: #cbd5e1;
+        }
+
+        .deliverable-list li {
+            margin-bottom: 1rem;
+            padding-left: 10px;
+        }
+
+        .deliverable-list strong {
+            color: var(--text-main);
+        }
+
+        .footer {
+            margin-top: 5rem;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 2rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            padding-bottom: 2rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA LATERAL (MENU) -->
+    <aside class="sidebar">
+        <div class="brand">ETB<span>-PAY</span>
+            <div class="pay">OPERAÇÃO FÊNIX</div>
+        </div>
+        <nav class="nav-list">
+            <div class="nav-item active" onclick="switchSection('s1')"><span class="step-num">1</span> Marco Zero</div>
+            <div class="nav-item" onclick="switchSection('s2')"><span class="step-num">2</span> Motor Financeiro</div>
+            <div class="nav-item" onclick="switchSection('s3')"><span class="step-num">3</span> Compliance</div>
+            <div class="nav-item" onclick="switchSection('s4')"><span class="step-num">4</span> Exercício de Fixação
+            </div>
+        </nav>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-container">
+
+        <!-- SEÇÃO 1: MARCO ZERO -->
+        <section id="s1" class="content-section active">
+            <h1>01. Marco Zero - Reconstrução e Estrutura</h1>
+            <p>Após a corrupção do banco original, nossa Squad assume a reconstrução imediata do ecossistema
+                <strong>agencia_bancaria.db</strong>. O foco é a padronização e a integridade absoluta para o hand-off
+                de amanhã com a equipe de Java.
+            </p>
+
+            <div class="theory-card">
+                <h4>📚 O que é DDL?</h4>
+                <p>A <strong>DDL (Data Definition Language)</strong> define a estrutura "física" onde os dados moram.
+                    Seus comandos principais são o <code>CREATE</code>, <code>ALTER</code> e <code>DROP</code>.</p>
+            </div>
+
+            <h2>Construindo o Cofre (DDL)</h2>
+            <pre><code><span class="sql-comment">-- Criação das tabelas centrais usando o padrão snake_case</span>
+<span class="sql-keyword">CREATE TABLE</span> clientes (
+    id_cliente <span class="sql-keyword">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+    nome_completo <span class="sql-keyword">TEXT NOT NULL</span>,
+    cpf <span class="sql-keyword">TEXT UNIQUE NOT NULL</span>
+);
+
+<span class="sql-keyword">CREATE TABLE</span> contas (
+    id_conta <span class="sql-keyword">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+    id_cliente <span class="sql-keyword">INTEGER NOT NULL</span>,
+    saldo <span class="sql-keyword">REAL DEFAULT</span> <span class="sql-number">0.0</span>,
+    <span class="sql-keyword">FOREIGN KEY</span> (id_cliente) <span class="sql-keyword">REFERENCES</span> clientes(id_cliente)
+);</code></pre>
+
+            <div class="theory-card">
+                <h4>📚 O que é DML?</h4>
+                <p>A <strong>DML (Data Manipulation Language)</strong> gerencia a vida dentro das tabelas criadas. Seus
+                    comandos essenciais são <code>INSERT</code>, <code>UPDATE</code> e <code>DELETE</code>.</p>
+            </div>
+
+            <h2>Povoamento VIP (DML) - 10 Registros</h2>
+            <pre><code><span class="sql-comment">-- Inserção de 10 clientes para teste de homologação do Java</span>
+<span class="sql-keyword">INSERT INTO</span> clientes (nome_completo, cpf) <span class="sql-keyword">VALUES</span> 
+(<span class="sql-string">'Alex Alves'</span>, <span class="sql-string">'111.111.111-11'</span>), (<span class="sql-string">'Lillianne Alves'</span>, <span class="sql-string">'222.222.222-22'</span>), 
+(<span class="sql-string">'Anne Host'</span>, <span class="sql-string">'333.333.333-33'</span>), (<span class="sql-string">'Carlos Silva'</span>, <span class="sql-string">'444.444.444-44'</span>),
+(<span class="sql-string">'Maria Oliveira'</span>, <span class="sql-string">'555.555.555-55'</span>), (<span class="sql-string">'João Souza'</span>, <span class="sql-string">'666.666.666-66'</span>),
+(<span class="sql-string">'Fernanda Lima'</span>, <span class="sql-string">'777.777.777-77'</span>), (<span class="sql-string">'Roberto Rocha'</span>, <span class="sql-string">'888.888.888-88'</span>),
+(<span class="sql-string">'Patrícia Reis'</span>, <span class="sql-string">'999.999.999-99'</span>), (<span class="sql-string">'Bruno Castro'</span>, <span class="sql-string">'000.000.000-00'</span>);
+
+<span class="sql-comment">-- Inserção dos respectivos saldos iniciais</span>
+<span class="sql-keyword">INSERT INTO</span> contas (id_cliente, saldo) <span class="sql-keyword">VALUES</span> 
+(<span class="sql-number">1</span>, <span class="sql-number">5000.0</span>), (<span class="sql-number">2</span>, <span class="sql-number">3500.0</span>), (<span class="sql-number">3</span>, <span class="sql-number">1200.0</span>), (<span class="sql-number">4</span>, <span class="sql-number">450.0</span>), (<span class="sql-number">5</span>, <span class="sql-number">9800.0</span>),
+(<span class="sql-number">6</span>, <span class="sql-number">150.0</span>), (<span class="sql-number">7</span>, <span class="sql-number">0.0</span>), (<span class="sql-number">8</span>, <span class="sql-number">2500.0</span>), (<span class="sql-number">9</span>, <span class="sql-number">7300.0</span>), (<span class="sql-number">10</span>, <span class="sql-number">10.0</span>);</code></pre>
+        </section>
+
+        <!-- SEÇÃO 2: MOTOR FINANCEIRO -->
+        <section id="s2" class="content-section">
+            <h1>02. O Motor Financeiro - Lógica e Precisão</h1>
+            <p>O Banco de Dados não é apenas um repositório inerte; ele é o verdadeiro motor de cálculo da Fintech.
+                Aqui, validamos as rotinas de busca e as transações matemáticas que a Squad de Java irá consumir.</p>
+
+            <h2>Auditoria de Precisão (DQL / WHERE)</h2>
+            <p>Nós usamos a cláusula <code>WHERE</code> para atuar como um filtro, impedindo o sobrecarregamento de
+                memória do servidor de aplicação.</p>
+            <pre><code><span class="sql-comment">-- 1. Busca cirúrgica por CPF (O Java precisa dessa query)</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> clientes <span class="sql-keyword">WHERE</span> cpf = <span class="sql-string">'111.111.111-11'</span>;
+
+<span class="sql-comment">-- 2. Identificar clientes VIP (Saldo superior a R$ 4.000)</span>
+<span class="sql-keyword">SELECT</span> id_cliente, saldo <span class="sql-keyword">FROM</span> contas <span class="sql-keyword">WHERE</span> saldo > <span class="sql-number">4000.0</span>;</code></pre>
+
+            <h2>A Engenharia do PIX (UPDATE Matemático)</h2>
+            <div class="theory-card">
+                <h4>⚠️ A Regra de Ouro da Arquitetura</h4>
+                <p>A matemática financeira deve ocorrer nativamente dentro do Motor do Banco de Dados para garantir
+                    consistência. Nunca fazemos cálculos na memória do Java e enviamos o resultado seco.</p>
+            </div>
+            <pre><code><span class="sql-comment">-- Cenário 1: Transferência (Alex envia R$ 500 para Lillianne)</span>
+<span class="sql-keyword">UPDATE</span> contas <span class="sql-keyword">SET</span> saldo = saldo - <span class="sql-number">500.0</span> <span class="sql-keyword">WHERE</span> id_conta = <span class="sql-number">1</span>;
+<span class="sql-keyword">UPDATE</span> contas <span class="sql-keyword">SET</span> saldo = saldo + <span class="sql-number">500.0</span> <span class="sql-keyword">WHERE</span> id_conta = <span class="sql-number">2</span>;
+
+<span class="sql-comment">-- Cenário 2: Bônus Rendimento (Aumentar 10% para contas VIPs)</span>
+<span class="sql-keyword">UPDATE</span> contas <span class="sql-keyword">SET</span> saldo = saldo * <span class="sql-number">1.1</span> <span class="sql-keyword">WHERE</span> saldo > <span class="sql-number">5000.0</span>;</code></pre>
+        </section>
+
+        <!-- SEÇÃO 3: COMPLIANCE -->
+        <section id="s3" class="content-section">
+            <h1>03. Compliance e Hand-off</h1>
+            <p>Integridade referencial e o cumprimento da Lei Geral de Proteção de Dados (LGPD) são a base para a
+                homologação final do nosso ambiente ETB-PAY.</p>
+
+            <h2>O Perigo do DELETE e a Faxina Hierárquica</h2>
+            <p>Tentar apagar um cliente que possui uma conta ativa resulta em um erro de restrição do banco. Isso não é
+                um bug, é <strong>Segurança por Design</strong>.</p>
+            <pre><code><span class="sql-comment">-- Tentativa de exclusão direta (Resulta em erro de Foreign Key)</span>
+<span class="sql-keyword">DELETE FROM</span> clientes <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;
+
+<span class="sql-comment">-- Ordem de encerramento correta (Aprovada pelo Compliance):</span>
+<span class="sql-comment">-- 1º Limpamos os vínculos da conta</span>
+<span class="sql-keyword">DELETE FROM</span> contas <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;
+<span class="sql-comment">-- 2º Excluímos os dados biográficos da pessoa física</span>
+<span class="sql-keyword">DELETE FROM</span> clientes <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;</code></pre>
+
+            <div class="theory-card">
+                <h4>🛡️ Propriedades ACID em Transações</h4>
+                <p>Nossa arquitetura garante que cada operação seja: <strong>Atômica</strong> (Tudo ou nada),
+                    <strong>Consistente</strong> (Respeita o esquema), <strong>Isolada</strong> (Sem interferências em
+                    concorrência) e <strong>Durável</strong> (Gravação permanente no disco físico).
+                </p>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 4: EXERCÍCIO DE FIXAÇÃO -->
+        <section id="s4" class="content-section">
+            <h1>04. Exercício de Fixação (Entregável da Sprint)</h1>
+            <p>Este projeto final foi desenhado para consolidar sua autoridade como DBA no ecossistema ETB-PAY. O
+                hand-off da Sprint baseia-se na entrega exata destes artefatos.</p>
+
+            <div class="deliverable-box">
+                <span class="deadline">PRAZO MÁXIMO: SEXTA-FEIRA</span>
+                <h2 style="color: white; margin-top: 0;">Projeto: The Data Guard Mission</h2>
+                <p style="color: #94a3b8; font-size: 1rem; margin-bottom: 2rem;">Você deverá entregar um arquivo
+                    estruturado <strong>(.sql ou .txt)</strong> contendo a resolução analítica dos quatro desafios
+                    propostos abaixo:</p>
+
+                <ul class="deliverable-list">
+                    <li><strong>1. Relatório de Fluxo Otimizado:</strong> Construa uma query (<code>SELECT</code>
+                        cruzado) que liste o Nome do Cliente e o Saldo, exibindo apenas as contas que possuem saldo
+                        positivo.</li>
+                    <li><strong>2. Rotina de Crédito Transacional:</strong> Escreva o comando <code>UPDATE</code>
+                        completo e validado para um depósito de R$ 1.000,00 destinado a um CPF específico de sua
+                        escolha.</li>
+                    <li><strong>3. Arquitetura de Extratos:</strong> Proponha o código <code>CREATE TABLE</code> para o
+                        módulo de histórico. A tabela <code>transacoes</code> deve conter: id_transacao,
+                        id_conta_origem, id_conta_destino, valor e data. Lembre-se das Foreign Keys.</li>
+                    <li><strong>4. Estudo de Caso de Governança:</strong> Elabore um breve texto técnico explicando como
+                        as constraints <code>UNIQUE</code> e <code>NOT NULL</code> (utilizadas no nosso CPF) protegem a
+                        instituição de fraudes financeiras e garantem conformidade com a LGPD.</li>
+                </ul>
+                <p
+                    style="margin-top: 2.5rem; color: var(--neon-blue); font-weight: 600; font-size: 1.1rem; text-align: center;">
+                    ✓ Este entregável compõe a nota de Complementação da Sprint do Bimestre.</p>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>© 2026 ETB-PAY Squad DBAs | Escola Técnica de Brasília | Professor Alex Alves</p>
+        </footer>
+    </main>
+
+    <!-- SCRIPT DE INTERAÇÃO -->
+    <script>
+        function switchSection(id) {
+            // Remove as classes ativas
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+
+            // Adiciona classe ativa na seção correspondente
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Volta a rolagem para o topo suavemente
+            document.querySelector('.main-container').scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+
+</html>

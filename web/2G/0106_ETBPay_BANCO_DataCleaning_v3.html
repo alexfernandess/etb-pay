@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Banco de Dados</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 20px; }
+        .dark ::-webkit-scrollbar-thumb { background-color: #334155; }
+        body { transition: background-color 0.3s ease, color 0.3s ease; }
+        .slide-transition { animation: fadeInUp 0.4s ease-out forwards; }
+        pre { border-radius: 0.5rem; overflow-x: auto; }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:bg-[#0f172a] dark:text-slate-100 overflow-hidden font-sans">
+
+    <header class="px-6 py-4 flex justify-between items-center shadow-sm z-20 bg-white border-b border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 transition-colors shrink-0">
+        <div class="flex items-center gap-3">
+            <button id="sidebar-toggle" class="bg-cyan-500 p-2 rounded-lg hover:bg-cyan-400 transition-colors focus:ring-2 focus:ring-cyan-300 shadow-md shadow-cyan-500/20" title="Recolher/Expandir Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-slate-900">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+            </button>
+            <div>
+                <h1 class="font-black text-sm md:text-base uppercase tracking-tight leading-tight">ETB-PAY: Banco de Dados</h1>
+                <p class="text-[10px] font-bold tracking-widest uppercase opacity-60 text-cyan-500">ETL & Saneamento de Dados</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <span id="slide-counter" class="text-sm font-bold opacity-50 hidden md:block">SLIDE 1 / X</span>
+            <button id="theme-toggle"
+                class="p-2 rounded-full transition-all hover:scale-110 bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-cyan-400"
+                title="Alternar Tema">
+                <span id="theme-icon"></span>
+            </button>
+        </div>
+    </header>
+
+    <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 relative shrink-0 z-20">
+        <div id="progress-bar" class="h-full bg-cyan-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden relative w-full">
+        
+        <aside id="sidebar" class="w-72 shrink-0 bg-white dark:bg-[#1e293b] border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300 absolute md:relative z-30 md:z-10 h-full transform translate-x-0">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Navegação da Sprint</h3>
+            </div>
+            <ul id="sidebar-nav" class="flex-1 overflow-y-auto p-2 space-y-1">
+                </ul>
+        </aside>
+
+        <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden relative transition-all duration-300 w-full">
+            <div class="w-full max-w-5xl h-[75vh] rounded-3xl shadow-xl overflow-hidden border flex flex-col transition-all duration-500 bg-white border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 dark:shadow-cyan-900/10">
+
+                <div class="p-6 md:p-8 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4 shrink-0">
+                    <span id="slide-icon-container"></span>
+                    <h2 id="slide-title" class="text-2xl md:text-3xl font-black tracking-tight text-cyan-600 dark:text-cyan-400"></h2>
+                </div>
+
+                <div id="slide-content-container" class="p-6 md:p-8 flex-1 overflow-y-auto slide-transition flex flex-col">
+                    </div>
+
+                <div id="answer-section" class="hidden p-6 border-t border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 shrink-0">
+                    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <button id="btn-reveal" class="w-full md:w-auto px-6 py-4 border-2 border-dashed border-cyan-500 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white dark:hover:text-slate-900 font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-sm uppercase tracking-wider shrink-0">
+                            Revelar Solução
+                        </button>
+                        <div id="answer-feedback" class="hidden w-full slide-transition bg-cyan-500/10 border border-cyan-500/30 p-5 rounded-xl flex items-start gap-4">
+                            <div id="answer-text" class="text-sm md:text-base font-medium text-slate-700 dark:text-slate-200 leading-relaxed w-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-4 flex justify-between items-center z-10 w-full max-w-5xl mx-auto shrink-0">
+                <button id="btn-prev" class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Anterior
+                </button>
+
+                <div id="dots-container" class="hidden sm:flex gap-2"></div>
+
+                <button id="btn-next" class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-900/50 active:scale-95">
+                    Próximo
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </footer>
+        </main>
+
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden"></div>
+    </div>
+
+    <script>
+        // Ícones SVG embutidos
+        const icons = {
+            strategy: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+            code: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+            exam: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>`,
+            sun: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+            moon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`
+        };
+
+        const slidesData = [
+            {
+                title: "Check-in Ágil: Arquitetura e Decisão",
+                icon: icons.strategy,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="p-6 rounded-2xl border-l-4 border-cyan-500 bg-cyan-50 dark:bg-cyan-500/10">
+                            <h3 class="text-2xl font-bold mb-2 text-cyan-700 dark:text-cyan-400">"Não sei não é resposta..."</h3>
+                            <p class="text-lg text-slate-700 dark:text-slate-300">
+                                Na última Sprint, pausamos a migração do ETB-PAY. Um dev ansioso quer rodar o script rápido. <strong>Um Arquiteto de Software pausa o sistema.</strong>
+                            </p>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                                Na Engenharia de Software e em ambientes de alta criticidade (como o Banco Central ou o Senado Federal), dizer <em>"Não sei, vou analisar a documentação antes de rodar no banco de dados"</em> é a resposta que salva o seu emprego e os dados da empresa.
+                            </p>
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                                Se forçássemos a barra, os CPFs da nossa base teriam sido corrompidos. Fomos para o ambiente de homologação, desenhamos o processo de <strong>ETL (Extract, Transform, Load)</strong> e hoje faremos a migração segura. Abram os terminais!
+                            </p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "O Problema Legado",
+                icon: icons.code,
+                content: `
+                    <div class="flex flex-col h-full space-y-4">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            Este é o script <code>clientes_old.sql</code>. Nossa base antiga possui 6 registros válidos e 4 registros com "lixo" no final. Precisamos limpar isso na migração.
+                        </p>
+                        <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto text-sm text-green-400 font-mono shadow-inner border border-slate-700">
+<pre>BEGIN TRANSACTION;
+DROP TABLE IF EXISTS clientes_old;
+
+CREATE TABLE clientes_old (
+    cpf TEXT, nome TEXT, email TEXT
+);
+
+INSERT INTO clientes_old (cpf, nome, email) VALUES 
+    ('077626341-77', 'Alex F B Alves', 'alexalves@etb.df.gov.br'),
+    ('11122233344', 'Bruno Lima', 'brunolima@email.com'),
+    -- ... [Registros Válidos]
+    ('JOAO DA SILVA', 'Registro Invalido 1', 'erro1@etb.com'),
+    ('123-INVALIDO', 'Registro Invalido 2', 'erro2@etb.com');
+COMMIT;</pre>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Desafio 1: Blindando a Nova Tabela",
+                icon: icons.code,
+                isQuestion: true, 
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Criando a tb_clientes</h3>
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            No arquivo <code>clientes.sql</code>, crie a nova estrutura. O desafio é: o campo <strong>telefone</strong> deve aceitar apenas NULOS ou exatamente 11 dígitos numéricos limpos.
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-slate-600 dark:text-slate-400">
+                            <li>Use a constraint <code>CHECK</code>.</li>
+                            <li>Use a função <code>LENGTH()</code> para o tamanho.</li>
+                            <li>Use a expressão <code>GLOB</code> para garantir números de 0 a 9.</li>
+                        </ul>
+                        <p class="text-sm italic text-slate-500">Tente construir o DDL no seu ambiente. Quando terminar, revele a solução.</p>
+                    </div>`,
+                answer: `
+                    <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto text-sm text-cyan-400 font-mono shadow-inner border border-slate-700 mt-2">
+<pre>CREATE TABLE tb_clientes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cpf TEXT UNIQUE NOT NULL,
+    nome TEXT NOT NULL,
+    email TEXT,
+    telefone TEXT CHECK (
+        telefone IS NULL OR 
+        (LENGTH(telefone) = 11 AND GLOB('[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]', telefone))
+    )
+);</pre>
+                    </div>`
+            },
+            {
+                title: "Desafio 2: A Operação ETL",
+                icon: icons.code,
+                isQuestion: true, 
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Extrair, Transformar e Carregar</h3>
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            Sua missão agora é rodar a migração em duas etapas:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-3 text-slate-600 dark:text-slate-400">
+                            <li>Fazer um <code>INSERT INTO ... SELECT</code> inserindo os dados da tabela velha na nova. Use o <strong>NULL</strong> como curinga para o campo de telefone que falta. Filtre apenas CPFs com tamanho 11 ou 12.</li>
+                            <li>Fazer um <code>UPDATE</code> utilizando a função <strong>REPLACE</strong> para remover o hífen do meu CPF, preparando o terreno para o Java.</li>
+                        </ol>
+                    </div>`,
+                answer: `
+                    <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto text-sm text-cyan-400 font-mono shadow-inner border border-slate-700 mt-2">
+<pre>-- ETAPA 1: Carga de Dados (Ignorando lixo)
+INSERT INTO tb_clientes (cpf, nome, email, telefone)
+SELECT cpf, nome, email, NULL 
+FROM clientes_old
+WHERE LENGTH(cpf) IN (11, 12) AND GLOB('*[0-9]*', cpf);
+
+-- ETAPA 2: Saneamento do Hífen (Data Cleaning)
+UPDATE tb_clientes 
+SET cpf = REPLACE(cpf, '-', '') 
+WHERE cpf LIKE '%-%';</pre>
+                    </div>`
+            },
+            {
+                title: "Double Gain: SGBDs",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded text-cyan-600 dark:text-cyan-400">CEBRASPE / FGV</span>
+                            <span>Arquitetura SQLite</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 italic p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-l-4 border-cyan-500">
+                            "Diferentemente de bancos de dados relacionais tradicionais como PostgreSQL e Oracle, o SQLite caracteriza-se por não exigir um processo de servidor intermediário em background. Nele, a aplicação lê e escreve as informações diretamente em um arquivo de banco de dados alocado no disco local."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-lg"><strong class="text-emerald-600 dark:text-emerald-400">Gabarito: CERTO</strong></div>
+                        <p class="text-slate-700 dark:text-slate-300"><strong>Gabarito Técnico:</strong> O SQLite é um banco de dados de arquitetura <em>Serverless</em> (sem servidor) e embutido (embedded). Não há um serviço rodando em portas específicas (como a 5432 do Postgres). O SGBD opera diretamente manipulando o arquivo <code>.sqlite</code> ou <code>.db</code> através da biblioteca nativa, sendo amplamente utilizado em aplicações móveis (Android/iOS) e micro-frameworks.</p>
+                    </div>`
+            }
+        ];
+
+        let currentSlide = 0;
+        let isDarkMode = true;
+
+        const DOM = {
+            html: document.documentElement,
+            themeToggle: document.getElementById('theme-toggle'),
+            themeIcon: document.getElementById('theme-icon'),
+            slideCounter: document.getElementById('slide-counter'),
+            progressBar: document.getElementById('progress-bar'),
+            iconContainer: document.getElementById('slide-icon-container'),
+            title: document.getElementById('slide-title'),
+            contentContainer: document.getElementById('slide-content-container'),
+            answerSection: document.getElementById('answer-section'),
+            btnReveal: document.getElementById('btn-reveal'),
+            answerFeedback: document.getElementById('answer-feedback'),
+            answerText: document.getElementById('answer-text'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next'),
+            dotsContainer: document.getElementById('dots-container'),
+            sidebarNav: document.getElementById('sidebar-nav')
+        };
+
+        function updateTheme() {
+            if (isDarkMode) {
+                DOM.html.classList.add('dark');
+                DOM.themeIcon.innerHTML = icons.sun;
+            } else {
+                DOM.html.classList.remove('dark');
+                DOM.themeIcon.innerHTML = icons.moon;
+            }
+        }
+
+        DOM.themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            updateTheme();
+        });
+
+        // --- CONTROLE DA SIDEBAR E MARGEM NEGATIVA ---
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        let isSidebarOpen = window.innerWidth >= 768; 
+
+        function updateSidebarState() {
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full', 'md:-ml-72');
+                sidebarOverlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full', 'md:-ml-72');
+                sidebarOverlay.classList.add('hidden');
+            }
+        }
+
+        sidebarToggle.addEventListener('click', () => {
+            isSidebarOpen = !isSidebarOpen;
+            updateSidebarState();
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            if(window.innerWidth < 768) {
+                isSidebarOpen = false;
+                updateSidebarState();
+            }
+        });
+
+        function populateSidebar() {
+            DOM.sidebarNav.innerHTML = '';
+            slidesData.forEach((slide, index) => {
+                const li = document.createElement('li');
+                li.className = `p-3 rounded-lg cursor-pointer transition-all border-l-4 text-sm font-medium ${
+                    index === currentSlide 
+                    ? 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-500 text-cyan-700 dark:text-cyan-400' 
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`;
+                li.innerHTML = `<div class="flex items-center gap-3">
+                                   <div class="scale-75 opacity-70">${slide.icon}</div>
+                                   <span class="truncate">${slide.title}</span>
+                                </div>`;
+                li.addEventListener('click', () => {
+                    currentSlide = index;
+                    renderSlide();
+                    if(window.innerWidth < 768) {
+                        isSidebarOpen = false;
+                        updateSidebarState();
+                    }
+                });
+                DOM.sidebarNav.appendChild(li);
+            });
+        }
+
+        function renderSlide() {
+            const slide = slidesData[currentSlide];
+
+            DOM.contentContainer.classList.remove('slide-transition');
+            void DOM.contentContainer.offsetWidth; 
+            DOM.contentContainer.classList.add('slide-transition');
+
+            DOM.iconContainer.innerHTML = slide.icon;
+            DOM.title.textContent = slide.title;
+            DOM.contentContainer.innerHTML = slide.content;
+
+            const progress = ((currentSlide + 1) / slidesData.length) * 100;
+            DOM.progressBar.style.width = `${progress}%`;
+            DOM.slideCounter.textContent = `SLIDE ${currentSlide + 1} / ${slidesData.length}`;
+
+            if (slide.isQuestion) {
+                DOM.answerSection.classList.remove('hidden');
+                DOM.btnReveal.classList.remove('hidden');
+                DOM.answerFeedback.classList.add('hidden');
+                
+                DOM.answerText.innerHTML = slide.answer;
+                
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg> Revelar Solução`;
+            } else {
+                DOM.answerSection.classList.add('hidden');
+            }
+
+            DOM.btnPrev.disabled = currentSlide === 0;
+            DOM.btnPrev.style.opacity = currentSlide === 0 ? '0.3' : '1';
+            DOM.btnNext.disabled = currentSlide === slidesData.length - 1;
+            DOM.btnNext.style.opacity = currentSlide === slidesData.length - 1 ? '0.3' : '1';
+
+            updateDots();
+            populateSidebar();
+        }
+
+        DOM.btnReveal.addEventListener('click', () => {
+            if (DOM.answerFeedback.classList.contains('hidden')) {
+                DOM.answerFeedback.classList.remove('hidden');
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg> Ocultar Solução`;
+            } else {
+                DOM.answerFeedback.classList.add('hidden');
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg> Revelar Solução`;
+            }
+        });
+
+        function nextSlide() {
+            if (currentSlide < slidesData.length - 1) {
+                currentSlide++;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        }
+
+        DOM.btnNext.addEventListener('click', nextSlide);
+        DOM.btnPrev.addEventListener('click', prevSlide);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        function createDots() {
+            DOM.dotsContainer.innerHTML = '';
+            slidesData.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `h-2 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-cyan-500 w-8' : 'bg-slate-300 dark:bg-slate-700 w-2'}`;
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    renderSlide();
+                });
+                DOM.dotsContainer.appendChild(dot);
+            });
+        }
+
+        function updateDots() {
+            const dots = DOM.dotsContainer.children;
+            Array.from(dots).forEach((dot, index) => {
+                dot.className = `h-2 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-cyan-500 w-8' : 'bg-slate-300 dark:bg-slate-700 w-2'}`;
+            });
+        }
+
+        // Inicialização
+        updateTheme();
+        updateSidebarState();
+        createDots();
+        renderSlide();
+    </script>
+</body>
+</html>

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Java Swing & SQLite Integration</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --fintech-bg: #0B192C;
+            --fintech-card: rgba(15, 23, 42, 0.7);
+            --fintech-border: rgba(255, 255, 255, 0.1);
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--fintech-bg);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12), transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(74, 222, 128, 0.08), transparent 45%);
+        }
+
+        .glass {
+            background: var(--fintech-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--fintech-border);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            padding: 2rem;
+        }
+
+        /* --- TIMER --- */
+        .timer-widget {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 100;
+            transition: border-color 0.3s;
+        }
+
+        .timer-widget.alert {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-size: 2.3rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 1.2rem;
+        }
+
+        .timer-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .timer-btn:hover {
+            color: var(--accent-blue);
+            transform: scale(1.15);
+        }
+
+        /* --- SLIDES --- */
+        .slides-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+            width: 100%;
+            max-width: 1150px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-height: 85vh;
+            padding: 3.5rem 4rem;
+            animation: fadeIn 0.4s ease-out forwards;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- TYPOGRAPHY & TAGS --- */
+        h1 {
+            font-size: 2.6rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2 {
+            font-size: 1.7rem;
+            margin-bottom: 1rem;
+            color: var(--accent-green);
+            border-bottom: 1px solid var(--fintech-border);
+            padding-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+            margin-bottom: 1.2rem;
+        }
+
+        .pill {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 0.95rem;
+            margin-right: 5px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .pill-java {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--accent-red);
+        }
+
+        .pill-sql {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-blue);
+        }
+
+        .pill-ai {
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: var(--accent-green);
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box.alert-yellow {
+            border-left-color: var(--accent-yellow);
+        }
+
+        .code-block {
+            background: #020617;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            color: var(--accent-green);
+            font-size: 1.1rem;
+            margin: 1.2rem 0;
+            border: 1px solid var(--fintech-border);
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        /* --- BUTTONS --- */
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            font-size: 1.05rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.35);
+        }
+
+        .reveal-box {
+            display: none;
+            margin-top: 1rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* --- NAVIGATION --- */
+        .nav-controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            background: var(--fintech-card);
+            border: 1px solid var(--fintech-border);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 3rem;
+            right: 3rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-family: monospace;
+        }
+
+        #pdf-template {
+            display: none;
+        }
+
+        /* Responsividade Básica Mobile */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                height: auto;
+            }
+
+            .timer-widget {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 1rem auto;
+                width: fit-content;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .slide {
+                padding: 2rem 1.5rem;
+                max-height: none;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .nav-controls {
+                position: relative;
+                bottom: 0;
+                margin: 2rem 0;
+            }
+
+            .slide-counter {
+                position: relative;
+                bottom: 0;
+                right: 0;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TIMER WIDGET -->
+    <div class="glass timer-widget" id="timer-box">
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold;"><i
+                class="ph-bold ph-clock"></i> Coding Sprint</div>
+        <div class="time-display" id="time-display">35:00</div>
+        <div class="timer-controls">
+            <button class="timer-btn" id="btn-play"><i class="ph-fill ph-play"></i></button>
+            <button class="timer-btn" id="btn-reset"><i class="ph-bold ph-arrow-counter-clockwise"></i></button>
+        </div>
+    </div>
+
+    <!-- SLIDES CONTAINER -->
+    <div class="slides-container">
+
+        <!-- Slide 0: Capa -->
+        <div class="slide active">
+            <h1 style="font-size: 3.2rem;"><i class="ph-fill ph-app-window"></i> ETB-PAY</h1>
+            <h2 style="border: none; color: white; font-size: 2rem; margin-bottom: 1.5rem;">Formulário Swing integrado
+                ao SQLite</h2>
+            <p style="font-size: 1.3rem; color: var(--accent-blue); margin-bottom: 2rem;">Laboratório Avançado de
+                Desenvolvimento Java</p>
+
+            <div style="margin-bottom: 2.5rem;">
+                <span class="pill pill-java">JFrame (Java)</span>
+                <span class="pill pill-sql">JDBC (SQL)</span>
+                <span class="pill pill-ai">Prompt Engineering (AI)</span>
+                <span class="pill pill-java">PreparedStatement</span>
+                <span class="pill pill-sql">SQLite</span>
+            </div>
+
+            <div class="info-box glass">
+                <h3 style="color: var(--accent-blue); margin-bottom: 8px; font-size: 1.3rem;"><i
+                        class="ph-fill ph-flag-checkered"></i> Meta da Sprint</h3>
+                <p style="margin: 0; color: #fff;">Construir uma interface Swing de cadastro moderna, conectada de ponta
+                    a ponta ao banco de dados corporativo <code>agenciaBancaria.db</code>.</p>
+            </div>
+        </div>
+
+        <!-- Slide 1: A Infraestrutura do Banco de Dados -->
+        <div class="slide">
+            <h1><i class="ph-fill ph-database"></i> A Infraestrutura do Banco</h1>
+            <p>Antes de construirmos o Formulário Visual (Corpo), precisamos garantir que o Cérebro (Banco de Dados)
+                exista e esteja acessível.</p>
+
+            <div class="info-box alert-yellow glass">
+                <h3 style="color: var(--accent-yellow); margin-bottom: 8px;"><i class="ph-fill ph-warning-circle"></i>
+                    Ação Requerida</h3>
+                <p style="margin: 0;">Abra o seu terminal SQLite e crie o banco de dados
+                    <strong>agenciaBancaria.db</strong> utilizando os scripts DDL corporativos abaixo antes de iniciar a
+                    camada Java.</p>
+            </div>
+
+            <div class="code-block">
+                CREATE TABLE cliente (
+                id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome TEXT NOT NULL,
+                cpf TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                senha TEXT NOT NULL
+                );
+
+                CREATE TABLE contas (
+                id_conta INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_cliente INTEGER,
+                saldo REAL,
+                FOREIGN KEY(id_cliente) REFERENCES cliente(id_cliente)
+                );
+            </div>
+        </div>
+
+        <!-- Slide 2: Engenharia de Prompt -->
+        <div class="slide">
+            <h1><i class="ph-fill ph-robot"></i> Prompt Engineering no VS Code</h1>
+            <p>Não precisamos codificar as coordenadas visuais da interface (X, Y) do zero. Vamos utilizar a IA (Gemini)
+                para gerar nosso boilerplate de UI, permitindo que a nossa Squad foque na regra de negócio e integração.
+            </p>
+
+            <h2>Exemplo de Arquitetura de Prompt</h2>
+            <div class="info-box glass" style="border-left-color: var(--accent-green);">
+                <p style="margin: 0; font-style: italic; color: #e2e8f0; font-size: 1.1rem; line-height: 1.8;">
+                    "Atue como um Engenheiro Java Sênior. Gere uma classe Java Swing chamada
+                    <strong>TelaCadastro</strong> que estenda <strong>JFrame</strong>. A tela deve conter um painel com
+                    fundo escuro (Dark Mode), campos de texto rotulados para Nome, CPF, E-mail, um
+                    <strong>JPasswordField</strong> para Senha e um JButton centralizado escrito 'Cadastrar'. O código
+                    não deve usar pacotes (default package)."
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Configuração de Squads -->
+        <div class="slide">
+            <h1><i class="ph-fill ph-users-three"></i> Pair Programming: Squads</h1>
+            <p>A engenharia de software contemporânea exige colaboração. Dividam-se nas Micro-Squads para a nossa Sprint
+                de 35 Minutos:</p>
+
+            <div class="grid-2">
+                <div class="glass" style="text-align: center;">
+                    <i class="ph-fill ph-brain"
+                        style="font-size: 3.5rem; color: var(--accent-green); margin-bottom: 1rem;"></i>
+                    <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.4rem;">Engenheiro de Prompt</h3>
+                    <p style="font-size: 1rem;">Responsável por refinar os prompts na IA, validar as regras de layout
+                        Swing geradas e auditar a qualidade visual.</p>
+                </div>
+
+                <div class="glass" style="text-align: center;">
+                    <i class="ph-fill ph-code"
+                        style="font-size: 3.5rem; color: var(--accent-blue); margin-bottom: 1rem;"></i>
+                    <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.4rem;">Java Developer (Piloto)</h3>
+                    <p style="font-size: 1rem;">Dono do VS Code. Responsável por configurar as dependências do Driver
+                        JDBC, tratar as exceções e codificar a persistência.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: A Arquitetura de Conexão (JDBC) -->
+        <div class="slide">
+            <h1><i class="ph-fill ph-plug"></i> A Arquitetura JDBC</h1>
+            <p>O Java não fala nativamente com o SQLite. Precisamos de um tradutor (Driver JDBC) e de uma ponte segura
+                (Connection Factory) para abrir as conexões e tratarmos as possíveis <code>SQLExceptions</code>.</p>
+
+            <div class="code-block" style="color: #60a5fa;">
+                import java.sql.Connection;
+                import java.sql.DriverManager;
+                import java.sql.SQLException;
+
+                public class ConnectionFactory {
+                public static Connection conectar() {
+                try {
+                // String de conexão apontando para o banco local
+                String url = "jdbc:sqlite:agenciaBancaria.db";
+                return DriverManager.getConnection(url);
+                } catch (SQLException e) {
+                System.out.println("Erro Crítico de Conexão: " + e.getMessage());
+                return null;
+                }
+                }
+                }
+            </div>
+        </div>
+
+        <!-- Slide 5: O Padrão DAO -->
+        <div class="slide">
+            <h1><i class="ph-fill ph-shield-check"></i> Padrão DAO & Segurança</h1>
+            <p>Misturar lógica de interface (Swing) com comandos de banco (SQL) resulta no que chamamos de <em>Código
+                    Espaguete</em>. O padrão <strong>Data Access Object (DAO)</strong> isola a comunicação de dados.</p>
+            <p>Utilizamos a interface <code>PreparedStatement</code> para proteger a nossa aplicação de ataques
+                maliciosos de <strong>SQL Injection</strong>.</p>
+
+            <button class="btn-primary" id="btn-reveal-dao"><i class="ph-bold ph-eye"></i> Revelar Implementação
+                DAO</button>
+
+            <div id="reveal-dao" class="reveal-box code-block" style="color: var(--accent-yellow);">
+                public void salvarCliente(Cliente c) {
+                String sql = "INSERT INTO cliente (nome, cpf, email, senha) VALUES (?, ?, ?, ?)";
+
+                try (Connection conn = ConnectionFactory.conectar();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                stmt.setString(1, c.getNome());
+                stmt.setString(2, c.getCpf());
+                stmt.setString(3, c.getEmail());
+                stmt.setString(4, c.getSenha());
+
+                stmt.executeUpdate(); // Executa a gravação física
+
+                } catch (SQLException e) {
+                System.out.println("Erro ao persistir DAO: " + e.getMessage());
+                }
+                }
+            </div>
+        </div>
+
+        <!-- Slide 6: Acoplamento de Eventos -->
+        <div class="slide">
+            <h1><i class="ph-fill ph-lightning"></i> O Acoplamento de Eventos</h1>
+            <p>É aqui que o Cérebro e o Corpo se conectam. Vamos capturar o clique do botão no Swing e extrair os dados
+                inseridos pelo usuário utilizando o método <code>getText()</code>.</p>
+
+            <div class="code-block" style="color: #a78bfa;">
+                // Dentro do Construtor da sua TelaCadastro
+                btnCadastrar.addActionListener(e -> {
+                // 1. Extração dos dados da View
+                String nome = txtNome.getText();
+                String cpf = txtCpf.getText();
+                String email = txtEmail.getText();
+                String senha = new String(txtSenha.getPassword()); // Segurança
+
+                // 2. Instanciação e Persistência
+                Cliente novoCliente = new Cliente(nome, cpf, email, senha);
+                ClienteDAO dao = new ClienteDAO();
+
+                dao.salvarCliente(novoCliente);
+
+                // 3. Feedback Visual (Dopamina)
+                JOptionPane.showMessageDialog(this, "Cliente Cadastrado com Sucesso!");
+                });
+            </div>
+        </div>
+
+        <!-- Slide 7: Sprint Concluída -->
+        <div class="slide">
+            <div style="text-align: center; margin-top: 3rem;">
+                <i class="ph-fill ph-check-circle"
+                    style="font-size: 6rem; color: var(--accent-green); margin-bottom: 1.5rem;"></i>
+                <h1 style="justify-content: center; font-size: 3.5rem;">Sprint <span
+                        style="color: var(--accent-green); margin-left: 10px;">Concluída</span></h1>
+                <p style="font-size: 1.4rem; max-width: 700px; margin: 0 auto 2.5rem;">A Squad de Engenharia finalizou
+                    com sucesso a integração. O formulário não é mais apenas visual; ele agora é um produto integrado e
+                    persistente.</p>
+
+                <button class="btn-primary" id="btn-download-pdf" style="font-size: 1.2rem; padding: 1rem 2rem;">
+                    <i class="ph-bold ph-file-pdf"></i> Baixar Manual de Integração (PDF)
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NAVEGAÇÃO -->
+    <div class="nav-controls">
+        <button class="nav-btn" id="btn-prev"><i class="ph-bold ph-caret-left"></i></button>
+        <button class="nav-btn" id="btn-next"><i class="ph-bold ph-caret-right"></i></button>
+    </div>
+    <div class="slide-counter" id="slide-counter">1 / 8</div>
+
+    <!-- TEMPLATE OCULTO PARA GERAÇÃO DO PDF -->
+    <div id="pdf-template"
+        style="padding: 40px; background: white; color: black; font-family: 'Segoe UI', Arial, sans-serif;">
+        <div style="text-align: center; border-bottom: 2px solid #0B192C; padding-bottom: 20px; margin-bottom: 30px;">
+            <h1 style="color: #0B192C; font-size: 28px; margin-bottom: 10px;">ETB-PAY | Manual de Integração</h1>
+            <p style="color: #475569; font-size: 16px;">Java Swing + JDBC + SQLite</p>
+        </div>
+
+        <h2 style="color: #0284c7; font-size: 20px; margin-bottom: 10px;">1. Estrutura do Banco de Dados (DDL)</h2>
+        <div
+            style="background: #f1f5f9; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 13px; margin-bottom: 25px;">
+            CREATE TABLE cliente (<br>
+            &nbsp;&nbsp;id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,<br>
+            &nbsp;&nbsp;nome TEXT NOT NULL,<br>
+            &nbsp;&nbsp;cpf TEXT UNIQUE NOT NULL,<br>
+            &nbsp;&nbsp;email TEXT UNIQUE NOT NULL,<br>
+            &nbsp;&nbsp;senha TEXT NOT NULL<br>
+            );
+        </div>
+
+        <h2 style="color: #0284c7; font-size: 20px; margin-bottom: 10px;">2. Classe de Conexão (ConnectionFactory)</h2>
+        <div
+            style="background: #f1f5f9; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 13px; margin-bottom: 25px;">
+            public class ConnectionFactory {<br>
+            &nbsp;&nbsp;public static Connection conectar() {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;try {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return
+            DriverManager.getConnection("jdbc:sqlite:agenciaBancaria.db");<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;} catch (SQLException e) { return null; }<br>
+            &nbsp;&nbsp;}<br>
+            }
+        </div>
+
+        <h2 style="color: #0284c7; font-size: 20px; margin-bottom: 10px;">3. Padrão DAO Seguro (PreparedStatement)</h2>
+        <div
+            style="background: #f1f5f9; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 13px; margin-bottom: 25px;">
+            public void salvarCliente(Cliente c) {<br>
+            &nbsp;&nbsp;String sql = "INSERT INTO cliente (nome, cpf, email, senha) VALUES (?, ?, ?, ?)";<br>
+            &nbsp;&nbsp;try (Connection conn = ConnectionFactory.conectar();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PreparedStatement stmt = conn.prepareStatement(sql)) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;stmt.setString(1, c.getNome());<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;stmt.setString(2, c.getCpf());<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;stmt.setString(3, c.getEmail());<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;stmt.setString(4, c.getSenha());<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;stmt.executeUpdate();<br>
+            &nbsp;&nbsp;} catch (SQLException e) { /* Tratamento */ }<br>
+            }
+        </div>
+
+        <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #94a3b8;">
+            Documentação Técnica Oficial ETB-PAY
+        </div>
+    </div>
+
+    <!-- SCRIPTS DE CONTROLE (LÓGICA E TEMPORIZADOR) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- NAVEGAÇÃO DE SLIDES ---
+            const slides = document.querySelectorAll('.slide');
+            const counter = document.getElementById('slide-counter');
+            let currentSlide = 0;
+
+            function updateSlide() {
+                slides.forEach((s, idx) => {
+                    if (idx === currentSlide) s.classList.add('active');
+                    else s.classList.remove('active');
+                });
+                counter.innerText = `${currentSlide + 1} / ${slides.length}`;
+            }
+
+            document.getElementById('btn-next').addEventListener('click', () => {
+                if (currentSlide < slides.length - 1) { currentSlide++; updateSlide(); }
+            });
+            document.getElementById('btn-prev').addEventListener('click', () => {
+                if (currentSlide > 0) { currentSlide--; updateSlide(); }
+            });
+
+            // Suporte para setas do teclado
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) { currentSlide++; updateSlide(); }
+                if (e.key === 'ArrowLeft' && currentSlide > 0) { currentSlide--; updateSlide(); }
+            });
+
+            // --- REVELAÇÃO DO BOTÃO DAO ---
+            const btnRevealDao = document.getElementById('btn-reveal-dao');
+            if (btnRevealDao) {
+                btnRevealDao.addEventListener('click', () => {
+                    document.getElementById('reveal-dao').style.display = 'block';
+                    btnRevealDao.style.display = 'none';
+                });
+            }
+
+            // --- GERAÇÃO DE PDF (html2pdf) ---
+            document.getElementById('btn-download-pdf').addEventListener('click', () => {
+                const element = document.getElementById('pdf-template');
+                element.style.display = 'block'; // Mostrar temporariamente para renderizar
+
+                const opt = {
+                    margin: 10,
+                    filename: 'ETB_PAY_Manual_Java_Swing_SQL.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    element.style.display = 'none'; // Esconder novamente
+                });
+            });
+
+            // --- LÓGICA DO TEMPORIZADOR (SPRINT DE 35 MIN) ---
+            const timeDisplay = document.getElementById('time-display');
+            const btnPlay = document.getElementById('btn-play');
+            const btnReset = document.getElementById('btn-reset');
+            const timerBox = document.getElementById('timer-box');
+
+            let timeLeft = 35 * 60; // 2100 segundos
+            let timerInterval = null;
+            let isPlaying = false;
+
+            // Constantes de Trigger de Eventos
+            const JUMP_TO_SLIDE_5 = 25 * 60; // 1500 segundos restantes
+            const JUMP_TO_SLIDE_6 = 15 * 60; // 900 segundos restantes
+
+            function formatTime(seconds) {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            }
+
+            // Web Audio API para alerta sonoro limpo corporativo
+            function playBeep() {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.5, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            }
+
+            function triggerEventSlide(slideIndex) {
+                playBeep();
+                timerBox.classList.add('alert');
+                setTimeout(() => timerBox.classList.remove('alert'), 3000);
+                currentSlide = slideIndex;
+                updateSlide();
+            }
+
+            function updateTimer() {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    isPlaying = false;
+                    btnPlay.innerHTML = '<i class="ph-fill ph-play"></i>';
+                    timeDisplay.textContent = "00:00";
+                    playBeep();
+                    return;
+                }
+
+                timeLeft--;
+                timeDisplay.textContent = formatTime(timeLeft);
+
+                // Automação dos saltos de Slide
+                if (timeLeft === JUMP_TO_SLIDE_5) {
+                    triggerEventSlide(5);
+                } else if (timeLeft === JUMP_TO_SLIDE_6) {
+                    triggerEventSlide(6);
+                }
+            }
+
+            btnPlay.addEventListener('click', () => {
+                if (isPlaying) {
+                    clearInterval(timerInterval);
+                    btnPlay.innerHTML = '<i class="ph-fill ph-play"></i>';
+                } else {
+                    timerInterval = setInterval(updateTimer, 1000);
+                    btnPlay.innerHTML = '<i class="ph-fill ph-pause"></i>';
+                }
+                isPlaying = !isPlaying;
+            });
+
+            btnReset.addEventListener('click', () => {
+                clearInterval(timerInterval);
+                isPlaying = false;
+                timeLeft = 35 * 60;
+                timeDisplay.textContent = formatTime(timeLeft);
+                btnPlay.innerHTML = '<i class="ph-fill ph-play"></i>';
+                timerBox.classList.remove('alert');
+            });
+
+            // Inicialização visual
+            updateSlide();
+        });
+    </script>
+</body>
+
+</html>
