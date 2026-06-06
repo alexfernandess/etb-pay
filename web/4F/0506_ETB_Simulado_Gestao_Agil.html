@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Simulado PMO Academy</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuração do Tailwind & Design System -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        navy: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155'
+                        },
+                        cyan: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2'
+                        },
+                        silver: {
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b'
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                        },
+                        purple: {
+                            400: '#c084fc',
+                            500: '#a855f7',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base e Fundo */
+        body {
+            background-color: #0f172a;
+            color: #cbd5e1;
+            overflow: hidden;
+        }
+
+        /* Efeito Glassmorphism */
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Animações e Transições SPA */
+        .spa-view {
+            display: none;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .spa-view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reveal-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal-content.open {
+            max-height: 1000px;
+            opacity: 1;
+            margin-top: 1.5rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Animação do Timer */
+        .timer-active {
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px #06b6d4;
+            }
+
+            to {
+                text-shadow: 0 0 15px #22d3ee;
+            }
+        }
+
+        /* Radio Button Customizado Estilo Concurso */
+        .q-radio {
+            display: none;
+        }
+
+        .q-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .q-label:hover {
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+
+        .q-indicator {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            border: 1px solid #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #94a3b8;
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0;
+        }
+
+        /* Estado de Seleção Neutro */
+        .q-radio:checked+.q-label {
+            background-color: rgba(6, 182, 212, 0.1);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .q-radio:checked+.q-label .q-indicator {
+            background-color: #06b6d4;
+            border-color: #06b6d4;
+            color: #0f172a;
+        }
+
+        /* Feedback State (JS Inject) */
+        .answered .q-radio.correct-ans+.q-label {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .answered .q-radio.correct-ans+.q-label .q-indicator {
+            background-color: #10b981 !important;
+            border-color: #10b981 !important;
+            color: #0f172a !important;
+        }
+
+        .answered .q-radio.wrong-ans:checked+.q-label {
+            background-color: rgba(244, 63, 94, 0.1) !important;
+            border-color: rgba(244, 63, 94, 0.3) !important;
+        }
+
+        .answered .q-radio.wrong-ans:checked+.q-label .q-indicator {
+            background-color: #f43f5e !important;
+            border-color: #f43f5e !important;
+            color: #ffffff !important;
+        }
+
+        .answered .q-label {
+            cursor: default;
+        }
+
+        .answered .q-label:hover {
+            background-color: transparent;
+        }
+    </style>
+</head>
+
+<body
+    class="flex h-screen w-full antialiased selection:bg-cyan-500/30 selection:text-cyan-200 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-navy-900 via-navy-950 to-navy-950">
+
+    <aside id="sidebar"
+        class="w-72 border-r border-navy-800 bg-navy-900 flex flex-col z-20 shrink-0 transition-transform duration-300 absolute md:relative h-full transform -translate-x-full md:translate-x-0">
+        <div class="h-20 flex items-center justify-between px-6 border-b border-navy-800 bg-navy-950/20">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-br from-cyan-500 to-blue-600 p-2 rounded-lg shadow-lg">
+                    <i class="ph-bold ph-rocket-launch text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold tracking-wider text-sm text-white">LEAN PMO</h1>
+                    <p class="text-[10px] text-cyan-500 font-mono tracking-widest uppercase font-bold">Squad 4F</p>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" class="md:hidden text-silver-400 hover:text-cyan-400">
+                <i class="ph-bold ph-x text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+            <p class="px-2 text-[10px] font-mono text-silver-500 mb-4 tracking-widest uppercase font-bold">Jornada de
+                Sprints</p>
+
+            <div
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-silver-500 opacity-50 cursor-not-allowed hover:bg-navy-800 transition-colors">
+                <i class="ph-fill ph-flag-banner text-xl"></i><span class="text-sm font-semibold">Tópico 1: Iniciação
+                    (TAP)</span>
+            </div>
+
+            <div
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-silver-500 opacity-50 cursor-not-allowed hover:bg-navy-800 transition-colors">
+                <i class="ph-fill ph-shield-warning text-xl"></i><span class="text-sm font-semibold">Tópico 2: Riscos &
+                    LGPD</span>
+            </div>
+
+            <div
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-silver-500 opacity-50 cursor-not-allowed hover:bg-navy-800 transition-colors">
+                <i class="ph-fill ph-kanban text-xl"></i><span class="text-sm font-semibold">Tópico 3: Gestão
+                    Ágil</span>
+            </div>
+
+            <div
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 bg-cyan-900/20 text-cyan-400 border border-cyan-500/30">
+                <i class="ph-fill ph-exam text-xl"></i><span class="text-sm font-bold">Tópico 4: Simulado Ágil</span>
+            </div>
+
+            <div
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-silver-500 opacity-50 cursor-not-allowed hover:bg-navy-800 transition-colors mt-4">
+                <i class="ph-fill ph-rows text-xl"></i><span class="text-sm font-semibold">Tópico 5: Metodologia em
+                    Cascata</span>
+            </div>
+
+            <div
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-silver-500 opacity-50 cursor-not-allowed hover:bg-navy-800 transition-colors">
+                <i class="ph-fill ph-books text-xl"></i><span class="text-sm font-semibold">Tópico 6: Fundamentos COBIT
+                    & ITIL</span>
+            </div>
+        </nav>
+    </aside>
+
+    <div id="mobile-overlay" onclick="toggleSidebar()"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-10 hidden md:hidden"></div>
+
+    <main class="flex-1 flex flex-col relative w-full h-full">
+        <!-- HEADER CORPORATIVO -->
+        <header class="h-20 flex items-center justify-between px-6 md:px-8 border-b border-navy-800 glass z-10">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden text-silver-400 hover:text-cyan-400">
+                    <i class="ph-bold ph-list text-2xl"></i>
+                </button>
+                <div>
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-tight">Simulado: Double Gain</h2>
+                    <p class="text-xs font-mono text-cyan-600 font-bold uppercase tracking-wider">Gestão Ágil do ETB-PAY
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 md:gap-6">
+                <!-- Theme Toggle -->
+                <button id="themeToggle"
+                    class="p-2 rounded-full transition-colors text-silver-400 hover:text-cyan-400 bg-navy-800 border border-navy-700 focus:outline-none hidden sm:block">
+                    <i class="ph-bold ph-sun text-xl" id="themeIcon"></i>
+                </button>
+
+                <!-- Class Timer (2:00 por questão) -->
+                <div
+                    class="flex items-center gap-2 bg-navy-950 border border-cyan-500/30 px-3 py-1.5 rounded-lg shadow-inner">
+                    <button onclick="toggleTimer()" id="btn-timer"
+                        class="text-cyan-400 hover:text-cyan-500 focus:outline-none">
+                        <i class="ph-fill ph-play text-xl" id="icon-timer"></i>
+                    </button>
+                    <button onclick="resetTimer()" class="text-silver-400 hover:text-white focus:outline-none"
+                        title="Resetar 2 Minutos">
+                        <i class="ph-bold ph-arrow-counter-clockwise text-lg"></i>
+                    </button>
+                    <div class="flex flex-col items-end ml-2">
+                        <span
+                            class="text-[9px] text-silver-400 font-bold uppercase tracking-widest leading-none">Timebox</span>
+                        <span id="timer-display"
+                            class="font-mono font-bold text-lg text-white leading-none">02:00</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 md:p-10 relative pb-32">
+            <div class="max-w-4xl mx-auto space-y-8">
+
+                <!-- VIEW 1: INTRODUÇÃO -->
+                <div id="view-intro" class="spa-view active text-center py-10">
+                    <div
+                        class="inline-block bg-cyan-500/10 text-cyan-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-cyan-500/30 uppercase tracking-widest mb-6">
+                        Instruções Oficiais
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">O Teste de Maturidade
+                    </h1>
+                    <p class="text-silver-300 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
+                        Vocês configuraram o Jira e desenharam o PMO do <strong class="text-cyan-400">ETB-PAY</strong>.
+                        Agora é a hora de provar que a teoria funciona sob pressão. Este simulado aplica Engenharia
+                        Reversa nas questões de concurso mais recentes.
+                    </p>
+
+                    <div
+                        class="bg-navy-900 border border-navy-700 p-6 rounded-2xl max-w-lg mx-auto text-left mb-10 shadow-lg">
+                        <h3 class="text-white font-bold mb-4 flex items-center gap-2"><i
+                                class="ph-fill ph-warning-circle text-amber-500"></i> Regras de Engajamento:</h3>
+                        <ul class="text-sm text-silver-400 space-y-3">
+                            <li class="flex items-center gap-2"><i class="ph-bold ph-check text-cyan-500"></i> O
+                                Professor disparará um Timebox de 2 minutos no topo da tela para cada questão.</li>
+                            <li class="flex items-center gap-2"><i class="ph-bold ph-check text-cyan-500"></i> A Squad
+                                deve debater e escolher a resposta.</li>
+                            <li class="flex items-center gap-2"><i class="ph-bold ph-check text-cyan-500"></i> Cuidado
+                                com a "Pegadinha da Banca".</li>
+                        </ul>
+                    </div>
+
+                    <button onclick="changeView('view-concepts')"
+                        class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-lg shadow-cyan-900/50 flex items-center gap-2 mx-auto">
+                        Avançar para Revisão <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- VIEW 2: CONCEITOS ESSECIAS -->
+                <div id="view-concepts" class="spa-view">
+                    <div class="text-center mb-10">
+                        <h2 class="text-3xl font-bold text-white mb-3">Revisão Tática de Conceitos</h2>
+                        <p class="text-silver-400 text-sm">Resumo da inteligência necessária para aprovação na AV 3 e
+                            bancas examinadoras.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                        <div class="glass p-6 rounded-2xl border-l-4 border-l-cyan-500">
+                            <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i
+                                    class="ph-fill ph-kanban text-cyan-400"></i> Kanban e Fluxo</h3>
+                            <p class="text-sm text-silver-400">O Kanban usa um <strong>Sistema Puxado</strong> (nada é
+                                empurrado). O limite de <strong>WIP</strong> (Work in Progress) força a equipe a
+                                terminar o que começou, evitando gargalos.</p>
+                        </div>
+                        <div class="glass p-6 rounded-2xl border-l-4 border-l-purple-500">
+                            <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i
+                                    class="ph-fill ph-users-three text-purple-400"></i> Cerimônias Scrum</h3>
+                            <p class="text-sm text-silver-400">A <strong>Review</strong> é para o Cliente aprovar o
+                                produto. A <strong>Retrospective</strong> é para a Equipe internamente melhorar o
+                                processo de trabalho. Bancas sempre invertem as duas!</p>
+                        </div>
+                        <div class="glass p-6 rounded-2xl border-l-4 border-l-emerald-500">
+                            <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i
+                                    class="ph-fill ph-rocket-launch text-emerald-400"></i> O Conceito de MVP</h3>
+                            <p class="text-sm text-silver-400">O <em>Minimum Viable Product</em> não é um código "mal
+                                feito". É a versão mais enxuta possível para testar a <strong>viabilidade</strong> da
+                                ideia no mercado e aprender rápido.</p>
+                        </div>
+                        <div class="glass p-6 rounded-2xl border-l-4 border-l-amber-500">
+                            <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2"><i
+                                    class="ph-fill ph-file-text text-amber-400"></i> Backlog e TAP</h3>
+                            <p class="text-sm text-silver-400">O <strong>TAP</strong> autoriza o projeto a existir. O
+                                <strong>Product Backlog</strong> é uma lista viva e <em>emergente</em>; ele nunca é
+                                congelado, mudando conforme o negócio exige.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button onclick="changeView('view-quiz')"
+                            class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2">
+                            <i class="ph-bold ph-sword"></i> Iniciar Zona de Combate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: O SIMULADO -->
+                <div id="view-quiz" class="spa-view space-y-10">
+
+                    <div class="text-center border-b border-navy-800 pb-6 mb-8">
+                        <h2 class="text-2xl font-bold text-white tracking-tight">Simulado Prático (Certo ou Errado /
+                            Múltipla Escolha)</h2>
+                        <p class="text-sm text-cyan-500 font-mono mt-2">Dica: Dispare o timer de 2 minutos para cada
+                            questão no topo da tela.</p>
+                    </div>
+
+                    <!-- QUESTÃO 1 -->
+                    <div class="glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-400" id="qblock-1">
+                        <div
+                            class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <i class="ph-bold ph-kanban text-cyan-400 text-lg"></i> Q1. Kanban e Métricas
+                        </div>
+                        <p class="text-lg font-medium text-white mb-6 leading-relaxed">
+                            O que significa limitar o Work In Progress (WIP) no quadro do projeto ETB-PAY?
+                        </p>
+
+                        <div class="space-y-2 mb-8 text-silver-300 text-sm" id="options-1">
+                            <div>
+                                <input type="radio" name="q1" id="q1-a" class="q-radio wrong-ans">
+                                <label for="q1-a" class="q-label"><span class="q-indicator">A</span><span>Aumentar a
+                                        quantidade de tarefas simultâneas para garantir que o time fique
+                                        ocupado.</span></label>
+                            </div>
+                            <div>
+                                <input type="radio" name="q1" id="q1-b" class="q-radio wrong-ans">
+                                <label for="q1-b" class="q-label"><span class="q-indicator">B</span><span>Diminuir a
+                                        carga horária de trabalho diária da Squad Nexus.</span></label>
+                            </div>
+                            <div>
+                                <input type="radio" name="q1" id="q1-c" class="q-radio correct-ans" value="correct">
+                                <label for="q1-c" class="q-label"><span class="q-indicator">C</span><span>Evitar
+                                        gargalos de produção e focar na conclusão contínua de tarefas, adotando o
+                                        Sistema Puxado.</span></label>
+                            </div>
+                            <div>
+                                <input type="radio" name="q1" id="q1-d" class="q-radio wrong-ans">
+                                <label for="q1-d" class="q-label"><span class="q-indicator">D</span><span>Empurrar
+                                        tarefas mais rápido para a coluna "Feito", pulando as etapas de
+                                        QA.</span></label>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                            <button onclick="responderQuestao(1, 'ans-1', 'btn-gab-1')" id="btn-resp-1"
+                                class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">
+                                Responder
+                            </button>
+                            <button id="btn-gab-1" onclick="toggleGabarito('ans-1', this)"
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-navy-800 hover:bg-navy-700 text-cyan-400 border border-cyan-500/30 font-bold rounded-lg transition-colors text-sm uppercase tracking-wider hidden ml-auto">
+                                <i class="ph-bold ph-eye text-lg"></i> Ver Explicação
+                            </button>
+                        </div>
+
+                        <div id="ans-1" class="reveal-content flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-xl">
+                                <h4 class="font-bold text-emerald-400 flex items-center gap-2 mb-2"><i
+                                        class="ph-bold ph-check-circle text-lg"></i> O Gabarito Técnico</h4>
+                                <p class="text-sm text-emerald-100/80 leading-relaxed"><strong>Alternativa C.</strong>
+                                    Limitar o WIP força a equipe a "parar de começar e começar a terminar". Ele previne
+                                    o acúmulo de tarefas e mantém o fluxo de entrega sempre saudável.</p>
+                            </div>
+                            <div class="flex-1 bg-rose-500/10 border border-rose-500/30 p-5 rounded-xl">
+                                <h4 class="font-bold text-rose-400 flex items-center gap-2 mb-2"><i
+                                        class="ph-bold ph-warning-circle text-lg"></i> A Pegadinha da Banca</h4>
+                                <p class="text-sm text-rose-100/80 leading-relaxed">Bancas tentam induzir o erro
+                                    associando "Limite de WIP" a "trabalhar menos" (B) ou a forçar velocidade cortando
+                                    qualidade (D).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QUESTÃO 2 -->
+                    <div class="glass p-6 md:p-8 rounded-2xl border-l-4 border-l-purple-400" id="qblock-2">
+                        <div
+                            class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <i class="ph-bold ph-users-three text-purple-400 text-lg"></i> Q2. Scrum - Cerimônias
+                        </div>
+                        <p class="text-lg font-medium text-white mb-6 leading-relaxed">
+                            A diretoria quer ver o ETB-PAY em funcionamento. Em qual evento do Scrum o incremento
+                            "Pronto" é apresentado aos stakeholders para colher feedback?
+                        </p>
+                        <div class="space-y-2 mb-8 text-silver-300 text-sm" id="options-2">
+                            <div><input type="radio" name="q2" id="q2-a" class="q-radio wrong-ans"><label for="q2-a"
+                                    class="q-label"><span class="q-indicator">A</span><span>Sprint
+                                        Planning.</span></label></div>
+                            <div><input type="radio" name="q2" id="q2-b" class="q-radio wrong-ans"><label for="q2-b"
+                                    class="q-label"><span class="q-indicator">B</span><span>Sprint
+                                        Retrospective.</span></label></div>
+                            <div><input type="radio" name="q2" id="q2-c" class="q-radio wrong-ans"><label for="q2-c"
+                                    class="q-label"><span class="q-indicator">C</span><span>Daily Scrum.</span></label>
+                            </div>
+                            <div><input type="radio" name="q2" id="q2-d" class="q-radio correct-ans"
+                                    value="correct"><label for="q2-d" class="q-label"><span
+                                        class="q-indicator">D</span><span>Sprint Review.</span></label></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                            <button onclick="responderQuestao(2, 'ans-2', 'btn-gab-2')" id="btn-resp-2"
+                                class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button>
+                            <button id="btn-gab-2" onclick="toggleGabarito('ans-2', this)"
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-navy-800 hover:bg-navy-700 text-purple-400 border border-purple-500/30 font-bold rounded-lg transition-colors text-sm uppercase tracking-wider hidden ml-auto"><i
+                                    class="ph-bold ph-eye text-lg"></i> Ver Explicação</button>
+                        </div>
+                        <div id="ans-2" class="reveal-content flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-xl">
+                                <h4 class="font-bold text-emerald-400 flex items-center gap-2 mb-2"><i
+                                        class="ph-bold ph-check-circle text-lg"></i> O Gabarito Técnico</h4>
+                                <p class="text-sm text-emerald-100/80 leading-relaxed"><strong>Alternativa D.</strong> A
+                                    Sprint Review é o evento de inspeção do Produto, onde a equipe e o cliente calibram
+                                    as entregas.</p>
+                            </div>
+                            <div class="flex-1 bg-rose-500/10 border border-rose-500/30 p-5 rounded-xl">
+                                <h4 class="font-bold text-rose-400 flex items-center gap-2 mb-2"><i
+                                        class="ph-bold ph-warning-circle text-lg"></i> A Pegadinha da Banca</h4>
+                                <p class="text-sm text-rose-100/80 leading-relaxed">A banca (Cebraspe) coloca o cliente
+                                    avaliando o produto na <em>Retrospective</em>. Falso! Retrospective é focada no
+                                    processo interno da equipe.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QUESTÃO 3 -->
+                    <div class="glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-400" id="qblock-3">
+                        <div
+                            class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <i class="ph-bold ph-layers-three text-cyan-400 text-lg"></i> Q3. Scrum - Artefatos
+                        </div>
+                        <p class="text-lg font-medium text-white mb-6 leading-relaxed">
+                            O Product Backlog do ETB-PAY foi criado. Como este artefato deve ser tratado durante todo o
+                            ciclo de vida do projeto?
+                        </p>
+                        <div class="space-y-2 mb-8 text-silver-300 text-sm" id="options-3">
+                            <div><input type="radio" name="q3" id="q3-a" class="q-radio wrong-ans"><label for="q3-a"
+                                    class="q-label"><span class="q-indicator">A</span><span>Como um documento congelado
+                                        e imutável após a aprovação.</span></label></div>
+                            <div><input type="radio" name="q3" id="q3-b" class="q-radio wrong-ans"><label for="q3-b"
+                                    class="q-label"><span class="q-indicator">B</span><span>Arquivado e acessado apenas
+                                        na Sprint Retrospective.</span></label></div>
+                            <div><input type="radio" name="q3" id="q3-d" class="q-radio correct-ans"
+                                    value="correct"><label for="q3-d" class="q-label"><span
+                                        class="q-indicator">C</span><span>Como um artefato vivo, emergente e refinado
+                                        constantemente.</span></label></div>
+                            <div><input type="radio" name="q3" id="q3-c" class="q-radio wrong-ans"><label for="q3-c"
+                                    class="q-label"><span class="q-indicator">D</span><span>Como uma lista sob a tutela
+                                        exclusiva do Scrum Master.</span></label></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                            <button onclick="responderQuestao(3, 'ans-3', 'btn-gab-3')" id="btn-resp-3"
+                                class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button>
+                            <button id="btn-gab-3" onclick="toggleGabarito('ans-3', this)"
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-navy-800 hover:bg-navy-700 text-cyan-400 border border-cyan-500/30 font-bold rounded-lg transition-colors text-sm uppercase tracking-wider hidden ml-auto"><i
+                                    class="ph-bold ph-eye text-lg"></i> Ver Explicação</button>
+                        </div>
+                        <div id="ans-3" class="reveal-content flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-xl">
+                                <p class="text-sm text-emerald-100/80 leading-relaxed"><strong>Gabarito: C.</strong> O
+                                    Backlog nunca está pronto. Ele é emergente e adapta-se a novas variáveis do negócio.
+                                </p>
+                            </div>
+                            <div class="flex-1 bg-rose-500/10 border border-rose-500/30 p-5 rounded-xl">
+                                <p class="text-sm text-rose-100/80 leading-relaxed"><strong>Pegadinha:</strong> Aplicar
+                                    os vícios do modelo tradicional (Cascata), afirmando que o backlog deve ser
+                                    "congelado".</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QUESTÃO 4 -->
+                    <div class="glass p-6 md:p-8 rounded-2xl border-l-4 border-l-emerald-400" id="qblock-4">
+                        <div
+                            class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <i class="ph-bold ph-rocket-launch text-emerald-400 text-lg"></i> Q4. Fundamentos (MVP)
+                        </div>
+                        <p class="text-lg font-medium text-white mb-6 leading-relaxed">
+                            Para validar a nova funcionalidade Pix, a Squad lançará um MVP. Qual o real foco dessa
+                            estratégia?
+                        </p>
+                        <div class="space-y-2 mb-8 text-silver-300 text-sm" id="options-4">
+                            <div><input type="radio" name="q4" id="q4-a" class="q-radio wrong-ans"><label for="q4-a"
+                                    class="q-label"><span class="q-indicator">A</span><span>Lançar uma versão inacabada
+                                        apenas para cumprir prazos.</span></label></div>
+                            <div><input type="radio" name="q4" id="q4-b" class="q-radio correct-ans"
+                                    value="correct"><label for="q4-b" class="q-label"><span
+                                        class="q-indicator">B</span><span>Lançar com o menor esforço necessário para
+                                        coletar aprendizado validado.</span></label></div>
+                            <div><input type="radio" name="q4" id="q4-c" class="q-radio wrong-ans"><label for="q4-c"
+                                    class="q-label"><span class="q-indicator">C</span><span>Garantir que todas as
+                                        funcionalidades estejam prontas no lançamento.</span></label></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                            <button onclick="responderQuestao(4, 'ans-4', 'btn-gab-4')" id="btn-resp-4"
+                                class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button>
+                            <button id="btn-gab-4" onclick="toggleGabarito('ans-4', this)"
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-navy-800 hover:bg-navy-700 text-emerald-400 border border-emerald-500/30 font-bold rounded-lg transition-colors text-sm uppercase tracking-wider hidden ml-auto"><i
+                                    class="ph-bold ph-eye text-lg"></i> Ver Explicação</button>
+                        </div>
+                        <div id="ans-4" class="reveal-content flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-xl">
+                                <p class="text-sm text-emerald-100/80 leading-relaxed"><strong>Gabarito: B.</strong> A
+                                    essência do MVP é lançar rápido para validar se o usuário de fato deseja a solução.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QUESTÃO 5 -->
+                    <div class="glass p-6 md:p-8 rounded-2xl border-l-4 border-l-amber-400" id="qblock-5">
+                        <div
+                            class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <i class="ph-bold ph-file-text text-amber-400 text-lg"></i> Q5. Gestão de Projetos (TAP)
+                        </div>
+                        <p class="text-lg font-medium text-white mb-6 leading-relaxed">
+                            O Termo de Abertura do Projeto (TAP) foi assinado. O que este documento garante?
+                        </p>
+                        <div class="space-y-2 mb-8 text-silver-300 text-sm" id="options-5">
+                            <div><input type="radio" name="q5" id="q5-a" class="q-radio wrong-ans"><label for="q5-a"
+                                    class="q-label"><span class="q-indicator">A</span><span>O mapeamento analítico de
+                                        riscos a nível de código.</span></label></div>
+                            <div><input type="radio" name="q5" id="q5-d" class="q-radio correct-ans"
+                                    value="correct"><label for="q5-d" class="q-label"><span
+                                        class="q-indicator">B</span><span>A autorização formal da existência do projeto
+                                        e autoridade ao líder.</span></label></div>
+                            <div><input type="radio" name="q5" id="q5-b" class="q-radio wrong-ans"><label for="q5-b"
+                                    class="q-label"><span class="q-indicator">C</span><span>Define todas as User Stories
+                                        que os devs deverão codificar no ano.</span></label></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                            <button onclick="responderQuestao(5, 'ans-5', 'btn-gab-5')" id="btn-resp-5"
+                                class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button>
+                            <button id="btn-gab-5" onclick="toggleGabarito('ans-5', this)"
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-navy-800 hover:bg-navy-700 text-amber-400 border border-amber-500/30 font-bold rounded-lg transition-colors text-sm uppercase tracking-wider hidden ml-auto"><i
+                                    class="ph-bold ph-eye text-lg"></i> Ver Explicação</button>
+                        </div>
+                        <div id="ans-5" class="reveal-content flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-xl">
+                                <p class="text-sm text-emerald-100/80 leading-relaxed"><strong>Gabarito: B.</strong> O
+                                    TAP sela o compromisso e dá autoridade ao Gerente para agir institucionalmente.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Finalizar Simulado -->
+                    <div class="text-center pt-8 border-t border-navy-800">
+                        <button onclick="changeView('view-finish')"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-lg hover:scale-105">
+                            <i class="ph-bold ph-flag-checkered"></i> Encerrar Simulado
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: FINALIZAÇÃO E DOWNLOAD -->
+                <div id="view-finish" class="spa-view text-center py-10">
+                    <div class="inline-block bg-emerald-500/10 text-emerald-400 p-4 rounded-full mb-6">
+                        <i class="ph-fill ph-check-circle text-5xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-extrabold text-white mb-4 tracking-tight">Zona de Combate Concluída</h1>
+                    <p class="text-silver-300 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+                        Vocês operaram a inteligência do Ágil e decifraram a lógica das bancas examinadoras. A primeira
+                        etapa da preparação para a Avaliação Semestral 3 (AV3) está consolidada.
+                    </p>
+
+                    <div class="bg-navy-900 border border-navy-700 p-8 rounded-2xl max-w-md mx-auto shadow-xl">
+                        <h3 class="text-white font-bold mb-2">Material de Revisão (AV 3)</h3>
+                        <p class="text-sm text-silver-400 mb-6">Faça o download do arquivo Markdown contendo as
+                            diretrizes de Scrum, Kanban, Governança e os macetes do Cebraspe explorados hoje.</p>
+
+                        <button onclick="downloadMarkdown()"
+                            class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-download-simple text-xl"></i> Baixar Revisão AV3 (.MD)
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- 1. LÓGICA DE VIEWS (SPA) ---
+        function changeView(viewId) {
+            // Oculta todas
+            document.querySelectorAll('.spa-view').forEach(v => {
+                v.classList.remove('active');
+                v.style.display = 'none'; // Segurança extra pro Tailwind
+            });
+            // Mostra a desejada
+            const target = document.getElementById(viewId);
+            target.style.display = 'block';
+
+            // Força reflow para re-engatilhar a animação
+            void target.offsetWidth;
+            target.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- 2. LÓGICA DO SIMULADO (Responder e Ver Explicação) ---
+        function responderQuestao(qNumber, answerId, btnGabId) {
+            const radios = document.getElementsByName('q' + qNumber);
+            let selecionado = false;
+
+            for (let i = 0; i < radios.length; i++) {
+                if (radios[i].checked) { selecionado = true; break; }
+            }
+
+            if (!selecionado) {
+                const qBlock = document.getElementById('qblock-' + qNumber);
+                qBlock.classList.add('ring-2', 'ring-rose-500');
+                setTimeout(() => qBlock.classList.remove('ring-2', 'ring-rose-500'), 500);
+                return;
+            }
+
+            document.getElementById('options-' + qNumber).classList.add('answered');
+            for (let i = 0; i < radios.length; i++) { radios[i].disabled = true; }
+
+            document.getElementById('btn-resp-' + qNumber).classList.add('hidden');
+            document.getElementById(btnGabId).classList.remove('hidden');
+        }
+
+        function toggleGabarito(answerId, button) {
+            const answerDiv = document.getElementById(answerId);
+            const isClosed = !answerDiv.classList.contains('open');
+
+            if (isClosed) {
+                answerDiv.classList.add('open');
+                button.innerHTML = '<i class="ph-bold ph-eye-slash text-lg"></i> Ocultar Explicação';
+                button.classList.add('bg-navy-700', 'border-navy-600');
+            } else {
+                answerDiv.classList.remove('open');
+                button.innerHTML = '<i class="ph-bold ph-eye text-lg"></i> Ver Explicação';
+                button.classList.remove('bg-navy-700', 'border-navy-600');
+            }
+        }
+
+        // --- 3. LÓGICA DO TIMER E ALARME SONORO ---
+        const DEFAULT_TIME = 2 * 60; // 2 minutos
+        let timeRemaining = DEFAULT_TIME;
+        let timerInterval = null;
+        let isRunning = false;
+
+        const display = document.getElementById('timer-display');
+        const iconTimer = document.getElementById('icon-timer');
+        const btnTimer = document.getElementById('btn-timer');
+
+        function playAlarm() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.2);
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime + 0.4);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.6);
+
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 1.5);
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function updateTimer() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                display.textContent = formatTime(timeRemaining);
+            } else {
+                clearInterval(timerInterval);
+                isRunning = false;
+                iconTimer.classList.replace('ph-pause', 'ph-clock');
+                btnTimer.classList.add('text-rose-500');
+                display.classList.add('text-rose-500');
+                display.classList.remove('timer-active');
+                playAlarm();
+            }
+        }
+
+        function toggleTimer() {
+            if (timeRemaining <= 0) return;
+            isRunning = !isRunning;
+
+            if (isRunning) {
+                iconTimer.classList.replace('ph-play', 'ph-pause');
+                display.classList.add('timer-active');
+
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                new AudioContext(); // Libera áudio
+
+                timerInterval = setInterval(updateTimer, 1000);
+            } else {
+                iconTimer.classList.replace('ph-pause', 'ph-play');
+                display.classList.remove('timer-active');
+                clearInterval(timerInterval);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeRemaining = DEFAULT_TIME;
+            display.textContent = formatTime(timeRemaining);
+            iconTimer.classList.replace('ph-pause', 'ph-play');
+            display.classList.remove('text-rose-500');
+            btnTimer.classList.remove('text-rose-500');
+            display.classList.remove('timer-active');
+        }
+
+        // --- 4. DARK MODE E SIDEBAR ---
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const htmlElement = document.documentElement;
+
+        themeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            if (htmlElement.classList.contains('dark')) {
+                themeIcon.classList.replace('ph-moon', 'ph-sun');
+            } else {
+                themeIcon.classList.replace('ph-sun', 'ph-moon');
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // --- 5. EXPORTAÇÃO MARKDOWN ---
+        function downloadMarkdown() {
+            const md = `# REVISÃO AV 3: GESTÃO ÁGIL E GOVERNANÇA DE TI
+**Turma:** 4F | **Projeto:** ETB-PAY | **Prof:** Alex Alves
+
+## 1. O CORE DA AGILIDADE
+A agilidade não é sobre fazer rápido de qualquer jeito; é sobre entregar **valor constante** com **qualidade**.
+- **Scrum:** Dita a cadência (Sprints) e define as responsabilidades claras (PO, Scrum Master, Devs).
+- **Kanban:** Dita o fluxo. O foco é a visualização do trabalho e o limite de WIP (Work in Progress) para forçar o sistema puxado e eliminar gargalos.
+
+## 2. ARTEFATOS E CERIMÔNIAS
+- **Product Backlog:** A "lista de desejos" do projeto. É **vivo e emergente**, nunca congelado.
+- **Sprint Review:** Cerimônia para inspecionar o produto final com o cliente.
+- **Sprint Retrospective:** Cerimônia exclusiva da equipe para melhorar seus próprios processos internos.
+
+## 3. O MVP (Produto Mínimo Viável)
+O MVP é a versão funcional que exige o menor esforço para validar uma hipótese de mercado. Ele NÃO é um código lixo; ele deve ter qualidade suficiente para provar se a ideia é viável.
+
+## 4. O TERMO DE ABERTURA (TAP)
+Segundo o PMBOK e os domínios de Governança, o TAP é a certidão de nascimento do projeto.
+Ele **NÃO** contém cronogramas e riscos detalhados (isso é fase de planejamento). O TAP contém autoridade, patrocinador, justificativa e escopo macro.
+
+## 5. RISCOS E LGPD (CONCEITOS ESSENCIAIS)
+O não cumprimento das diretrizes de segurança transforma falhas técnicas em passivos jurídicos e financeiros.
+- **Princípio da Exatidão (Art. 6º, IX - LGPD):** Os dados tratados devem ser exatos, claros e atualizados. Ex: Permitir cadastro de CPFs inválidos ou nomes no lugar de CPFs em um banco de dados fere a integridade e exatidão da base.
+- **Princípio da Segurança (Art. 6º, VIII - LGPD):** Obrigatoriedade de utilizar medidas técnicas e administrativas para proteger dados pessoais.
+- **Gestão de Riscos:** O risco é um evento incerto que pode impactar o projeto (Ex: Vazamento de dados). Ações de mitigação envolvem controle de acesso, constraints em banco de dados e auditorias.
+- **Penalidades (Art. 52 - LGPD):** O descumprimento pode gerar advertências, publicização da infração (dano de imagem) e **multas simples de até 2% do faturamento da empresa**, limitadas a R$ 50 milhões por infração.
+
+---
+*Documento oficial de estudo da PMO Academy. Foco no Double Gain.*
+`;
+            const blob = new Blob([md], { type: 'text/markdown' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Revisao_AV3_GestaoAgil.md';
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecossistema ETB-PAY | Prof. Alex Alves</title>
+    <meta name="description" content="Portal de entrada dos alunos da Escola Técnica de Brasília (ETB) para o projeto ETB-PAY, utilizando a metodologia Double Gain.">
+    
+    <!-- Google Fonts: Outfit (Headings) & Source Sans 3 (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons (Lightweight & Modern Icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Source Sans 3"', 'sans-serif'],
+                        display: ['"Outfit"', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for specific animations and utilities -->
+    <style>
+        /* Hidden initial state for scroll animations */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Glassmorphism utility */
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Subtle ambient glow behind the hero section */
+        .ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100vw;
+            height: 500px;
+            background: radial-gradient(ellipse at top, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 font-sans selection:bg-emerald-500/30 selection:text-emerald-200 antialiased overflow-x-hidden relative">
+
+    <!-- Ambient background glow -->
+    <div class="ambient-glow"></div>
+
+    <!-- Glassmorphism Navbar -->
+    <nav class="fixed w-full z-50 glass border-b border-slate-800 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center shadow-lg">
+                        <i class="ph ph-terminal-window text-2xl text-slate-100"></i>
+                    </div>
+                    <span class="font-display font-bold text-xl text-white tracking-tight">ETB<span class="text-slate-500 font-light">-PAY</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#sobre" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors">A Metodologia</a>
+                    <a href="#disciplinas" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors">Disciplinas</a>
+                    <a href="https://github.com/alexfernandess/etb-pay" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2">
+                        <i class="ph ph-github-logo text-lg"></i> Repositório Oficial
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center reveal-on-scroll">
+            
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm mb-8">
+                <span class="flex h-2 w-2 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span class="text-xs font-semibold tracking-wide text-slate-300 uppercase">Ambiente Educacional de Alta Performance</span>
+            </div>
+
+            <h1 class="text-5xl lg:text-7xl font-display font-extrabold text-white tracking-tight leading-tight mb-8">
+                Bem-vindo ao Ecossistema <br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-purple-400">ETB-PAY</span>
+            </h1>
+            
+            <p class="text-lg lg:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed mb-12">
+                Acelere sua carreira com a metodologia <strong class="text-slate-200">"Double Gain"</strong>. Construa projetos reais para o mercado corporativo enquanto domina os padrões arquiteturais exigidos nas provas de <strong class="text-slate-200">Concursos Públicos de TI de alto nível</strong> (Cebraspe, FGV, FCC).
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
+                <a href="#disciplinas" class="w-full sm:w-auto px-8 py-4 rounded-xl font-display font-semibold text-slate-900 bg-white hover:bg-slate-200 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-1">
+                    Explorar Disciplinas
+                </a>
+                <a href="https://github.com/alexfernandess/etb-pay" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-8 py-4 rounded-xl font-display font-semibold text-white bg-slate-800 border border-slate-700 hover:border-slate-500 hover:bg-slate-700/50 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-1">
+                    <i class="ph ph-github-logo text-xl"></i> Acessar Repositório
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Section -->
+    <section id="sobre" class="py-24 bg-slate-900/50 border-y border-slate-800 relative z-10">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="reveal-on-scroll">
+                    <h2 class="text-sm font-semibold tracking-widest text-emerald-400 uppercase mb-3">O Projeto</h2>
+                    <h3 class="text-3xl lg:text-4xl font-display font-bold text-white mb-6">A Teoria Encontra a Produção</h3>
+                    <p class="text-slate-400 leading-relaxed mb-6">
+                        Desenvolvido de forma colaborativa pelos alunos da ETB, o <strong>ETB-PAY</strong> é um sistema financeiro simulado construído totalmente do zero. Nosso objetivo não é apenas escrever código, mas formar profissionais com raciocínio crítico.
+                    </p>
+                    <p class="text-slate-400 leading-relaxed">
+                        Aqui, traduzimos a teoria seca exigida nos editais para a prática implacável do mercado. Você aprenderá a projetar arquiteturas escaláveis, garantir a integridade dos dados e gerenciar o ciclo de vida do software sob os frameworks de governança mais rígidos do setor público e privado.
+                    </p>
+                </div>
+                
+                <div class="relative reveal-on-scroll delay-200">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-cyan-500/10 rounded-3xl transform rotate-3 scale-105 opacity-50 blur-xl"></div>
+                    <div class="relative bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
+                        <div class="flex items-center gap-3 mb-6 pb-6 border-b border-slate-700/50">
+                            <div class="flex gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-slate-600"></div>
+                                <div class="w-3 h-3 rounded-full bg-slate-600"></div>
+                                <div class="w-3 h-3 rounded-full bg-slate-600"></div>
+                            </div>
+                            <span class="text-xs font-mono text-slate-500">metodologia.json</span>
+                        </div>
+                        <pre class="text-sm font-mono text-slate-300 overflow-x-auto"><code><span class="text-emerald-400">const</span> <span class="text-cyan-300">doubleGain</span> <span class="text-white">=</span> {
+  <span class="text-slate-400">objetivo:</span> <span class="text-emerald-300">"Aprovação e Empregabilidade"</span>,
+  <span class="text-slate-400">pilares:</span> [
+    <span class="text-emerald-300">"Código Blindado"</span>,
+    <span class="text-emerald-300">"Mapeamento de Bancas (Cebraspe)"</span>,
+    <span class="text-emerald-300">"Governança Corporativa"</span>
+  ],
+  <span class="text-slate-400">executar:</span> <span class="text-purple-400">function</span>() {
+    <span class="text-cyan-400">return</span> <span class="text-white">this</span>.pilares.map(<span class="text-slate-400">p</span> => p.aplicar());
+  }
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disciplinas Section -->
+    <section id="disciplinas" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            
+            <div class="text-center mb-20 reveal-on-scroll">
+                <h2 class="text-3xl lg:text-4xl font-display font-bold text-white mb-4">Escolha o seu Módulo</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">As frentes de atuação do ecossistema ETB-PAY. Selecione sua disciplina para entender a stack técnica e a governança envolvida.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Card Turma 2G (Banco de Dados) -->
+                <div class="group bg-slate-800 border border-slate-700 rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.1)] reveal-on-scroll">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center mb-8 group-hover:border-cyan-400/50 group-hover:bg-cyan-400/10 transition-colors duration-500">
+                        <i class="ph ph-database text-3xl text-cyan-400"></i>
+                    </div>
+                    <div class="mb-6">
+                        <span class="inline-block px-3 py-1 rounded-full bg-cyan-400/10 text-cyan-400 text-xs font-bold tracking-wider uppercase mb-4 border border-cyan-400/20">Turma 2G</span>
+                        <h3 class="font-display text-2xl font-semibold text-white">Banco de Dados</h3>
+                    </div>
+                    <p class="text-slate-400 leading-relaxed mb-8">
+                        Foco estratégico na infraestrutura de dados do ETB-PAY. Trabalhamos com SQL avançado, modelagem relacional, arquitetura de extração, transformação e carga (Ciclo ETL) e saneamento rigoroso de bases legadas.
+                    </p>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-cyan-400"></i> Modelagem Lógica e Física</li>
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-cyan-400"></i> Otimização de Queries SQL</li>
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-cyan-400"></i> Pipelines ETL & Saneamento</li>
+                    </ul>
+                </div>
+
+                <!-- Card Turma 3G (Java) -->
+                <div class="group bg-slate-800 border border-slate-700 rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-emerald-400/50 hover:shadow-[0_0_30px_rgba(52,211,153,0.1)] reveal-on-scroll delay-100">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center mb-8 group-hover:border-emerald-400/50 group-hover:bg-emerald-400/10 transition-colors duration-500">
+                        <i class="ph ph-coffee text-3xl text-emerald-400"></i>
+                    </div>
+                    <div class="mb-6">
+                        <span class="inline-block px-3 py-1 rounded-full bg-emerald-400/10 text-emerald-400 text-xs font-bold tracking-wider uppercase mb-4 border border-emerald-400/20">Turma 3G</span>
+                        <h3 class="font-display text-2xl font-semibold text-white">LTP II - Java</h3>
+                    </div>
+                    <p class="text-slate-400 leading-relaxed mb-8">
+                        A engenharia do Back-end. Construímos a lógica de negócios utilizando o paradigma de Orientação a Objetos (Encapsulamento, Herança, Polimorfismo), integração JDBC e dinâmicas de Live Coding (Bug Bounty).
+                    </p>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-emerald-400"></i> Padrões POO & SOLID</li>
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-emerald-400"></i> Integração com Banco de Dados</li>
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-emerald-400"></i> Refatoração e Código Limpo</li>
+                    </ul>
+                </div>
+
+                <!-- Card Turma 4F (Gestão de TI) -->
+                <div class="group bg-slate-800 border border-slate-700 rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-purple-400/50 hover:shadow-[0_0_30px_rgba(192,132,252,0.1)] reveal-on-scroll delay-200">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center mb-8 group-hover:border-purple-400/50 group-hover:bg-purple-400/10 transition-colors duration-500">
+                        <i class="ph ph-kanban text-3xl text-purple-400"></i>
+                    </div>
+                    <div class="mb-6">
+                        <span class="inline-block px-3 py-1 rounded-full bg-purple-400/10 text-purple-400 text-xs font-bold tracking-wider uppercase mb-4 border border-purple-400/20">Turma 4F</span>
+                        <h3 class="font-display text-2xl font-semibold text-white">Gestão de TI</h3>
+                    </div>
+                    <p class="text-slate-400 leading-relaxed mb-8">
+                        A espinha dorsal operacional. Estudamos a orquestração do sistema através de metodologias Ágeis e Tradicionais (Scrum, Kanban, Cascata) e os frameworks de excelência exigidos pelo mercado público e privado (ITIL, COBIT).
+                    </p>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-purple-400"></i> Metodologias Ágeis & PMO</li>
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-purple-400"></i> Framework ITIL 4</li>
+                        <li class="flex items-center gap-3 text-sm text-slate-300"><i class="ph-fill ph-check-circle text-purple-400"></i> Governança COBIT</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-slate-800 border border-slate-700 flex items-center justify-center">
+                        <i class="ph ph-terminal-window text-slate-300"></i>
+                    </div>
+                    <span class="font-display font-bold text-lg text-slate-300">ETB-PAY</span>
+                </div>
+                
+                <div class="flex gap-6">
+                    <a href="https://github.com/alexfernandess/etb-pay" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-800 rounded-lg">
+                        <span class="sr-only">GitHub</span>
+                        <i class="ph ph-github-logo text-2xl"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/alexfernandess/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-800 rounded-lg">
+                        <span class="sr-only">LinkedIn</span>
+                        <i class="ph ph-linkedin-logo text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-800/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-slate-500 text-sm">
+                    &copy; 2026 ETB-PAY. Professor Alex Alves.
+                </p>
+                <p class="text-slate-500 text-sm italic">
+                    "Código limpo é a ponte entre a teoria acadêmica e a aprovação no mercado."
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Script for scroll animations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Intersection Observer for scroll reveal animation
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            
+            const revealCallback = function(entries, observer) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+
+            const revealObserver = new IntersectionObserver(revealCallback, {
+                root: null,
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            });
+
+            revealElements.forEach(el => revealObserver.observe(el));
+        });
+    </script>
+</body>
+</html>
