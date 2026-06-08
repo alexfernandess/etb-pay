@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Simulado Banco de Dados</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- html2pdf.js para Exportação do Guia de Estudos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            900: '#0f172a',
+                        },
+                        slate: {
+                            800: '#1e293b',
+                            700: '#334155',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['Consolas', 'Monaco', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS para Glassmorphism e Animações -->
+    <style>
+        body {
+            background-color: #0f172a; /* Navy 900 */
+            color: #f8fafc;
+            background-image: 
+                radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent 40%),
+                radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.05), transparent 40%);
+            background-attachment: fixed;
+            overflow: hidden;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.6); /* Slate 800 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7); /* Navy 900 */
+            backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(52, 211, 153, 0.2); /* Emerald border */
+        }
+
+        .view-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .view-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Radio Buttons Customizados */
+        .radio-label {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .radio-label:hover:not(.locked) {
+            background: rgba(52, 211, 153, 0.1);
+            border-color: #34d399;
+        }
+
+        .radio-input:checked + .radio-label:not(.locked) {
+            background: rgba(52, 211, 153, 0.2);
+            border-color: #10b981;
+            color: #34d399;
+        }
+
+        .locked {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .status-correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+            color: #34d399 !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-incorrect {
+            background: rgba(225, 29, 72, 0.2) !important;
+            border-color: #e11d48 !important;
+            color: #fb7185 !important;
+            box-shadow: 0 0 15px rgba(225, 29, 72, 0.2);
+        }
+
+        .nav-item.active {
+            background: rgba(52, 211, 153, 0.15);
+            border-right: 4px solid #10b981;
+            color: #34d399;
+        }
+
+        .hidden-box {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .terminal-header {
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        .terminal-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #eab308; }
+        .dot-green { background: #10b981; }
+
+        /* Comportamento de Recolher Sidebar */
+        #sidebar { transition: width 0.3s ease; }
+        #main-content { transition: margin-left 0.3s ease; }
+        
+        .sidebar-collapsed { width: 5.5rem !important; }
+        .sidebar-collapsed .nav-text { display: none; }
+        .sidebar-collapsed .brand-text { display: none; }
+        .sidebar-collapsed .class-info { display: none; }
+        .sidebar-collapsed .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+        .sidebar-collapsed .nav-item i { margin: 0; font-size: 1.5rem; }
+        .main-collapsed { margin-left: 5.5rem !important; }
+
+        /* Scrollbar customizada */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #34d399; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+    </style>
+</head>
+<body class="flex h-screen w-full antialiased">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-72 h-full glass-panel flex flex-col z-20 shrink-0 absolute md:relative">
+        <!-- ÁREA DA MARCA / RECOLHER SIDEBAR -->
+        <div onclick="toggleSidebar()" class="p-6 border-b border-emerald-500/20 cursor-pointer hover:bg-emerald-500/10 transition group" title="Clique para recolher/expandir o menu">
+            <h1 class="text-2xl font-bold text-emerald-400 flex items-center gap-2 tracking-tight justify-center md:justify-start">
+                <i class="ph-fill ph-database group-hover:scale-110 transition-transform"></i> 
+                <span class="brand-text">ETB-PAY</span>
+            </h1>
+            <p class="brand-text text-xs text-slate-400 tracking-widest uppercase mt-1">Simulado Interativo BD</p>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 flex flex-col gap-1">
+            <button onclick="switchView('conceitos')" class="nav-item active w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-book-open-text text-xl"></i> <span class="nav-text">Tática de Imersão</span>
+            </button>
+            <button onclick="switchView('intro')" class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-flag text-xl"></i> <span class="nav-text">Regras da Arena</span>
+            </button>
+            <button onclick="switchView('simulado')" class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-crosshair text-xl"></i> <span class="nav-text">Simulado Oficial</span>
+            </button>
+            <button onclick="switchView('finish')" class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-check-circle text-xl"></i> <span class="nav-text">Fechamento</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-emerald-500/20 bg-slate-800/30 flex items-center gap-3 justify-center md:justify-start">
+            <img src="https://ui-avatars.com/api/?name=Prof+Alex&background=10b981&color=fff" class="w-10 h-10 rounded-full border border-emerald-500 flex-shrink-0" alt="Prof">
+            <div class="class-info">
+                <p class="text-sm font-bold text-emerald-400">Turma 2G</p>
+                <p class="text-xs text-slate-400">Banco de Dados</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="flex-1 h-full overflow-y-auto relative bg-navy-900/40 w-full">
+        
+        <!-- HEADER (Timer) -->
+        <header class="glass sticky top-0 z-30 px-4 md:px-8 py-4 flex justify-between items-center border-b border-emerald-500/20">
+            <div>
+                <h2 class="text-lg font-bold text-white hidden md:block">Engenharia Reversa: CEBRASPE / Quadrix</h2>
+                <p class="text-xs text-emerald-400 font-bold">Sprint de Conhecimento em BD</p>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-600 shadow-inner">
+                <i class="ph-fill ph-timer text-emerald-400 text-xl hidden sm:block"></i>
+                <span id="timer-display" class="font-mono text-2xl font-bold text-white tracking-widest">10:00</span>
+                <button onclick="resetTimer()" class="ml-2 text-slate-400 hover:text-emerald-400 transition" title="Resetar Tempo">
+                    <i class="ph-bold ph-arrow-counter-clockwise text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-4xl mx-auto pb-24">
+
+            <!-- VIEW 1: CONCEITOS -->
+            <section id="conceitos" class="view-content active space-y-6">
+                <h1 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Tática de Imersão (Radar da Banca)</h1>
+                <p class="text-slate-300 mb-6 text-lg">Revisaremos conceitos cruciais de SGBDs e Saneamento de Dados. Entenda o que as bancas cobram e o que o mercado aplica no dia a dia do nosso ETB-Pay.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-table text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">DDL vs DML</h3>
+                        <p class="text-sm text-slate-400"><strong>DDL</strong> (Definition) estrutura o "cofre" (CREATE, DROP, ALTER). <strong>DML</strong> (Manipulation) movimenta o "dinheiro/dados" (INSERT, UPDATE, DELETE). Não confunda DROP com DELETE!</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-shield-check text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Restrições (Constraints)</h3>
+                        <p class="text-sm text-slate-400">O SGBD deve garantir a integridade. A <code>PRIMARY KEY</code> é única e não-nula. A cláusula <code>CHECK</code> defende o banco de lixo (Integridade de Domínio), barrando inserts inválidos.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-funnel text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Limpeza em Voo (ETL)</h3>
+                        <p class="text-sm text-slate-400">Ao projetar dados (SELECT), funções escalares como <code>REPLACE()</code> alteram apenas o resultado exibido temporariamente. Para gravar as limpezas de ETL na tabela nova, combinamos com <code>INSERT INTO</code>.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-lock-key text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Transações ACID</h3>
+                        <p class="text-sm text-slate-400">Atomicidade (Tudo ou nada), Consistência (Respeita as regras), Isolamento (Invisível sem Commit), Durabilidade (Gravou, não perde). O <code>ROLLBACK</code> é seu botão de pânico.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-center items-center text-center md:col-span-2">
+                    <h3 class="text-lg font-bold text-emerald-400 mb-4">Entendeu a Tática?</h3>
+                    <button onclick="switchView('intro')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition">
+                        Ler Regras da Arena
+                    </button>
+                </div>
+            </div>
+        </section>
+
+            <!-- VIEW 2: INTRO -->
+            <section id="intro" class="view-content space-y-6">
+                <div class="glass p-8 rounded-2xl border-t-4 border-emerald-500">
+                    <h1 class="text-4xl font-bold text-white mb-4">Bem-vindo à Arena ETB-PAY</h1>
+                    <p class="text-lg text-slate-300 mb-6">Este simulado foca nos tópicos avançados de Engenharia de Dados (ETL e Transações). Utiliza o julgamento de afirmativas (CERTO/ERRADO), padrão exigido pelas bancas Quadrix e CEBRASPE.</p>
+                    
+                    <h3 class="text-xl font-bold text-emerald-400 mb-3"><i class="ph-fill ph-warning-circle"></i> Regras de Engajamento:</h3>
+                    <ul class="space-y-3 text-slate-300 mb-8 list-disc list-inside">
+                        <li>Serão <strong>10 questões</strong> focadas em SQL, Modelagem e Integridade de Dados.</li>
+                        <li>Escolha entre <strong>CERTO</strong> ou <strong>ERRADO</strong> e clique em "Confirmar Resposta".</li>
+                        <li>Uma vez consolidada, a resposta não pode ser alterada.</li>
+                        <li>Após responder, debloqueie a Explicação da Banca e o nosso Desafio Prático (ETB-Pay).</li>
+                    </ul>
+
+                    <button onclick="startSimulado()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition flex items-center gap-2">
+                        Iniciar Simulado <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW 3: SIMULADO -->
+            <section id="simulado" class="view-content space-y-8">
+                
+                <!-- Q1 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="1" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 01 - CEBRASPE (Comandos SQL / DML vs DDL)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Durante a operação de quarentena do ETB-Pay, o engenheiro de dados precisou apagar uma tabela completamente para recriá-la. O comando <code>DROP TABLE</code> pertence à sublinguagem de Manipulação de Dados (DML), pois sua função é apagar os dados armazenados de forma irreversível.
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q1" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q1" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(1)" id="btn-resp-1" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+
+                    <div id="actions-1" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-1')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-1')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+
+                    <div id="exp-1" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">O comando <code>DROP</code> atua na <strong>estrutura</strong> do banco de dados (apagando a "caixa" ou "cofre"), portanto pertence à <strong>DDL (Linguagem de Definição de Dados)</strong>. A exclusão de linhas específicas (os dados) é feita com <code>DELETE</code>, que aí sim pertence à DML.</p>
+                    </div>
+
+                    <div id="des-1" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            No projeto real, nós utilizamos `DROP TABLE IF EXISTS tb_clientes;` no script inicial da Aula 2. Isso destrói a tabela antiga e recria um cofre novo e limpo. Se fôssemos usar DML, faríamos apenas `DELETE FROM tb_clientes;`, preservando a estrutura.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="2" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 02 - Quadrix (Restrições / Constraints)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Ao projetar o banco de dados do ETB-Pay, o Arquiteto de Software adicionou a restrição de <code>PRIMARY KEY</code> no campo <code>id_cliente</code>. Essa declaração garante, intrinsecamente, que o campo não aceitará valores nulos (NOT NULL) e que cada valor armazenado será exclusivo (UNIQUE).
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q2" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q2" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(2)" id="btn-resp-2" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-2" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-2')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-2')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-2" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Por definição teórica e prática dos SGBDs relacionais, a Chave Primária (PK) é exatamente a união de duas constraints: <code>UNIQUE</code> (para impedir duplicidade) e <code>NOT NULL</code> (pois todo registro precisa ter uma identificação obrigatória).</p>
+                    </div>
+                    <div id="des-2" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            No projeto ETB-Pay, nós fomos além. Além da `PRIMARY KEY` na coluna ID, nós adicionamos `UNIQUE` na coluna `email`. Qual a diferença? Uma tabela pode ter vários `UNIQUE`, mas apenas UMA `PRIMARY KEY`.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="3" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 03 - CEBRASPE (Expressões / GLOB vs LIKE)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Durante a blindagem do cadastro de celulares, utilizou-se a cláusula <code>CHECK</code> associada ao operador <code>GLOB</code>. Diferente do operador <code>LIKE</code>, o <code>GLOB</code> no SQLite é case-sensitive (distingue maiúsculas e minúsculas) e permite o uso avançado de listas e intervalos de caracteres, como <code>[0-9]</code>.
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q3" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q3" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(3)" id="btn-resp-3" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-3" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-3')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-3')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-3" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Exatamente. O <code>LIKE</code> é mais simples, usando '%' e '_'. O <code>GLOB</code> herda o comportamento do Unix wildcarding (RegEx básico), sendo extremamente poderoso para validar classes de caracteres, como números puros `[0-9]`.</p>
+                    </div>
+                    <div id="des-3" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            Lembre-se da nossa aula: O `LIKE` atua como o segurança da balada (avaliação simples), já o `GLOB` é o leitor biométrico. Foi ele que nos permitiu usar `NOT telefone GLOB '*[^0-9]*'` para bloquear o aluno que tentou digitar "(61)" com parênteses.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="4" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 04 - Quadrix (DML / Auto Incremento)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Ao se utilizar a propriedade <code>AUTOINCREMENT</code> em uma coluna <code>PRIMARY KEY</code>, torna-se estritamente obrigatório inserir o valor da chave manualmente na instrução <code>INSERT INTO</code> para que o banco consiga prosseguir com a gravação dos dados.
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q4" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q4" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(4)" id="btn-resp-4" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-4" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-4')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-4')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-4" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">A principal vantagem de um atributo Auto-Incremental (como <code>SERIAL</code> no Postgres, <code>IDENTITY</code> no SQL Server ou <code>AUTOINCREMENT</code> no SQLite) é justamente desobrigar o programador de passá-lo manualmente no INSERT. O SGBD assume o controle gerando números sequenciais automáticos.</p>
+                    </div>
+                    <div id="des-4" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            No projeto, a tabela possui 5 colunas. Porém no nosso `INSERT INTO tb_clientes (cpf, nome, email, telefone)` listamos apenas 4! Ao ignorar a coluna `id_cliente` no comando, deixamos o banco de dados livre para auto-preenchê-la perfeitamente, evitando conflitos (Column Mismatch).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="5" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 05 - CEBRASPE (Transações ACID / Atomicidade)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Em um SGBD, o conceito de <strong>Atomicidade</strong> (propriedade do acrônimo ACID) garante que, se uma transação que envolve a inserção de 10.000 registros falhar na linha 9.999, todas as alterações previamente submetidas nessa mesma transação devem ser automaticamente desfeitas por meio de um mecanismo de rollback.
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q5" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q5" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(5)" id="btn-resp-5" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-5" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-5')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-5')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-5" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">A Atomicidade impõe a regra do "Tudo ou Nada". A transação é indivisível. Se qualquer erro, pane elétrica ou violação de constraint ocorrer antes do <code>COMMIT</code> final, o SGBD é obrigado a reverter ao estado exato pré-transação.</p>
+                    </div>
+                    <div id="des-5" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            É por isso que em nossos scripts robustos abrimos com `BEGIN TRANSACTION;` antes do `INSERT INTO ... SELECT`. Protegemos a base do ETB-Pay para que ela não fique "meio-grávida" de dados se o pipeline do ETL quebrar pela metade.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="6" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 06 - Quadrix (Funções Escalares)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        A função nativa <code>REPLACE()</code>, quando acionada diretamente numa cláusula <code>SELECT</code> (ex: <code>SELECT REPLACE(cpf, '-', '')</code>), tem a capacidade de alterar permanentemente os dados gravados na tabela física, economizando o uso de comandos de DML (UPDATE).
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q6" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q6" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(6)" id="btn-resp-6" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-6" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-6')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-6')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-6" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">A cláusula <code>SELECT</code> é apenas uma operação de leitura/projeção. Mesmo usando funções avançadas para modificar visualmente o dado na tela do usuário, nenhuma alteração permanente acontece na base física sem um <code>UPDATE</code> ou <code>INSERT</code>.</p>
+                    </div>
+                    <div id="des-6" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            No lab "O Raio-X", rodamos o SELECT isolado apenas para *homologar* (testar visualmente) como o REPLACE lidava com o lixo. Para tornar a limpeza definitiva na nova estrutura, tivemos que envelopar o comando dentro de um `INSERT INTO tb_clientes ... SELECT ...`!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="7" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 07 - CEBRASPE (Engenharia ETL / Mapeamento)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Em uma migração de dados utilizando a instrução <code>INSERT INTO tabela_destino SELECT * FROM tabela_origem</code>, caso a tabela destino possua colunas a mais que a origem, a execução falhará por quebra estrutural ("Column Mismatch"), sendo necessário realizar um mapeamento explícito das colunas alvo e o preenchimento de campos faltantes com literais, como <code>NULL</code>.
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q7" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q7" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(7)" id="btn-resp-7" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-7" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-7')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-7')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-7" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">SGBDs são matemáticos e rigorosos. Um número 'X' de colunas na instrução INSERT exige exatamente o número 'X' de colunas fornecidas pela subquery SELECT, na mesma ordem e tipo de dados compatível.</p>
+                    </div>
+                    <div id="des-7" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            É o clássico erro "3 values for 4 columns". Como `clientes_old` não tinha telefone, tivemos que refatorar a query inserindo propositalmente o comando `NULL AS telefone` no SELECT para a equação fechar com a nova estrutura da tabela blindada.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="8" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 08 - Quadrix (DCL e Segurança do SGBD)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Ao se empregar o Princípio do Menor Privilégio na administração do banco de dados, caso um usuário de sistema receba privilégios de gravação (via <code>GRANT INSERT ON tb_clientes</code>), ele herdará, obrigatoriamente e de forma automática, os direitos fundamentais de consulta (<code>SELECT</code>) sobre a referida tabela.
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q8" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q8" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(8)" id="btn-resp-8" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-8" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-8')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-8')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-8" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">Os privilégios em SQL são atômicos e granulares. O fato de você poder inserir dados em uma tabela não significa que você tenha permissão para ler o que os outros inseriram lá dentro. O DCL exige que os privilégios sejam explicitados individualmente.</p>
+                    </div>
+                    <div id="des-8" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            No laboratório ETB-Pay, isolar acessos garante que, se o microserviço do gateway vazar na internet (hackeado), o invasor apenas conseguirá "inserir lixo" (que ainda seria barrado pelo CHECK). Mas ele jamais conseguirá puxar um SELECT massivo roubando milhões de dados de cartões de clientes.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="9" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 09 - CEBRASPE (Tipologia / Valores Nulos)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        No contexto do modelo relacional e na linguagem SQL padrão (ANSI), o marcador <code>NULL</code> é processado da mesma forma lógica e computacional que uma string vazia formada por duas aspas simples (<code>''</code>), afinal ambos indicam a ausência de dados válidos.
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q9" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q9" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(9)" id="btn-resp-9" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-9" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-9')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-9')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-9" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">Erro fatal em Banco de Dados! <code>NULL</code> denota a ausência absoluta de valor (estado desconhecido ou inexistente). Uma string vazia (<code>''</code>) é um dado textual real, que apenas possui comprimento zero, ocupando alocação física diferenciada em disco.</p>
+                    </div>
+                    <div id="des-9" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            Se um cliente não tem telefone cadastrado na base ETB-Pay, forçamos a entrada do valor `NULL` na migração. Gravar um campo como `''` pode acionar lógicas erradas em relatórios futuros e não fará disparar as validações que procuram por "vazio total".
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="10" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 10 - Quadrix (Transações ACID / Isolamento)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Ao rodar uma transação de Saneamento usando <code>BEGIN TRANSACTION</code> em um ambiente SQLite de rede, um Engenheiro de Dados altera um nome na tabela <code>clientes_old</code>. Devido à propriedade de Isolamento, essas atualizações serão totalmente invisíveis para outras estações de trabalho até que o comando <code>COMMIT</code> seja finalmente processado com sucesso.
+                    </p>
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q10" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q10" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    <button onclick="responder(10)" id="btn-resp-10" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+                    <div id="actions-10" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-10')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-10')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+                    <div id="exp-10" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Afirmativa corretíssima. A propriedade do <strong>Isolamento</strong> garante que transações concorrentes não afetem umas às outras. A "bolha" temporária que você criou alterando o dado só se tornará o dado oficial da corporação no instante exato do COMMIT.</p>
+                    </div>
+                    <div id="des-10" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span><span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            Isso evita o fenômeno da "Leitura Suja" (Dirty Read). Imagina o caos: o Aluno A roda um script corrompido, o Aluno B enxerga isso em tempo real, gera um relatório para o Banco Central... e então o Aluno A digita ROLLBACK. Para evitar esse horror, as transações operam como bolhas lacradas.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-center pt-8">
+                    <button onclick="switchView('finish')" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg transition border border-slate-500">
+                        Finalizar Simulado
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- VIEW 4: FINISH -->
+            <section id="finish" class="view-content space-y-6">
+                <div class="glass p-10 rounded-2xl text-center border-emerald-500/50">
+                    <div class="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-400">
+                        <i class="ph-fill ph-trophy text-4xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-bold text-white mb-4">Simulado Concluído!</h1>
+                    <p class="text-lg text-slate-300 mb-8 max-w-lg mx-auto">Você completou o ciclo de treinamento em Arquitetura de Banco de Dados, Saneamento ETL e Transações ACID focadas nas bancas rigorosas. Agora é executar isso nos laboratórios do ETB-PAY.</p>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                        <button onclick="downloadMarkdown()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center gap-2 border border-slate-500">
+                            <i class="ph-bold ph-download-simple text-xl"></i> Resumo (.MD)
+                        </button>
+                        <button id="btn-download-pdf" onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition flex items-center gap-2">
+                            <i class="ph-bold ph-file-pdf text-xl"></i> Guia de Estudos (PDF)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- TEMPLATE OCULTO PARA PDF (COBIT / ESTRUTURA QUADRIX) -->
+    <div id="pdf-template" style="display: none; background: #ffffff; color: #1e293b; padding: 40px; font-family: 'Segoe UI', Arial, sans-serif; width: 100%; max-width: 800px; margin: 0 auto;">
+        <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 20px; margin-bottom: 30px;">
+            <h1 style="color: #0f172a; font-size: 32px; margin-bottom: 5px;">ETB-PAY | Guia de Estudos</h1>
+            <p style="color: #475569; font-size: 18px; margin: 0;">Revisão Tática: Banco de Dados & Saneamento (Cebraspe/Quadrix)</p>
+        </div>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Fundamentos de Banco de Dados</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: disc; padding-left: 20px;">
+            <li><strong>DDL vs DML:</strong> <code>CREATE/DROP/ALTER</code> estruturam o BD (DDL). <code>INSERT/UPDATE/DELETE</code> manipulam os dados gerados (DML).</li>
+            <li><strong>Transações ACID:</strong> Atomicidade (Tudo ou nada), Consistência (regras validadas), Isolamento (invisibilidade antes do commit) e Durabilidade (permanência gravada em disco).</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q1 - Comandos SQL / DML vs DDL</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> DROP TABLE pertence à DML pois apaga dados. (ERRADO)</li>
+            <li><strong>A Regra (Por Quê):</strong> DROP destrói a "estrutura", logo atua na Definição de Dados (DDL). Para apagar os dados internamente preservando a estrutura, usa-se o DELETE (DML).</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q2 - Restrições / Constraints</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> PRIMARY KEY garante valores não-nulos e exclusivos. (CERTO)</li>
+            <li><strong>A Regra (Por Quê):</strong> A restrição PRIMARY KEY aglutina, de forma implícita e automática, as validações de UNIQUE + NOT NULL na coluna alvo.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q3 - Expressões / GLOB vs LIKE</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> GLOB é case-sensitive e permite validar listas [0-9]. (CERTO)</li>
+            <li><strong>A Regra (Por Quê):</strong> Diferentemente da simplicidade do operador LIKE, o GLOB usa a sintaxe de verificação (tipo wildcards Unix) tornando-se poderoso para garantir máscaras rigorosas no banco.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q4 - DML / Auto Incremento</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Em campos AUTOINCREMENT, torna-se obrigatório inserir o valor da PK manualmente no INSERT. (ERRADO)</li>
+            <li><strong>A Regra (Por Quê):</strong> Justamente o oposto. É recomendável ignorar a coluna autoincrementável na instrução de INSERT para que o SGBD cuide da geração paralela, impedindo duplicações.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q5 - Transações ACID / Atomicidade</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Falhas interrompem todo o lote de registros da transação (Rollback). (CERTO)</li>
+            <li><strong>A Regra (Por Quê):</strong> A Atomicidade (O "Tudo ou Nada") garante a reversão ao último estado válido, protegendo sistemas contra quebras parciais ou corrompimentos indesejados.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q6 - Funções Escalares</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> REPLACE no SELECT altera os dados fisicamente. (ERRADO)</li>
+            <li><strong>A Regra (Por Quê):</strong> A instrução SELECT é sempre projetiva. Manipulações nela não causam impacto físico na tabela gravada até que estejam atreladas aos comandos nativos de DML, como o UPDATE ou o INSERT INTO.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q7 - Engenharia ETL / Mapeamento</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> INSERT INTO... SELECT falhará com colunas incompatíveis sem mapeamento/NULL explícito. (CERTO)</li>
+            <li><strong>A Regra (Por Quê):</strong> Conhecido como Column Mismatch. Para evitar erros na migração, as colunas do SELECT (em tipo e volume numérico) devem coincidir assimetricamente com as do INSERT de destino.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q8 - DCL e Segurança do SGBD</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Receber o GRANT de INSERT assegura acesso automático a permissões de leitura SELECT. (ERRADO)</li>
+            <li><strong>A Regra (Por Quê):</strong> Privilégios no SGBD são atômicos. Sob o princípio do Menor Privilégio, garantir um privilégio de escrita a um usuário nunca implicará herança implícita de leitura no conteúdo inserido.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q9 - Tipologia / Valores Nulos</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> NULL é processado lógica e computacionalmente da mesma forma que strings vazias. (ERRADO)</li>
+            <li><strong>A Regra (Por Quê):</strong> A string vazia é um valor textual computado com "0 caracteres". O <code>NULL</code> é estado marcante da "ausência" definitiva ou total desconhecimento na tabela, possuindo ramificações distintas nos filtros matemáticos.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q10 - Transações ACID / Isolamento</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Transações não efetuadas (sem COMMIT) na rede SQLite são invisíveis para outras estações de trabalho. (CERTO)</li>
+            <li><strong>A Regra (Por Quê):</strong> Representa o "I" (Isolamento) do ACID, projetado para evitar a Dirty Read (Leitura Suja) que impactaria processos alheios com informações que sequer foram oficializadas e persistidas na base comum.</li>
+        </ul>
+    </div>
+
+    <!-- Scripts da SPA -->
+    <script>
+        // --- Sidebar Toggling ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-collapsed');
+        }
+
+        // --- SPA Tab Switching ---
+        function switchView(viewId) {
+            document.querySelectorAll('.view-content').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+
+            // Atualiza sidebar
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Highlight current nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if(item.getAttribute('onclick').includes(viewId)) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Se for simulado, foca no topo
+            if(viewId === 'simulado') {
+                document.getElementById('main-content').scrollTo(0,0);
+            }
+        }
+
+        // --- Timer Logic (10 Minutes) ---
+        let totalSeconds = 10 * 60; // 10 minutos
+        let timerRunning = false;
+        let timerInterval = null;
+
+        function updateTimer() {
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            document.getElementById('timer-display').textContent = 
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            if(totalSeconds > 0 && timerRunning) {
+                totalSeconds--;
+                if(totalSeconds <= 60) {
+                    document.getElementById('timer-display').classList.add('text-rose-400');
+                    document.getElementById('timer-display').classList.remove('text-white');
+                }
+            } else if (totalSeconds === 0 && timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                alert('Tempo esgotado! O mercado não perdoa atrasos. Finalize suas questões.');
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            totalSeconds = 10 * 60;
+            const display = document.getElementById('timer-display');
+            display.classList.remove('text-rose-400');
+            display.classList.add('text-white');
+            updateTimer();
+            startTimerReal();
+        }
+
+        function startTimerReal() {
+            timerRunning = true;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Iniciar timer ao clicar no botão de iniciar simulado
+        function startSimulado() {
+            switchView('simulado');
+            resetTimer();
+        }
+
+        // Lógica de Resposta
+        function responder(qNumber) {
+            const container = document.querySelector(`.question-card[data-q="${qNumber}"]`);
+            const correctAnswer = container.getAttribute('data-answer');
+            const radios = container.querySelectorAll('.radio-input');
+            let selectedValue = null;
+            let selectedLabel = null;
+
+            radios.forEach(radio => {
+                if (radio.checked) {
+                    selectedValue = radio.value;
+                    selectedLabel = radio.parentElement;
+                }
+            });
+
+            if (!selectedValue) {
+                alert('Selecione CERTO ou ERRADO antes de confirmar!');
+                return;
+            }
+
+            // Travar opções
+            const allLabels = container.querySelectorAll('.radio-label');
+            allLabels.forEach(label => {
+                label.classList.add('locked');
+                const input = label.querySelector('input');
+                // Encontrar label correta
+                if(input.value === correctAnswer) {
+                    label.classList.add('status-correct');
+                }
+            });
+
+            // Se errou, pinta a que ele selecionou de vermelho
+            if (selectedValue !== correctAnswer) {
+                selectedLabel.classList.remove('status-correct'); // just in case
+                selectedLabel.classList.add('status-incorrect');
+            }
+
+            // Esconder botão responder, mostrar actions
+            document.getElementById(`btn-resp-${qNumber}`).style.display = 'none';
+            document.getElementById(`actions-${qNumber}`).style.display = 'flex';
+        }
+
+        // Toggle Explicação / Desafio
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if(section.style.display === 'block') {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
+            }
+        }
+
+        // Gerador de Markdown para Download
+        function downloadMarkdown() {
+            const mdContent = `# Revisão Tática: Banco de Dados & Saneamento (Cebraspe/Quadrix) - ETB-PAY
+
+## Fundamentos de Banco de Dados
+* **DDL vs DML:** \`CREATE/DROP/ALTER\` estruturam o BD (DDL). \`INSERT/UPDATE/DELETE\` manipulam os dados gerados (DML).
+* **Transações ACID:** Atomicidade (Tudo ou nada), Consistência (regras validadas), Isolamento (invisibilidade antes do commit) e Durabilidade.
+
+## Q1. Comandos SQL / DML vs DDL
+* **Gabarito:** ERRADO
+* **Conceito:** DROP destrói a "estrutura", logo atua na Definição de Dados (DDL). Para apagar dados internamente preservando a estrutura, usa-se DELETE (DML).
+
+## Q2. Restrições / Constraints
+* **Gabarito:** CERTO
+* **Conceito:** A restrição PRIMARY KEY aglutina implicitamente as validações de UNIQUE + NOT NULL na coluna alvo.
+
+## Q3. Expressões / GLOB vs LIKE
+* **Gabarito:** CERTO
+* **Conceito:** Diferentemente do operador LIKE, o GLOB usa sintaxe avançada (*wildcards* baseados no Unix) para garantir rigor máximo, como validar a lista de números \`[0-9]\` de forma case-sensitive.
+
+## Q4. DML / Auto Incremento
+* **Gabarito:** ERRADO
+* **Conceito:** A vantagem da chave AUTOINCREMENT no banco é desobrigar a injeção manual. O SGBD assume o sequencial numérico para impossibilitar duplicidade no INSERT.
+
+## Q5. Transações ACID / Atomicidade
+* **Gabarito:** CERTO
+* **Conceito:** A Atomicidade assegura a operação como unidade completa ("Tudo ou Nada"). Desvios ou interrupções exigem o rollback, mantendo as engrenagens intocadas contra corrompimentos.
+
+## Q6. Funções Escalares
+* **Gabarito:** ERRADO
+* **Conceito:** A instrução SELECT processa dados apenas via visualização (projeção). Alterações geradas pelo REPLACE sem uma chamada de UPDATE ou INSERT nunca são repassadas fisicamente para a tabela no SGBD.
+
+## Q7. Engenharia ETL / Mapeamento
+* **Gabarito:** CERTO
+* **Conceito:** Bancos são regidos por simetria. Sem coincidir os totais de colunas no momento da extração para a nova injeção (*Column Mismatch*), a migração abortará com falhas no motor relacional.
+
+## Q8. DCL e Segurança do SGBD
+* **Gabarito:** ERRADO
+* **Conceito:** O ecossistema defende a independência de privilégios e os separa por grãos na concessão (Princípio do Menor Privilégio). Ter acesso para manipular inserções de um terminal jamais dará por tabela direitos irrestritos a leitura da base.
+
+## Q9. Tipologia / Valores Nulos
+* **Gabarito:** ERRADO
+* **Conceito:** \`NULL\` indica estado marcante de desconhecimento. Uma string formatada por aspas (\`''\`), indica um dado texto lido com 0 caracteres processuais, diferindo da lógica computacional em cláusulas ou cálculos SQL.
+
+## Q10. Transações ACID / Isolamento
+* **Gabarito:** CERTO
+* **Conceito:** Isolamento impossibilita a famigerada Dirty Read (Leitura Suja). Atualizações suspensas sem COMMIT habitam uma "bolha" segura à parte e invisível ao ecossistema paralelo das redes.
+`;
+            
+            const blob = new Blob([mdContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Revisao_BD_ETBPAY.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Gerador de PDF usando html2pdf.js
+        function downloadPDF() {
+            const btn = document.getElementById('btn-download-pdf');
+            const originalHTML = btn.innerHTML;
+            
+            // Feedback visual de carregamento
+            btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin text-xl"></i> Gerando PDF...';
+            btn.style.pointerEvents = 'none';
+
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block'; // Mostra temporariamente para capturar o canvas
+            
+            const opt = {
+                margin:       15,
+                filename:     'Guia_Estudos_ETBPAY_BD.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none'; // Oculta novamente
+                
+                btn.innerHTML = '<i class="ph-bold ph-check-circle text-xl"></i> PDF Baixado!';
+                btn.style.backgroundColor = '#16a34a'; // Emerald 600
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.backgroundColor = ''; // Restaura
+                    btn.style.pointerEvents = 'auto';
+                }, 3000);
+            });
+        }
+
+        // Inicia na visão de Conceitos (Tática de Imersão) conforme solicitado
+        switchView('conceitos');
+        updateTimer();
+    </script>
+</body>
+</html>

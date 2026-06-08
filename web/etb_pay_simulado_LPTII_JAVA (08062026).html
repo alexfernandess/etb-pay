@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Simulado Java & POO</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- html2pdf.js para Exportação do Guia de Estudos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            900: '#0f172a',
+                        },
+                        slate: {
+                            800: '#1e293b',
+                            700: '#334155',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['Consolas', 'Monaco', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS para Glassmorphism e Animações -->
+    <style>
+        body {
+            background-color: #0f172a; /* Navy 900 */
+            color: #f8fafc;
+            background-image: 
+                radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent 40%),
+                radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.05), transparent 40%);
+            background-attachment: fixed;
+            overflow: hidden;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.6); /* Slate 800 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7); /* Navy 900 */
+            backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(52, 211, 153, 0.2); /* Emerald border */
+        }
+
+        .view-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .view-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Radio Buttons Customizados */
+        .radio-label {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .radio-label:hover:not(.locked) {
+            background: rgba(52, 211, 153, 0.1);
+            border-color: #34d399;
+        }
+
+        .radio-input:checked + .radio-label:not(.locked) {
+            background: rgba(52, 211, 153, 0.2);
+            border-color: #10b981;
+            color: #34d399;
+        }
+
+        .locked {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .status-correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+            color: #34d399 !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-incorrect {
+            background: rgba(225, 29, 72, 0.2) !important;
+            border-color: #e11d48 !important;
+            color: #fb7185 !important;
+            box-shadow: 0 0 15px rgba(225, 29, 72, 0.2);
+        }
+
+        .nav-item.active {
+            background: rgba(52, 211, 153, 0.15);
+            border-right: 4px solid #10b981;
+            color: #34d399;
+        }
+
+        .hidden-box {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .terminal-header {
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        .terminal-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #eab308; }
+        .dot-green { background: #10b981; }
+
+        /* Comportamento de Recolher Sidebar */
+        #sidebar { transition: width 0.3s ease; }
+        #main-content { transition: margin-left 0.3s ease; }
+        
+        .sidebar-collapsed { width: 5.5rem !important; }
+        .sidebar-collapsed .nav-text { display: none; }
+        .sidebar-collapsed .brand-text { display: none; }
+        .sidebar-collapsed .class-info { display: none; }
+        .sidebar-collapsed .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
+        .sidebar-collapsed .nav-item i { margin: 0; font-size: 1.5rem; }
+        .main-collapsed { margin-left: 5.5rem !important; }
+
+        /* Scrollbar customizada */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #34d399; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+    </style>
+</head>
+<body class="flex h-screen w-full antialiased">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-72 h-full glass-panel flex flex-col z-20 shrink-0 absolute md:relative">
+        <!-- ÁREA DA MARCA / RECOLHER SIDEBAR -->
+        <div onclick="toggleSidebar()" class="p-6 border-b border-emerald-500/20 cursor-pointer hover:bg-emerald-500/10 transition group" title="Clique para recolher/expandir o menu">
+            <h1 class="text-2xl font-bold text-emerald-400 flex items-center gap-2 tracking-tight justify-center md:justify-start">
+                <i class="ph-fill ph-shield-check group-hover:scale-110 transition-transform"></i> 
+                <span class="brand-text">ETB-PAY</span>
+            </h1>
+            <p class="brand-text text-xs text-slate-400 tracking-widest uppercase mt-1">Simulado Interativo</p>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 flex flex-col gap-1">
+            <!-- Ordem Alterada conforme solicitado -->
+            <button onclick="switchView('intro')" class="nav-item active w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-flag text-xl"></i> <span class="nav-text">Regras da Arena</span>
+            </button>
+            <button onclick="switchView('tipos_dados')" class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-code text-xl"></i> <span class="nav-text">Tipos de Dados</span>
+            </button>
+            <button onclick="switchView('conceitos')" class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-book-open-text text-xl"></i> <span class="nav-text">Tática de Imersão</span>
+            </button>
+            <button onclick="switchView('simulado')" class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-crosshair text-xl"></i> <span class="nav-text">Simulado Oficial</span>
+            </button>
+            <button onclick="switchView('finish')" class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-check-circle text-xl"></i> <span class="nav-text">Fechamento</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-emerald-500/20 bg-slate-800/30 flex items-center gap-3 justify-center md:justify-start">
+            <img src="https://ui-avatars.com/api/?name=Prof+Alex&background=10b981&color=fff" class="w-10 h-10 rounded-full border border-emerald-500 flex-shrink-0" alt="Prof">
+            <div class="class-info">
+                <p class="text-sm font-bold text-emerald-400">Turma 3G</p>
+                <p class="text-xs text-slate-400">LTP II - Java Back-end</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="flex-1 h-full overflow-y-auto relative bg-navy-900/40 w-full">
+        
+        <!-- HEADER (Timer) -->
+        <header class="glass sticky top-0 z-30 px-4 md:px-8 py-4 flex justify-between items-center border-b border-emerald-500/20">
+            <div>
+                <h2 class="text-lg font-bold text-white hidden md:block">Engenharia Reversa: CEBRASPE / Quadrix</h2>
+                <p class="text-xs text-emerald-400 font-bold">Sprint de Conhecimento</p>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-600 shadow-inner">
+                <i class="ph-fill ph-timer text-emerald-400 text-xl hidden sm:block"></i>
+                <span id="timer-display" class="font-mono text-2xl font-bold text-white tracking-widest">02:00</span>
+                <button onclick="resetTimer()" class="ml-2 text-slate-400 hover:text-emerald-400 transition" title="Resetar Tempo">
+                    <i class="ph-bold ph-arrow-counter-clockwise text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-4xl mx-auto pb-24">
+
+            <!-- VIEW 1: INTRO (Regras da Arena) -->
+            <section id="intro" class="view-content active space-y-6">
+                <div class="glass p-8 rounded-2xl border-t-4 border-emerald-500">
+                    <h1 class="text-4xl font-bold text-white mb-4">Bem-vindo à Arena ETB-PAY</h1>
+                    <p class="text-lg text-slate-300 mb-6">Este simulado utiliza a metodologia de julgamento de afirmativas (CERTO ou ERRADO), padrão exigido em bancas de alto nível como Quadrix e CEBRASPE.</p>
+                    
+                    <h3 class="text-xl font-bold text-emerald-400 mb-3"><i class="ph-fill ph-warning-circle"></i> Regras de Engajamento:</h3>
+                    <ul class="space-y-3 text-slate-300 mb-8 list-disc list-inside">
+                        <li>Leia a afirmativa considerando o contexto do nosso projeto <strong>ETB-PAY</strong>.</li>
+                        <li>Escolha entre <strong>CERTO</strong> ou <strong>ERRADO</strong> e clique em "Responder".</li>
+                        <li>Uma vez consolidada, a resposta não pode ser alterada.</li>
+                        <li>Leia com atenção as armadilhas (pegadinhas) e como desviar delas.</li>
+                        <li>Após responder, debloqueie a Explicação da Banca e o nosso Desafio Prático de Código.</li>
+                    </ul>
+
+                    <button onclick="switchView('tipos_dados')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition flex items-center gap-2">
+                        Avançar para Tipos de Dados <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW 2: TIPOS DE DADOS E PRIMITIVOS EM JAVA -->
+            <section id="tipos_dados" class="view-content space-y-6">
+                <h1 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Fundamentos: Tipos de Dados</h1>
+                <p class="text-slate-300 mb-6 text-lg">No ETB-Pay, a precisão da informação é vital. O Java é uma linguagem fortemente tipada, o que significa que todas as variáveis exigem uma declaração de tipo explícita antes do seu uso na memória. Conheça as bases estruturais:</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <h3 class="text-xl font-bold text-emerald-400 mb-2">Números Inteiros (int)</h3>
+                        <p class="text-sm text-slate-400">Os tipos primitivos guardam valores simples (não são objetos). Usamos o <code>int</code> para dados sem casas decimais, como por exemplo, identificar unicamente o <span class="text-white">ID da Conta</span> ou <span class="text-white">Número da Agência</span>.</p>
+                        <code class="block mt-3 bg-slate-900 p-2 rounded text-emerald-300 text-sm border border-slate-700">int numeroAgencia = 2026;</code>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <h3 class="text-xl font-bold text-emerald-400 mb-2">Ponto Flutuante (double)</h3>
+                        <p class="text-sm text-slate-400">Armazena valores reais com precisão decimal. No ecossistema bancário primário, utilizamos o <code>double</code> para armazenar o valor exato do <span class="text-white">Saldo em Conta</span> e transações de transferência.</p>
+                        <code class="block mt-3 bg-slate-900 p-2 rounded text-emerald-300 text-sm border border-slate-700">double saldoCliente = 1250.75;</code>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <h3 class="text-xl font-bold text-emerald-400 mb-2">Operadores Lógicos (boolean)</h3>
+                        <p class="text-sm text-slate-400">O tipo primitivo mais simples, capaz de conter apenas <code>true</code> ou <code>false</code>. É o alicerce para regras de bloqueio do sistema, tais como validar se a <span class="text-white">Conta está Ativa</span>.</p>
+                        <code class="block mt-3 bg-slate-900 p-2 rounded text-emerald-300 text-sm border border-slate-700">boolean contaEstaAtiva = true;</code>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <h3 class="text-xl font-bold text-emerald-400 mb-2">Primitivo vs Referência</h3>
+                        <p class="text-sm text-slate-400">O tipo <code>String</code> (S maiúsculo) <strong>NÃO</strong> é um tipo primitivo. No Java, é uma Classe que cria objetos de texto em memória. Muito usado para campos de <span class="text-white">CPF, Nome e E-mail</span>.</p>
+                        <code class="block mt-3 bg-slate-900 p-2 rounded text-emerald-300 text-sm border border-slate-700">String cpfUsuario = "123.456.789-00";</code>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="switchView('conceitos')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition inline-flex items-center gap-2">
+                        Avançar para Tática de Imersão <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW 3: TÁTICA DE IMERSÃO -->
+            <section id="conceitos" class="view-content space-y-6">
+                <h1 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Tática de Imersão (Radar da Banca)</h1>
+                <p class="text-slate-300 mb-6 text-lg">Revisaremos conceitos cruciais de Programação Orientada a Objetos e Java de forma acessível. Entenda o que as bancas cobram e o que o mercado aplica no dia a dia do nosso ETB-Pay.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-text-aa text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Clean Code & Nomeações</h3>
+                        <p class="text-sm text-slate-400">A convenção é lei na Squad! <strong>PascalCase</strong> para Classes (ex: <code>ContaCorrente</code>). <strong>camelCase</strong> para métodos e variáveis (ex: <code>saldoAtual</code>, <code>sacar()</code>). <strong>UPPER_SNAKE_CASE</strong> para Constantes.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-arrows-split text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Polimorfismo</h3>
+                        <p class="text-sm text-slate-400">"Muitas formas". O sistema deve ser capaz de chamar o método <code>processar()</code> sem precisar saber se é Pix ou Cartão. A banca pode tentar dizer que isso exige modificar o sistema base todo, o que é falso!</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-lock-key text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Encapsulamento (private)</h3>
+                        <p class="text-sm text-slate-400">O modificador <code>private</code> protege seus dados (como o saldo do cliente). A banca tentará afirmar que itens privados são acessados fora da classe, o que não faz sentido, pois eles ficam "presos" dentro dela.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-package text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Deploy Web (WAR vs JAR)</h3>
+                        <p class="text-sm text-slate-400">Enquanto o <code>.JAR</code> embala bibliotecas normais, o <code>.WAR</code> (Web Application Archive) é feito para embalar seu projeto para servidores web contendo páginas e lógicas juntas.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-center items-center text-center md:col-span-2">
+                        <h3 class="text-lg font-bold text-emerald-400 mb-4">Pronto para a Batalha de 2 Minutos?</h3>
+                        <button onclick="startSimulado()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition">
+                            Iniciar Simulado
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: SIMULADO -->
+            <section id="simulado" class="view-content space-y-8">
+                
+                <!-- Q1 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="1" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 01 - Quadrix (POO / Polimorfismo)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        No desenvolvimento do ETB-Pay, utilizamos Polimorfismo para processar diferentes tipos de pagamento (Pix, Cartão). Segundo os princípios de POO, novos tipos de pagamento (como Boleto) <strong class="text-rose-400">não podem</strong> ser incorporados ao ETB-Pay sem exigir profundas modificações no código do sistema básico que já processa as transações.
+                    </p>
+                    
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q1" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q1" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    
+                    <button onclick="responder(1)" id="btn-resp-1" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+
+                    <div id="actions-1" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-1')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-1')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+
+                    <div id="exp-1" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">O Polimorfismo serve exatamente para o oposto: permitir incorporar novos objetos (como Boleto) sem precisar alterar o sistema básico. É o princípio do "Aberto para extensão, fechado para modificação".</p>
+                    </div>
+
+                    <div id="des-1" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            O seu desafio será mentalizar ou escrever num rascunho como você criaria uma interface <code>Pagamento</code> com um método genérico <code>processar()</code>. Em seguida, imagine criar as classes <code>Pix</code> e <code>Cartao</code> que implementam essa interface. O nosso back-end só precisará chamar <code>pagamento.processar()</code>, sem se preocupar em alterar o "núcleo" se amanhã o banco nos pedir para adicionar o pagamento em Criptomoeda!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="2" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 02 - CEBRASPE (Java Web / RESTful)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        O ETB-Pay vai fornecer uma API para o nosso front-end mobile consultar os saldos. Se a arquitetura escolhida for criar serviços RESTful, os dados dos clientes devem trafegar <strong class="text-rose-400">exclusivamente</strong> no formato XML, sendo cada operação (como saldo e extrato) identificada por uma URL específica.
+                    </p>
+                    
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q2" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q2" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    
+                    <button onclick="responder(2)" id="btn-resp-2" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+
+                    <div id="actions-2" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-2')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-2')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+
+                    <div id="exp-2" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">A palavra "exclusivamente" invalida a questão. Os serviços RESTful podem utilizar XML, mas o mercado atual foca pesado na utilização do formato <strong>JSON</strong> por ser mais leve e fácil de manusear, além de aceitar outros formatos variados (texto simples, HTML, etc).</p>
+                    </div>
+
+                    <div id="des-2" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            No projeto, converteremos nossos objetos para enviá-los à tela do celular. Seu desafio conceitual é entender por que nós (e as empresas de mercado) fugimos do XML para ir pro JSON. Tente imaginar como estruturar os dados do cliente ETB de forma rápida (ex: <code>{"nome": "Alex", "saldo": 100}</code>). Isso salvará preciosos milissegundos no processamento da API!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="3" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 03 - CEBRASPE (Java Web / Deploy)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Ao final do semestre, o back-end do ETB-Pay precisará ser empacotado para distribuição em um servidor web. A extensão de arquivo padronizada que agrupa classes Java, bibliotecas e outros recursos que constituem um aplicativo Web completo no mundo Java é a <code>.WAR</code>.
+                    </p>
+                    
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q3" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q3" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    
+                    <button onclick="responder(3)" id="btn-resp-3" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+
+                    <div id="actions-3" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-3')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-3')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+
+                    <div id="exp-3" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Correto! O <strong>WAR (Web Application Archive)</strong> é usado para aplicativos web, possuindo uma estrutura específica como a pasta <code>WEB-INF</code>. O JAR é mais comum para aplicações normais ou bibliotecas (como o driver JDBC que usamos).</p>
+                    </div>
+
+                    <div id="des-3" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            Pesquise rapidamente a diferença entre exportar um JAR e um WAR na sua IDE favorita. Pense que quando as classes Swing sumirem e a aplicação for pro navegador via Servlet, o empacotamento correto (.WAR) é o que vai permitir que você suba o ETB-Pay para uma nuvem web real, e não fique apenas rodando na máquina de vocês!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="4" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 04 - Quadrix (POO / Encapsulamento)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        No ETB-Pay, o saldo da conta foi declarado com o modificador <code class="text-emerald-300">private</code> para garantir a proteção. A categoria de visibilidade "private" na obtenção do encapsulamento garante que esses membros <strong class="text-rose-400">somente podem ser acessados fora da classe</strong> em que foram declarados.
+                    </p>
+                    
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q4" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q4" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    
+                    <button onclick="responder(4)" id="btn-resp-4" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+
+                    <div id="actions-4" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-4')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-4')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+
+                    <div id="exp-4" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">Inversão total de conceito! Membros declarados como <code>private</code> somente podem ser acessados <strong>DENTRO</strong> da própria classe onde foram declarados. Para o mundo externo interagir, são criados os métodos públicos Getters e Setters.</p>
+                    </div>
+
+                    <div id="des-4" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            Imagine as consequências de alguém de fora conseguir mudar o <code>saldo = 1000000;</code> só chamando a variável. O desafio é criar métodos públicos <code>depositar(valor)</code> e <code>sacar(valor)</code> dentro da classe <code>Conta</code>. Eles validarão se o valor não é negativo, garantindo que as regras do banco nunca sejam burladas. O encapsulamento não é preciosismo, é segurança!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="5" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 05 - Quadrix (POO / Conceito Básico)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Quando estamos modelando o ETB-Pay, utilizamos o termo <strong>classe</strong> para definir o molde estrutural. Esse termo, na POO, tem a função basilar de definir os atributos e os comportamentos que serão expostos pelo objeto instanciado na memória do sistema.
+                    </p>
+                    
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q5" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q5" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    
+                    <button onclick="responder(5)" id="btn-resp-5" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+
+                    <div id="actions-5" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-5')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-5')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+
+                    <div id="exp-5" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Questão conceitual direta. A classe atua como o projeto/molde, definindo os dados (atributos) e as ações (comportamentos/métodos) que o objeto real possuirá após ser gerado.</p>
+                    </div>
+
+                    <div id="des-5" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            Sua missão mental é pensar que ao escrever <code>class Cliente</code>, você está apenas criando um PDF descrevendo o que é ser cliente no banco. Ele não existe no mundo real! No entanto, o comando <code>new Cliente()</code> constrói a "casa" e o coloca no sistema pra valer.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="6" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 06 - Quadrix (POO / Herança)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        No ETB-Pay, para evitar repetição de código, utilizamos o mechanism de Herança. Por meio desse relacionamento interclasses, é permitido que a subclasse <code>ContaPoupanca</code> herde de forma automática os atributos e os comportamentos de sua superclasse (classe-pai) <code>Conta</code>.
+                    </p>
+                    
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q6" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q6" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    
+                    <button onclick="responder(6)" id="btn-resp-6" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+
+                    <div id="actions-6" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-6')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-6')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+
+                    <div id="exp-6" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Afirmativa perfeitamente alinhada à definição de Herança. Através do termo <code>extends</code> no Java, a classe filha obtém e estende o que foi desenvolvido na superclasse.</p>
+                    </div>
+
+                    <div id="des-6" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            Crie a classe genérica <code>Conta</code> que já tenha os campos Agência e Saldo. Depois crie <code>ContaPoupanca extends Conta</code>. Não copie e cole atributos da conta de cima; foque apenas naquilo que a poupança faz diferente, como criar um método exclusivo <code>renderJuros(taxa)</code>. Viu como a reusabilidade reduz o trabalho de código?
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="7" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Questão 07 - Quadrix (POO / Vantagens da POO)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        A escolha de arquitetar o ETB-Pay utilizando Programação Orientada a Objetos com Java é defendida pelas gerências por ter a característica de diminuir o tempo do ciclo de desenvolvimento a longo prazo, produzindo um software flexível, confiável e com componentes que podem ser reutilizados em diferentes módulos.
+                    </p>
+                    
+                    <div class="flex gap-4 mb-6">
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q7" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q7" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+                    
+                    <button onclick="responder(7)" id="btn-resp-7" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar Resposta</button>
+
+                    <div id="actions-7" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-7')" class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-7')" class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i class="ph-bold ph-code"></i> Ver Desafio (ETB-Pay)</button>
+                    </div>
+
+                    <div id="exp-7" class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Embora a POO possa ter uma curva de aprendizado inicial mais íngreme, suas propriedades (Encapsulamento, Herança, Polimorfismo) focam expressamente em modularização, manutenção e reuso, poupando tempo na refatoração da solução de grandes softwares de mercado.</p>
+                    </div>
+
+                    <div id="des-7" class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">Missão Prática ETB-Pay</span>
+                        </div>
+                        <p class="p-4 text-emerald-300 font-mono text-sm leading-relaxed">
+                            Reflita de forma ampla: Quando desenvolvemos a classe <code>Cliente</code> com todo o rigor do encapsulamento de dados, ganhamos um componente que não serve só pro cadastro. Se amanhã criarmos a funcionalidade de "Empréstimo", você vai apenas reutilizar e "chamar" esse mesmo molde já homologado. Menos falhas, menos tempo recriando a roda!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-center pt-8">
+                    <button onclick="switchView('finish')" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg transition border border-slate-500">
+                        Finalizar Simulado
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- VIEW 5: FINISH -->
+            <section id="finish" class="view-content space-y-6">
+                <div class="glass p-10 rounded-2xl text-center border-emerald-500/50">
+                    <div class="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-400">
+                        <i class="ph-fill ph-trophy text-4xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-bold text-white mb-4">Simulado Concluído!</h1>
+                    <p class="text-lg text-slate-300 mb-8 max-w-lg mx-auto">Você completou o ciclo de treinamento da arquitetura Java e POO focada nas bancas Cebraspe e Quadrix. O próximo passo é aplicar esses conceitos no código real da ETB-PAY.</p>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                        <button onclick="downloadMarkdown()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center gap-2 border border-slate-500">
+                            <i class="ph-bold ph-download-simple text-xl"></i> Resumo (.MD)
+                        </button>
+                        <button id="btn-download-pdf" onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition flex items-center gap-2">
+                            <i class="ph-bold ph-file-pdf text-xl"></i> Guia de Estudos (PDF)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- TEMPLATE OCULTO PARA PDF (ESTRUTURA QUADRIX) -->
+    <div id="pdf-template" style="display: none; background: #ffffff; color: #1e293b; padding: 40px; font-family: 'Segoe UI', Arial, sans-serif; width: 100%; max-width: 800px; margin: 0 auto;">
+        <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 20px; margin-bottom: 30px;">
+            <h1 style="color: #0f172a; font-size: 32px; margin-bottom: 5px;">ETB-PAY | Guia de Estudos</h1>
+            <p style="color: #475569; font-size: 18px; margin: 0;">Revisão Tática: Java & POO (Cebraspe/Quadrix)</p>
+        </div>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Fundamentos da Linguagem Java</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: disc; padding-left: 20px;">
+            <li><strong>Tipos Primitivos:</strong> Java é fortemente tipado. Ex: <code>int</code> (inteiros), <code>double</code> (decimais para saldos), <code>boolean</code> (verdadeiro/falso).</li>
+            <li><strong>Primitivo vs Referência:</strong> Objetos como <code>String</code> (S maiúsculo) são tipos de referência, não primitivos.</li>
+            <li><strong>Convenções de Clean Code:</strong> <code>PascalCase</code> para Classes, <code>camelCase</code> para variáveis e métodos, <code>UPPER_SNAKE_CASE</code> para constantes.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q1 - POO / Polimorfismo</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Novos tipos de pagamento não podem ser incorporados sem modificar o sistema. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> Afirmar que o polimorfismo exige modificações profundas no sistema base.</li>
+            <li><strong>A Regra (Por Quê):</strong> O Polimorfismo permite estender o sistema com novas classes que implementam a mesma interface/superclasse, fechando o sistema para modificação e abrindo para extensão.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q2 - Java Web / RESTful</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Serviços RESTful usam exclusivamente formato XML. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> O uso da palavra restritiva "exclusivamente".</li>
+            <li><strong>A Regra (Por Quê):</strong> APIs RESTful suportam múltiplos formatos. O JSON é atualmente o mais utilizado no mercado por ser mais leve que o XML.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q3 - Java Web / Deploy</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> A extensão padrão para aplicativos web em Java é .WAR. (CERTO)</li>
+            <li><strong>O Erro (O Quê):</strong> N/A (A afirmação é verdadeira).</li>
+            <li><strong>A Regra (Por Quê):</strong> O formato .WAR (Web Application Archive) é padronizado e estruturado para empacotar classes, JSPs e Servlets para deploy em servidores web.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q4 - POO / Encapsulamento</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Membros private só podem ser acessados fora da classe. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> Inversão total do conceito de visibilidade private.</li>
+            <li><strong>A Regra (Por Quê):</strong> O modificador private restringe o acesso estritamente a DENTRO da própria classe, garantindo o encapsulamento e proteção dos dados.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q5 - POO / Conceito Básico</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Uma classe define os atributos e comportamentos do objeto. (CERTO)</li>
+            <li><strong>O Erro (O Quê):</strong> N/A (A afirmação é verdadeira).</li>
+            <li><strong>A Regra (Por Quê):</strong> A classe funciona como um "molde" ou "planta baixa" que define a estrutura que os objetos (instâncias) terão na memória após o comando <code>new</code>.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q6 - POO / Herança</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> A subclasse herda os atributos e comportamentos da superclasse. (CERTO)</li>
+            <li><strong>O Erro (O Quê):</strong> N/A (A afirmação é verdadeira).</li>
+            <li><strong>A Regra (Por Quê):</strong> A herança (<code>extends</code>) fomenta a reutilização de código, transferindo características não-privadas da classe pai para a classe filha de forma automática.</li>
+        </ul>
+
+        <h3 style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">Q7 - POO / Vantagens</h3>
+        <ul style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> A POO diminui o tempo do ciclo de desenvolvimento, fornecendo software confiável e reutilizável. (CERTO)</li>
+            <li><strong>O Erro (O Quê):</strong> N/A (A afirmação é verdadeira).</li>
+            <li><strong>A Regra (Por Quê):</strong> Componentes baseados em objetos são altamente modulares, o que facilita manutenções futuras e o reuso seguro em várias partes do ecossistema de software.</li>
+        </ul>
+    </div>
+
+    <!-- Scripts da SPA -->
+    <script>
+        // --- Sidebar Toggling ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-collapsed');
+        }
+
+        // --- SPA Tab Switching ---
+        function switchView(viewId) {
+            document.querySelectorAll('.view-content').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+
+            // Atualiza sidebar
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Highlight current nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if(item.getAttribute('onclick').includes(viewId)) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Se for simulado, foca no topo
+            if(viewId === 'simulado') {
+                document.getElementById('main-content').scrollTo(0,0);
+            }
+        }
+
+        // --- Timer Logic (2 Minutes) ---
+        let totalSeconds = 2 * 60; // 2 minutos cravados
+        let timerRunning = false;
+        let timerInterval = null;
+
+        function updateTimer() {
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            document.getElementById('timer-display').textContent = 
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            if(totalSeconds > 0 && timerRunning) {
+                totalSeconds--;
+                if(totalSeconds <= 60) {
+                    document.getElementById('timer-display').classList.add('text-rose-400');
+                    document.getElementById('timer-display').classList.remove('text-white');
+                }
+            } else if (totalSeconds === 0 && timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                alert('Tempo esgotado! Mas continue respondendo para fixar o conteúdo.');
+            }
+        }
+
+        function toggleTimer() {
+            // Unused directly as we have play/reset buttons but kept if needed
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            totalSeconds = 2 * 60;
+            const display = document.getElementById('timer-display');
+            display.classList.remove('text-rose-400');
+            display.classList.add('text-white');
+            updateTimer();
+            startTimerReal();
+        }
+
+        function startTimerReal() {
+            timerRunning = true;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Iniciar timer ao clicar no botão de iniciar simulado
+        function startSimulado() {
+            switchView('simulado');
+            resetTimer();
+        }
+
+        // Lógica de Resposta
+        function responder(qNumber) {
+            const container = document.querySelector(`.question-card[data-q="${qNumber}"]`);
+            const correctAnswer = container.getAttribute('data-answer');
+            const radios = container.querySelectorAll('.radio-input');
+            let selectedValue = null;
+            let selectedLabel = null;
+
+            radios.forEach(radio => {
+                if (radio.checked) {
+                    selectedValue = radio.value;
+                    selectedLabel = radio.parentElement;
+                }
+            });
+
+            if (!selectedValue) {
+                alert('Selecione CERTO ou ERRADO antes de confirmar!');
+                return;
+            }
+
+            // Travar opções
+            const allLabels = container.querySelectorAll('.radio-label');
+            allLabels.forEach(label => {
+                label.classList.add('locked');
+                const input = label.querySelector('input');
+                // Encontrar label correta
+                if(input.value === correctAnswer) {
+                    label.classList.add('status-correct');
+                }
+            });
+
+            // Se errou, pinta a que ele selecionou de vermelho
+            if (selectedValue !== correctAnswer) {
+                selectedLabel.classList.remove('status-correct'); // just in case
+                selectedLabel.classList.add('status-incorrect');
+            }
+
+            // Esconder botão responder, mostrar actions
+            document.getElementById(`btn-resp-${qNumber}`).style.display = 'none';
+            document.getElementById(`actions-${qNumber}`).style.display = 'flex';
+        }
+
+        // Toggle Explicação / Desafio
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if(section.style.display === 'block') {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
+            }
+        }
+
+        // Gerador de Markdown para Download
+        function downloadMarkdown() {
+            const mdContent = `# Revisão Tática: Java & POO (Cebraspe/Quadrix) - ETB-PAY
+
+## Fundamentos da Linguagem Java
+* **Tipos Primitivos:** \`int\` (inteiros), \`double\` (decimais para saldos), \`boolean\` (verdadeiro/falso). Fortemente tipado.
+* **Primitivo vs Referência:** Objetos como \`String\` (S maiúsculo) são tipos de referência, não primitivos.
+* **Convenções de Nomenclatura:** \`PascalCase\` para Classes, \`camelCase\` para variáveis e métodos, \`UPPER_SNAKE_CASE\` para constantes.
+
+## Q1. Polimorfismo
+* **Gabarito:** ERRADO
+* **Conceito:** O Polimorfismo serve exatamente para o oposto: permitir incorporar novos objetos (como Boleto) sem precisar alterar o sistema básico, deixando o sistema "Aberto para extensão e fechado para modificação".
+
+## Q2. RESTful e Formatacao XML vs JSON
+* **Gabarito:** ERRADO
+* **Conceito:** O formato XML não é exclusivo. A arquitetura moderna utiliza prioritariamente JSON por ser mais simples de trafegar os objetos serializados.
+
+## Q3. Deploy Java Web
+* **Gabarito:** CERTO
+* **Conceito:** A extensão que distribui aplicativos Web empacotando os JSPs, Servlets, Classes Java e arquivos relacionados em uma estrutura oficial no Java chama-se \`.WAR\`.
+
+## Q4. Encapsulamento
+* **Gabarito:** ERRADO
+* **Conceito:** O modificador \`private\` impede totalmente que a variável seja acessada fora da classe em que foi declarada. Interações exigem o uso de métodos públicos (Getters/Setters).
+
+## Q5. Classes e Objetos
+* **Gabarito:** CERTO
+* **Conceito:** Na POO, o termo classe define o "molde" ou a "planta" descrevendo o conjunto de características e comportamentos que um objeto exporá após ser construído em memória com a palavra-chave \`new\`.
+
+## Q6. Herança
+* **Gabarito:** CERTO
+* **Conceito:** A herança é o mecanismo (\`extends\`) que permite à subclasse receber nativamente todos os comportamentos e atributos não-privados definidos na superclasse, fomentando o reuso de código.
+
+## Q7. Vantagens da POO
+* **Gabarito:** CERTO
+* **Conceito:** A POO pode ter mais estruturação burocrática e demandar modelagem prévia, porém é extremamente vantajosa por entregar confiabilidade e reuso de componentes de software (como nossa classe Conta sendo usada em vários módulos) a longo prazo.
+`;
+            
+            const blob = new Blob([mdContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Revisao_Java_ETBPAY.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Gerador de PDF usando html2pdf.js
+        function downloadPDF() {
+            const btn = document.getElementById('btn-download-pdf');
+            const originalHTML = btn.innerHTML;
+            
+            // Feedback visual de carregamento
+            btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin text-xl"></i> Gerando PDF...';
+            btn.style.pointerEvents = 'none';
+
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block'; // Mostra temporariamente para capturar o canvas
+            
+            const opt = {
+                margin:       15,
+                filename:     'Guia_Estudos_ETBPAY_Java.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none'; // Oculta novamente
+                
+                btn.innerHTML = '<i class="ph-bold ph-check-circle text-xl"></i> PDF Baixado!';
+                btn.style.backgroundColor = '#16a34a'; // Emerald 600
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.backgroundColor = ''; // Restaura
+                    btn.style.pointerEvents = 'auto';
+                }, 3000);
+            });
+        }
+
+        // Inicia na visão da Arena (Intro)
+        switchView('intro');
+        updateTimer();
+    </script>
+</body>
+</html>
