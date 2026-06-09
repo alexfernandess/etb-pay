@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alex Alves | Liderança Ágil & Inteligência Artificial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0a0a0f;
+            --surface-color: #13131a;
+            --surface-glass: rgba(19, 19, 26, 0.6);
+            --accent-color: #0ea5e9;
+            --accent-glow: rgba(14, 165, 233, 0.15);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --border-hover: rgba(14, 165, 233, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans 3', sans-serif; background-color: var(--bg-color); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+        h1, h2, h3, h4, .nav-brand { font-family: 'Outfit', sans-serif; }
+        a { text-decoration: none; color: inherit; transition: all 0.3s ease; }
+        ul { list-style: none; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        .section-padding { padding: 6rem 0; }
+        .gradient-text { background: linear-gradient(135deg, #f8fafc 0%, var(--accent-color) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .section-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 3rem; text-align: center; }
+        
+        header { position: fixed; top: 0; width: 100%; z-index: 1000; transition: all 0.3s ease; border-bottom: 1px solid transparent; }
+        header.scrolled { background: var(--surface-glass); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+        .nav-brand { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+        .nav-links a:hover { color: var(--accent-color); }
+
+        .hero { min-height: 100vh; display: flex; align-items: center; position: relative; padding-top: 80px; }
+        .hero::before { content: ''; position: absolute; top: 20%; right: 10%; width: 400px; height: 400px; background: var(--accent-color); filter: blur(150px); opacity: 0.15; border-radius: 50%; z-index: -1; }
+        .hero-content { max-width: 800px; }
+        .hero h1 { font-size: clamp(3rem, 5vw, 4.5rem); line-height: 1.1; margin-bottom: 1.5rem; }
+        .hero p { font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2.5rem; max-width: 600px; }
+        .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.8rem; border-radius: 8px; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; }
+        .btn-primary { background-color: var(--accent-color); color: #fff; border: 1px solid var(--accent-color); }
+        .btn-primary:hover { background-color: transparent; color: var(--accent-color); box-shadow: 0 0 20px var(--accent-glow); }
+        .btn-outline { background-color: transparent; color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-outline:hover { border-color: var(--accent-color); color: var(--accent-color); }
+
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+        .about-text p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1.1rem; }
+        .skills-container { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; }
+        .skills-title { font-size: 1.2rem; margin-bottom: 1.5rem; color: var(--text-primary); }
+        .skill-tags { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+        .skill-tag { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; color: var(--text-secondary); transition: all 0.3s ease; }
+        .skill-tag:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
+
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .project-card { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; transition: all 0.4s ease; display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
+        .project-card:hover { transform: translateY(-8px); border-color: var(--border-hover); box-shadow: 0 10px 30px var(--accent-glow); }
+        .project-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .project-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem;}
+        .project-desc { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem; flex-grow: 1; }
+        .project-tech { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .tech-badge { font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px; background: rgba(14, 165, 233, 0.1); color: var(--accent-color); }
+
+        .timeline { position: relative; max-width: 800px; margin: 0 auto; }
+        .timeline::before { content: ''; position: absolute; top: 0; left: 20px; height: 100%; width: 2px; background: var(--border-color); }
+        .timeline-item { position: relative; padding-left: 3.5rem; margin-bottom: 3rem; }
+        .timeline-dot { position: absolute; left: 15px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-color); box-shadow: 0 0 10px var(--accent-glow); }
+        .timeline-date { font-size: 0.85rem; color: var(--accent-color); font-weight: 600; margin-bottom: 0.5rem; }
+        .timeline-title { font-size: 1.3rem; font-weight: 600; }
+        .timeline-company { font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem; }
+        .timeline-desc { color: var(--text-secondary); font-size: 0.95rem; }
+
+        footer { background: var(--surface-color); border-top: 1px solid var(--border-color); padding: 4rem 0 2rem; text-align: center; }
+        .social-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; }
+        .social-links a { width: 45px; height: 45px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; }
+        .social-links a:hover { background: var(--accent-color); border-color: var(--accent-color); transform: translateY(-3px); }
+        
+        .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; } .nav-links { display: none; } }
+    </style>
+</head>
+<body>
+
+    <header id="header">
+        <div class="container nav-container">
+            <div class="nav-brand gradient-text">ALEX ALVES</div>
+            <nav class="nav-links">
+                <a href="#sobre">Sobre Mim</a>
+                <a href="#projetos">Projetos</a>
+                <a href="#experiencia">Experiência</a>
+                <a href="#contato">Contato</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero container">
+            <div class="hero-content fade-in">
+                <h4 style="color: var(--accent-color); font-family: 'Outfit'; letter-spacing: 2px; margin-bottom: 1rem;">LIDERANÇA ÁGIL & INTELIGÊNCIA ARTIFICIAL</h4>
+                <h1>Transformando visão estratégica em <span class="gradient-text">soluções digitais.</span></h1>
+                <p>Com 25 anos de experiência no ecossistema de TI, atuo na intersecção entre a Engenharia de Software e a Governança. Especialista na orquestração de times ágeis e na integração de Inteligência Artificial para impulsionar a entrega de valor.</p>
+                <div class="btn-group">
+                    <a href="#projetos" class="btn btn-primary">Ver Projetos</a>
+                    <a href="https://linkedin.com/in/alexfernandess" target="_blank" class="btn btn-outline">LinkedIn</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="sobre" class="section-padding container">
+            <h2 class="section-title fade-in">Sobre Mim</h2>
+            <div class="about-grid fade-in">
+                <div class="about-text">
+                    <p>Ao longo da minha trajetória profissional, consolidei uma mentalidade híbrida que une o rigor técnico da Arquitetura de Software com a empatia e a facilitação da Liderança Ágil.</p>
+                    <p>Atualmente, divido minha energia entre duas grandes frentes: atuo como Agile Coach Sênior estruturando a Governança Digital na EBSERH e exerço minha vocação de liderança servidora como Professor na Escola Técnica de Brasília (ETB).</p>
+                    <p>Meu foco técnico recente está imerso na revolução da Inteligência Artificial Generativa. Construo pontes para que equipes de desenvolvimento adotem ferramentas AI-Driven, otimizando o Discovery, o Delivery e a segurança da informação.</p>
+                </div>
+                <div class="skills-container">
+                    <h3 class="skills-title">Arsenal Estratégico & Técnico</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Gestão de Projetos (AGILE / PMBOK)</span>
+                        <span class="skill-tag">Scrum & Kanban (PSM I / KMP I)</span>
+                        <span class="skill-tag">Scaled Agile Framework (SAFe)</span>
+                        <span class="skill-tag">Arquitetura de Software</span>
+                        <span class="skill-tag">IA Generativa & LLMs</span>
+                        <span class="skill-tag">Engenharia de Requisitos</span>
+                        <span class="skill-tag">React / JavaScript</span>
+                        <span class="skill-tag">Azure DevOps / Jira</span>
+                        <span class="skill-tag">Docência & Mentoria</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projetos" class="section-padding container">
+            <h2 class="section-title fade-in">Projetos em Destaque</h2>
+            <div class="projects-grid">
+                
+                <article class="project-card fade-in">
+                    <div class="project-header">
+                        <h3 class="project-title">ETB-PAY | Plataforma de Pagamentos</h3>
+                        <a href="https://github.com/alexfernandess/etb-pay.git" target="_blank">🔗</a>
+                    </div>
+                    <p class="project-desc">Sistema financeiro simulado liderado por mim como Agile Coach, integrando alunos de Banco de Dados, Java e Gestão de TI. O projeto foi desenhado como um laboratório de arquitetura corporativa, focando em modelagem de dados, concorrência e governança de software sob metodologias ágeis.</p>
+                    <div class="project-tech">
+                        <span class="tech-badge">Java/SQL</span>
+                        <span class="tech-badge">Agile Governance</span>
+                        <span class="tech-badge">Liderança Técnica</span>
+                    </div>
+                </article>
+
+                <article class="project-card fade-in">
+                    <div class="project-header">
+                        <h3 class="project-title">Interactive Calculator</h3>
+                        <a href="https://github.com/alexfernandess/react-calculator.git" target="_blank">🔗</a>
+                    </div>
+                    <p class="project-desc">Projeto focado no aperfeiçoamento técnico e absorção de tecnologias front-end. Desenvolvido para exercitar padrões de gerenciamento de estado e arquitetura baseada em componentes no ecossistema React.</p>
+                    <div class="project-tech">
+                        <span class="tech-badge">React</span>
+                        <span class="tech-badge">JavaScript</span>
+                    </div>
+                </article>
+
+                <article class="project-card fade-in">
+                    <div class="project-header">
+                        <h3 class="project-title">Books Reader App</h3>
+                        <a href="https://github.com/alexfernandess/boooks-reader.git" target="_blank">🔗</a>
+                    </div>
+                    <p class="project-desc">Estudo técnico voltado à absorção de conceitos de consumo de APIs e manipulação assíncrona de dados. Foco em estruturação de código JavaScript moderno e fluxos de dados.</p>
+                    <div class="project-tech">
+                        <span class="tech-badge">JavaScript</span>
+                        <span class="tech-badge">API Integration</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="experiencia" class="section-padding container">
+            <h2 class="section-title fade-in">Jornada Profissional</h2>
+            <div class="timeline">
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Set 2023 - Presente</div>
+                    <h3 class="timeline-title">Líder de Projetos & Agile Coach</h3>
+                    <p class="timeline-company">EBSERH | Brasília, DF</p>
+                    <p class="timeline-desc">Concepção de PMO Ágil e Governança Digital. Atuação crítica na integração de times técnicos e orquestração de entregas com foco em eficiência e governança de TI.</p>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">Atual</div>
+                    <h3 class="timeline-title">Professor de Tecnologia</h3>
+                    <p class="timeline-company">Escola Técnica de Brasília (ETB)</p>
+                    <p class="timeline-desc">Mentoria e docência prática em Banco de Dados, Java e Gestão de TI. Foco em preparar alunos para o mercado através de metodologias ativas.</p>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2012 - 2020</div>
+                    <h3 class="timeline-title">Gerente de Projetos e Scrum Master</h3>
+                    <p class="timeline-company">Comando da Aeronáutica (CCA-BR)</p>
+                    <p class="timeline-desc">Implantação de metodologias ágeis e gestão de projetos tecnológicos. Foco em alinhamento estratégico e governança de sistemas.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h2>Vamos construir juntos?</h2>
+                <p>Estou à disposição para novos desafios e colaborações.</p>
+                <div class="social-links">
+                    <a href="mailto:alexfernandess@gmail.com">Email</a>
+                    <a href="https://linkedin.com/in/alexfernandess" target="_blank">In</a>
+                    <a href="https://github.com/alexfernandess" target="_blank">Git</a>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2026 Alex Alves. Transformando a complexidade do código em eficiência de negócio.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

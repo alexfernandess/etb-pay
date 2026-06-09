@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Simulado Java & POO</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            900: '#0f172a',
+                        },
+                        slate: {
+                            800: '#1e293b',
+                            700: '#334155',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['Consolas', 'Monaco', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            background-image:
+                radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent 40%),
+                radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.05), transparent 40%);
+            background-attachment: fixed;
+            overflow: hidden;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .view-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .radio-label {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .radio-label:hover:not(.locked) {
+            background: rgba(52, 211, 153, 0.1);
+            border-color: #34d399;
+        }
+
+        .radio-input:checked+.radio-label:not(.locked) {
+            background: rgba(52, 211, 153, 0.2);
+            border-color: #10b981;
+            color: #34d399;
+        }
+
+        .locked {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .status-correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+            color: #34d399 !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-incorrect {
+            background: rgba(225, 29, 72, 0.2) !important;
+            border-color: #e11d48 !important;
+            color: #fb7185 !important;
+            box-shadow: 0 0 15px rgba(225, 29, 72, 0.2);
+        }
+
+        .nav-item.active {
+            background: rgba(52, 211, 153, 0.15);
+            border-right: 4px solid #10b981;
+            color: #34d399;
+        }
+
+        .hidden-box {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .terminal-header {
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .dot-red {
+            background: #ef4444;
+        }
+
+        .dot-yellow {
+            background: #eab308;
+        }
+
+        .dot-green {
+            background: #10b981;
+        }
+
+        #sidebar {
+            transition: width 0.3s ease;
+        }
+
+        #main-content {
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar-collapsed {
+            width: 5.5rem !important;
+        }
+
+        .sidebar-collapsed .nav-text {
+            display: none;
+        }
+
+        .sidebar-collapsed .brand-text {
+            display: none;
+        }
+
+        .sidebar-collapsed .class-info {
+            display: none;
+        }
+
+        .sidebar-collapsed .nav-item {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .sidebar-collapsed .nav-item i {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .main-collapsed {
+            margin-left: 5.5rem !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #34d399;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10b981;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen w-full antialiased">
+
+    <aside id="sidebar" class="w-72 h-full glass-panel flex flex-col z-20 shrink-0 absolute md:relative">
+        <div onclick="toggleSidebar()"
+            class="p-6 border-b border-emerald-500/20 cursor-pointer hover:bg-emerald-500/10 transition group"
+            title="Clique para recolher/expandir o menu">
+            <h1
+                class="text-2xl font-bold text-emerald-400 flex items-center gap-2 tracking-tight justify-center md:justify-start">
+                <i class="ph-fill ph-shield-check group-hover:scale-110 transition-transform"></i>
+                <span class="brand-text">ETB-PAY</span>
+            </h1>
+            <p class="brand-text text-xs text-slate-400 tracking-widest uppercase mt-1">Simulado Interativo</p>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 flex flex-col gap-1">
+            <button onclick="switchView('intro')"
+                class="nav-item active w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-flag text-xl"></i> <span class="nav-text">Regras da Arena</span>
+            </button>
+            <button onclick="switchView('git_flow')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-git-branch text-xl"></i> <span class="nav-text">Setup & Git Flow</span>
+            </button>
+            <button onclick="switchView('tipos_dados')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-code-block text-xl"></i> <span class="nav-text">Tipos de Dados</span>
+            </button>
+            <button onclick="switchView('fluxos_controle')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-git-merge text-xl"></i> <span class="nav-text">Fluxos de Controle</span>
+            </button>
+            <button onclick="switchView('conceitos')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-book-open-text text-xl"></i> <span class="nav-text">Tática de Imersão</span>
+            </button>
+            <button onclick="switchView('simulado')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-crosshair text-xl"></i> <span class="nav-text">Simulado & Tutorial</span>
+            </button>
+            <button onclick="switchView('finish')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-emerald-500/10 transition flex items-center gap-3">
+                <i class="ph-bold ph-check-circle text-xl"></i> <span class="nav-text">Fechamento</span>
+            </button>
+        </nav>
+
+        <div
+            class="p-4 border-t border-emerald-500/20 bg-slate-800/30 flex items-center gap-3 justify-center md:justify-start">
+            <img src="https://ui-avatars.com/api/?name=Prof+Alex&background=10b981&color=fff"
+                class="w-10 h-10 rounded-full border border-emerald-500 flex-shrink-0" alt="Prof">
+            <div class="class-info">
+                <p class="text-sm font-bold text-emerald-400">Turma 3G</p>
+                <p class="text-xs text-slate-400">LTP II - Java Back-end</p>
+            </div>
+        </div>
+    </aside>
+
+    <main id="main-content" class="flex-1 h-full overflow-y-auto relative bg-navy-900/40 w-full">
+
+        <header
+            class="glass sticky top-0 z-30 px-4 md:px-8 py-4 flex justify-between items-center border-b border-emerald-500/20">
+            <div>
+                <h2 class="text-lg font-bold text-white hidden md:block">Engenharia Reversa: CEBRASPE / Quadrix</h2>
+                <p class="text-xs text-emerald-400 font-bold">Sprint de Conhecimento</p>
+            </div>
+
+            <div
+                class="flex items-center gap-4 bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-600 shadow-inner">
+                <i class="ph-fill ph-timer text-emerald-400 text-xl hidden sm:block"></i>
+                <span id="timer-display" class="font-mono text-2xl font-bold text-white tracking-widest">45:00</span>
+                <button onclick="resetTimer()" class="ml-2 text-slate-400 hover:text-emerald-400 transition"
+                    title="Resetar Tempo">
+                    <i class="ph-bold ph-arrow-counter-clockwise text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-4xl mx-auto pb-24">
+
+            <section id="intro" class="view-content active space-y-6">
+                <div class="glass p-8 rounded-2xl border-t-4 border-emerald-500">
+                    <h1 class="text-4xl font-bold text-white mb-4">Bem-vindo à Arena ETB-PAY</h1>
+                    <p class="text-lg text-slate-300 mb-6">Neste simulado, utilizaremos afirmativas no modelo (CERTO ou
+                        ERRADO), padrão exigido em bancas de alto nível como Quadrix e CEBRASPE.</p>
+
+                    <h3 class="text-xl font-bold text-emerald-400 mb-3"><i class="ph-fill ph-warning-circle"></i> Regras
+                        de Engajamento:</h3>
+                    <ul class="space-y-3 text-slate-300 mb-8 list-disc list-inside">
+                        <li>Leia a afirmativa considerando o contexto do nosso projeto <strong>ETB-PAY</strong>.</li>
+                        <li>Escolha entre <strong>CERTO</strong> ou <strong>ERRADO</strong> e clique em "Responder".
+                        </li>
+                        <li>No padrão Quadrix/Cebraspe, uma questão errada anula uma certa. Atenção às armadilhas!</li>
+                        <li><strong>Tutorial Guiado:</strong> Após responder, você desbloqueia um passo prático para
+                            construirmos juntos uma <strong>Calculadora Básica</strong> em Java.</li>
+                    </ul>
+
+                    <button onclick="switchView('git_flow')"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition flex items-center gap-2">
+                        Avançar para Setup & Git Flow <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="tipos_dados" class="view-content space-y-6">
+                <h1 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Fundamentos: Tipos de Dados</h1>
+                <p class="text-slate-300 mb-6 text-lg">O Java é uma linguagem fortemente tipada. Antes de construirmos a Calculadora, compreenda os 8 tipos primitivos do Java divididos em suas famílias lógicas:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Card 1 -->
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-emerald-400 mb-2">Família dos Inteiros (Numéricos Puros)</h3>
+                            <p class="text-sm text-slate-300 mb-4">
+                                Guardam números sem casas decimais. O padrão do Java é o <code>int</code> (32 bits), ideal para contar opções e IDs da Calculadora. Seus irmãos de memória são o <code>byte</code> (8 bits), <code>short</code> (16 bits) e o gigante <code>long</code> (64 bits, usado para grandes volumes de dados ou timestamps).
+                            </p>
+                        </div>
+                        <code class="block mt-auto bg-slate-900 p-2 rounded text-emerald-300 text-xs border border-slate-700">
+                            int opcaoMenu = 1;<br>long idTransacao = 9999999999L;
+                        </code>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-emerald-400 mb-2">Família dos Decimais (Ponto Flutuante)</h3>
+                            <p class="text-sm text-slate-300 mb-4">
+                                Armazenam números reais com frações decimais. O padrão do Java é o <code>double</code> (64 bits), que oferece alta precisão para cálculos. Seu irmão mais leve é o <code>float</code> (32 bits). CUIDADO: O Java enxerga qualquer decimal literal como double; para forçar um float, você deve usar obrigatoriamente o sufixo 'f' no final do número!
+                            </p>
+                        </div>
+                        <code class="block mt-auto bg-slate-900 p-2 rounded text-emerald-300 text-xs border border-slate-700">
+                            double resultadoPreciso = 15.50;<br>float valorSimples = 3.14f;
+                        </code>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-emerald-400 mb-2">Família dos Lógicos (Os Interruptores)</h3>
+                            <p class="text-sm text-slate-300 mb-4">
+                                Representada exclusivamente pelo tipo primitivo <code>boolean</code>. Ele ocupa apenas 1 bit de informação na JVM e é capaz de armazenar estritamente dois estados: 'true' (verdadeiro) ou 'false' (falso). É o motor fundamental dos nossos laços de repetição baseados em condições.
+                            </p>
+                        </div>
+                        <code class="block mt-auto bg-slate-900 p-2 rounded text-emerald-300 text-xs border border-slate-700">
+                            boolean calculadoraLigada = true;
+                        </code>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-emerald-400 mb-2">Texto vs Caractere (A Fronteira do Objeto)</h3>
+                            <p class="text-sm text-slate-300 mb-4">
+                                O tipo primitivo <code>char</code> guarda um único caractere ou símbolo Unicode e deve ser isolado usando aspas simples (ex: 'S'). Já o tipo <code>String</code> (com S maiúsculo) NÃO é um tipo primitivo! É uma Classe de referência que manipula cadeias de texto completas encapsuladas em aspas duplas.
+                            </p>
+                        </div>
+                        <code class="block mt-auto bg-slate-900 p-2 rounded text-emerald-300 text-xs border border-slate-700">
+                            char operacao = '+';<br>String mensagemErro = "Divisão por Zero";
+                        </code>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="switchView('fluxos_controle')"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition inline-flex items-center gap-2">
+                        Avançar para Fluxos de Controle <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="fluxos_controle" class="view-content space-y-6">
+                <h1 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">O Cérebro da Máquina:
+                    Fluxos de Controle</h1>
+                <p class="text-slate-300 mb-6 text-lg">Um programa em Java executa as linhas de cima para baixo. Mas
+                    para criar "inteligência" (tomar decisões ou repetir tarefas), precisamos dos Comandos de Controle.
+                </p>
+
+                <div class="space-y-6">
+                    <div class="glass p-6 rounded-xl border border-emerald-500/50">
+                        <h3 class="text-2xl font-bold text-emerald-400 mb-2 flex items-center gap-2"><i
+                                class="ph-fill ph-git-branch"></i> Decisões ( IF / ELSE )</h3>
+                        <p class="text-slate-400 mb-4">Verifica uma condição. Se for verdadeira, entra no bloco. Ideal
+                            para validar se o usuário tentou dividir por zero.</p>
+                        <div
+                            class="bg-slate-900 p-4 rounded-lg border border-slate-700 font-mono text-sm text-emerald-300">
+                            <span class="text-purple-400">if</span> (valor2 == <span class="text-orange-400">0</span>)
+                            {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;System.out.println("Erro matemático");<br>
+                            } <span class="text-purple-400">else</span> {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;double result = valor1 / valor2;<br>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-cyan-500/50">
+                        <h3 class="text-2xl font-bold text-cyan-400 mb-2 flex items-center gap-2"><i
+                                class="ph-fill ph-list-numbers"></i> Múltiplas Escolhas ( SWITCH )</h3>
+                        <p class="text-slate-400 mb-4">Quando você tem várias opções (como um Menu: 1-Somar,
+                            2-Subtrair), o <code>switch</code> é muito mais limpo do que escrever dezenas de
+                            <code>if/else</code>.</p>
+                        <div
+                            class="bg-slate-900 p-4 rounded-lg border border-slate-700 font-mono text-sm text-cyan-300">
+                            <span class="text-purple-400">switch</span> (opcao) {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-purple-400">case</span> <span
+                                class="text-orange-400">1</span>:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;somar();<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-purple-400">break</span>;
+                            <span class="text-slate-500">// Para o código não invadir o case 2</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-purple-400">case</span> <span
+                                class="text-orange-400">2</span>:<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subtrair();<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+                                class="text-purple-400">break</span>;<br>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-purple-500/50">
+                        <h3 class="text-2xl font-bold text-purple-400 mb-2 flex items-center gap-2"><i
+                                class="ph-fill ph-arrows-clockwise"></i> Repetição ( WHILE )</h3>
+                        <p class="text-slate-400 mb-4">Executa um bloco de código repetidas vezes
+                            <strong>enquanto</strong> uma condição for verdadeira. Na nossa calculadora, usaremos para
+                            manter o programa aberto após cada cálculo.</p>
+                        <div
+                            class="bg-slate-900 p-4 rounded-lg border border-slate-700 font-mono text-sm text-purple-300">
+                            <span class="text-purple-400">while</span> (ligada == <span
+                                class="text-orange-400">true</span>) {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;mostrarMenuCalculadora();<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-slate-500">// Se o usuario digitar sair, mudamos
+                                ligada para false</span><br>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="switchView('conceitos')"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition inline-flex items-center gap-2">
+                        Avançar para Tática de Imersão <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="git_flow" class="view-content space-y-6">
+                <h1 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Setup & Git Flow: O Padrão do Mercado</h1>
+                <p class="text-slate-300 mb-6 text-lg">Nenhum sistema no mercado de trabalho é desenvolvido sem versionamento de código. Antes de programarmos a nossa Calculadora, prepare o ambiente de desenvolvimento instalando o Git e configurando o seu "ponto de restauro".</p>
+
+                <!-- Cards de Instalação Sem Administrador -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Card de Instalação 1 (Winget) -->
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
+                                    <i class="ph-bold ph-terminal-window text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-white">Instalação 1 (Winget)</h3>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-4">
+                                Recomendado para as máquinas do laboratório. Abra o terminal integrado do VS Code e execute o comando abaixo para instalar o Git apenas no escopo do usuário atual, sem necessitar de privilégios de administrador:
+                            </p>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 flex items-center justify-between font-mono text-xs text-emerald-300 mt-auto">
+                            <span>winget install --id Git.Git --scope user</span>
+                            <button onclick="navigator.clipboard.writeText('winget install --id Git.Git --scope user'); alert('Comando copiado!')" class="text-slate-400 hover:text-emerald-400 transition ml-2" title="Copiar comando">
+                                <i class="ph-bold ph-copy text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card de Instalação 2 (Git Portable) -->
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-400">
+                                    <i class="ph-bold ph-archive text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-white">Instalação 2 (Git Portable)</h3>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-4">
+                                Plano de contingência caso o Winget falhe: baixe a versão portátil (.zip) do Git no site oficial, extraia na máquina e execute o comando abaixo no terminal para integrá-lo ao VS Code:
+                            </p>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 flex items-center justify-between font-mono text-xs text-emerald-300 mt-auto">
+                            <span>git config --global core.editor "code --wait"</span>
+                            <button onclick="navigator.clipboard.writeText('git config --global core.editor &quot;code --wait&quot;'); alert('Comando copiado!')" class="text-slate-400 hover:text-emerald-400 transition ml-2" title="Copiar comando">
+                                <i class="ph-bold ph-copy text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-xl border border-cyan-500/50 mb-6">
+                    <h3 class="text-xl font-bold text-cyan-400 mb-4 flex items-center gap-2"><i
+                            class="ph-bold ph-terminal-window"></i> O Ciclo de Vida do Código</h3>
+
+                    <div class="space-y-4">
+                        <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
+                            <p class="text-sm text-slate-400 mb-2">1. Iniciar a monitorização da pasta do projeto
+                                (Apenas na primeira vez):</p>
+                            <code class="text-emerald-300 font-mono text-sm">> git init</code>
+                        </div>
+
+                        <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
+                            <p class="text-sm text-slate-400 mb-2">2. Adicionar os ficheiros modificados
+                                (Calculadora.java) à zona de preparação (Staging):</p>
+                            <code class="text-emerald-300 font-mono text-sm">> git add .</code>
+                        </div>
+
+                        <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
+                            <p class="text-sm text-slate-400 mb-2">3. Guardar uma "fotografia" do código na linha do
+                                tempo com uma mensagem clara:</p>
+                            <code
+                                class="text-emerald-300 font-mono text-sm">> git commit -m "feat: adiciona estrutura base da calculadora"</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="switchView('tipos_dados')"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition inline-flex items-center gap-2">
+                        Avançar para Tipos de Dados <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="conceitos" class="view-content space-y-6">
+                <h1 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2">Tática de Imersão (Radar
+                    da Banca)</h1>
+                <p class="text-slate-300 mb-6 text-lg">Revisaremos conceitos cruciais de POO. Entenda o que as bancas
+                    cobram para poder aplicar o conhecimento na construção da nossa Calculadora.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div
+                            class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-package text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Classe e Objeto</h3>
+                        <p class="text-sm text-slate-400">A classe é a "planta baixa" que define como o sistema será. O
+                            Objeto é a "casa construída" na memória pelo comando <code>new</code>.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div
+                            class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-lock-key text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Encapsulamento (private)</h3>
+                        <p class="text-sm text-slate-400">O modificador <code>private</code> protege seus dados. A banca
+                            tentará afirmar que itens privados são acessados fora da classe, o que é falso. Eles ficam
+                            "presos" dentro dela (exigindo getters/setters).</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div
+                            class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-arrows-split text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Herança e Polimorfismo</h3>
+                        <p class="text-sm text-slate-400">Herança (<code>extends</code>) reaproveita código.
+                            Polimorfismo permite executar comandos sem saber a classe filha específica. ("Aberto para
+                            extensão, fechado para modificação").</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition">
+                        <div
+                            class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-4 text-emerald-400">
+                            <i class="ph-fill ph-cloud-arrow-up text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Deploy Web (WAR)</h3>
+                        <p class="text-sm text-slate-400">Enquanto o <code>.JAR</code> embala bibliotecas normais
+                            (desktop), o <code>.WAR</code> (Web Application Archive) embala seu projeto para servidores
+                            web.</p>
+                    </div>
+
+                    <div
+                        class="glass p-6 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition flex flex-col justify-center items-center text-center md:col-span-2">
+                        <h3 class="text-lg font-bold text-emerald-400 mb-4">Pronto para Codar a Calculadora Básica?</h3>
+                        <button onclick="startSimulado()"
+                            class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition">
+                            Iniciar Sprint de Codificação
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="simulado" class="view-content space-y-8">
+
+                <!-- Passo 1 - Polimorfismo -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="1" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 1 -
+                            Quadrix (POO / Extensão)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Ao introduzirmos Polimorfismo no ETB-Pay, a regra de negócio exige flexibilidade. Segundo a
+                        banca, para calcular diferentes operações chamando um mesmo comando genérico, o sistema básico
+                        teria que sofrer <strong class="text-rose-400">profundas modificações</strong> em cada chamada
+                        de classe.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q1" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q1" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(1)" id="btn-resp-1"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-1" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-1')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-1')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 1</button>
+                    </div>
+
+                    <div id="exp-1"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">O princípio é "Aberto para extensão, fechado para modificação". O sistema se ajusta dinamicamente baseando-se no comportamento, sem quebrar o código anterior.</p>
+                    </div>
+
+                    <div id="des-1"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">AppCalculadora.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Crie a interface <code>Operacao</code> e configure o binding dinâmico em Java para podermos calcular operações de forma polimórfica.</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+public interface Operacao {
+    double calcular(double v1, double v2);
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 2 - RESTful XML vs JSON -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="2" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 2 -
+                            CEBRASPE (Java Web / RESTful)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        A nossa Calculadora Básica precisa comunicar com a interface de celular do ETB-Pay. Em uma arquitetura RESTful, o resultado da operação matemática (ex: resultado = 5.0) deve ser devolvido obrigatoriamente e de forma exclusiva no formato estruturado XML.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q2" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q2" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(2)" id="btn-resp-2"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-2" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-2')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-2')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 2</button>
+                    </div>
+
+                    <div id="exp-2"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">APIs RESTful suportam múltiplos formatos, sendo o JSON o padrão soberano de mercado por sua leveza.</p>
+                    </div>
+
+                    <div id="des-2"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">AppCalculadora.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Abra a classe principal <code>AppCalculadora</code> e, no final do método <code>main</code>, simule o output do resultado da divisão formatado como um bloco de texto JSON limpo usando <code>System.out.println</code>.</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+double resultado = calc.dividir(v1, v2);
+
+System.out.println("{");
+System.out.println("  \"status\": \"sucesso\",");
+System.out.println("  \"resultado\": " + resultado);
+System.out.println("}");</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 3 - Deploy Web .WAR -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="3" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 3 -
+                            CEBRASPE (Java Web / Deploy)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Após finalizar a calculadora básica no console, se no futuro precisarmos empacotá-la para
+                        distribuição em um servidor web (uma página), a extensão de arquivo padronizada no mundo Java é
+                        a <code>.WAR</code>.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q3" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q3" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(3)" id="btn-resp-3"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-3" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-3')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-3')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 3</button>
+                    </div>
+
+                    <div id="exp-3"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Correto! O <strong>WAR (Web Application Archive)</strong> é
+                            usado para aplicativos web. O JAR é mais comum para aplicações normais (desktop) como a que
+                            estamos fazendo hoje.</p>
+                    </div>
+
+                    <div id="des-3"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">Terminal Execução</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> O empacotamento WAR ficará para o futuro. Hoje o nosso "Deploy" é executar a aplicação no console. Compile e rode seu código e veja o Menu do <code>while</code> funcionar!</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+> javac AppCalculadora.java
+> java AppCalculadora
+--- CALCULADORA ETB-PAY ---
+1 - Somar
+2 - Subtrair
+4 - Dividir
+0 - Sair
+Escolha: _</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 4 - Encapsulamento Private -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="4" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 4 -
+                            Quadrix (Encapsulamento e IF)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Na nossa calculadora, as variáveis foram declaradas com o modificador <code
+                            class="text-emerald-300">private</code> para garantir a proteção. A categoria de
+                        visibilidade "private" garante que esses membros <strong class="text-rose-400">somente podem ser
+                            acessados fora da classe</strong> em que foram declarados.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q4" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q4" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(4)" id="btn-resp-4"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-4" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-4')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-4')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 4</button>
+                    </div>
+
+                    <div id="exp-4"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">Membros <code>private</code> somente podem ser acessados
+                            <strong>DENTRO</strong> da própria classe onde foram declarados. O encapsulamento permite
+                            que a gente valide as entradas!</p>
+                    </div>
+
+                    <div id="des-4"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">CalculadoraBasica.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Altere as
+                            suas variáveis para <code>private</code>. Crie o método de divisão e utilize a condicional
+                            <strong>IF</strong> para impedir a temida divisão por zero!</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+private double valor1;
+private double valor2;
+
+// Usando controle de fluxo IF para proteger o cálculo!
+public double dividir(double v1, double v2) {
+    if (v2 == 0) {
+        System.out.println("Erro: Divisão por Zero!");
+        return 0; // Encerra o fluxo
+    }
+    return v1 / v2;
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 5 - Conceito de Classe Molde -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="5" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 5 -
+                            Quadrix (Conceito de Classe)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Quando estamos a modelar nosso software, utilizamos o termo <strong>classe</strong> para definir
+                        o molde estrutural. Esse termo, na POO, tem a função basilar de definir os atributos (dados) e
+                        os comportamentos (métodos) que serão expostos pelo objeto instanciado na memória do sistema.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q5" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q5" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(5)" id="btn-resp-5"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-5" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-5')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-5')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 5</button>
+                    </div>
+
+                    <div id="exp-5"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">A classe atua como o projeto (planta baixa), definindo os
+                            dados e ações que a nossa Calculadora possuirá após ser gerada em memória.</p>
+                    </div>
+
+                    <div id="des-5"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">CalculadoraBasica.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Crie a
+                            fundação. Abra o VS Code, crie o ficheiro abaixo e defina os tipos para guardarmos os dois
+                            números da operação matemática.</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+public class CalculadoraBasica {
+    
+    // Atributos base da nossa calculadora (não seguros ainda)
+    double valor1;
+    double valor2;
+
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 6 - Herança Extends -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="6" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 6 -
+                            Quadrix (POO / Herança)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        Para poupar código, utilizamos Herança. Por meio desse relacionamento interclasses, é permitido
+                        que a subclasse <code>CalculadoraAvancada</code> herde de forma automática os atributos e
+                        métodos (como a divisão segura) de sua superclasse <code>CalculadoraBasica</code>.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q6" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q6" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(6)" id="btn-resp-6"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-6" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-6')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-6')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 6</button>
+                    </div>
+
+                    <div id="exp-6"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">Através do termo <code>extends</code> no Java, a classe filha
+                            obtém a fundação que você já desenvolveu, focando apenas em programar coisas novas (ex: raiz
+                            quadrada).</p>
+                    </div>
+
+                    <div id="des-6"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">CalculadoraAvancada.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Crie um novo ficheiro. Ele vai usar <code>extends</code> a base e criar apenas um método de potência (Math.pow).</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+public class CalculadoraAvancada extends CalculadoraBasica {
+    
+    // Herdamos dividir(), agora adicionamos Potência!
+    public double elevarPotencia(double base, double expoente) {
+        return Math.pow(base, expoente);
+    }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 7 - Vantagens da POO Reuso -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="7" data-answer="CERTO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 7 -
+                            Quadrix (Vantagens da POO)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        A escolha de arquitetar a nossa Calculadora em POO é defendida por ter a característica de
+                        diminuir o tempo de desenvolvimento a longo prazo, produzindo um software flexível e com
+                        componentes que podem ser reutilizados em laços contínuos.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q7" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q7" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(7)" id="btn-resp-7"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-7" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-7')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-7')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 7</button>
+                    </div>
+
+                    <div id="exp-7"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: CERTO</p>
+                        <p class="text-sm text-slate-300">A POO foca expressamente em modularização, manutenção e reuso
+                            de componentes.</p>
+                    </div>
+
+                    <div id="des-7"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">AppCalculadora.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Nenhuma
+                            calculadora desliga após uma conta! Coloque o seu código dentro de um laço
+                            <strong>WHILE</strong> infinito, até que a opção seja zero.</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+boolean rodando = true;
+
+// O código repete ENQUANTO rodando for true!
+while(rodando) {
+    // 1. Mostrar Menu
+    // 2. Ler opcao
+    if(opcao == 0) {
+        rodando = false; // Sai do laço!
+    } else {
+        // Executar o switch
+    }
+}</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 8 - Pegadinha do Float Literal (CEBRASPE) -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="8" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 8 -
+                            CEBRASPE (Pegadinha do Float Literal)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        No desenvolvimento da nossa Calculadora Básica em Java, ao tentarmos inicializar uma variável de precisão decimal simples escrevendo diretamente a linha de instrução <code>float resultado = 5.5;</code>, o compilador do Java executará o código com sucesso, pois reconhece automaticamente o número fracionário como um tipo float compatível.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q8" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q8" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(8)" id="btn-resp-8"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-8" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-8')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-8')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 8</button>
+                    </div>
+
+                    <div id="exp-8"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">Pega clássico de prova! Por padrão, todo literal decimal no Java é tratado como 'double'. Atribuir um double a um float gera erro de compilação por perda de precisão (loss of precision). O correto seria usar '5.5f'.</p>
+                    </div>
+
+                    <div id="des-8"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">AppCalculadora.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Abra seu código e teste: declare um float sem o 'f' no final e veja o compilador travar. Corrija adicionando o sufixo 'f' para blindar a tipagem.</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+// ERRO: float resultado = 5.5; (compilador vê 5.5 como double)
+float resultado = 5.5f; // Correto usando o sufixo 'f'</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 9 - String como Tipo Primitivo -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="9" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 9 -
+                            Quadrix (String como Tipo Primitivo)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        O ecossistema Java 21 é fortemente tipado e divide suas estruturas de dados entre primitivos e referências. O tipo 'String', amplamente utilizado no nosso projeto para exibir mensagens de erro customizadas no terminal da calculadora, é classificado nativamente como um dos 8 tipos primitivos da linguagem.
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q9" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q9" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(9)" id="btn-resp-9"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-9" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-9')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-9')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 9</button>
+                    </div>
+
+                    <div id="exp-9"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">O Java possui apenas 8 tipos primitivos (byte, short, int, long, float, double, char, boolean). A 'String' é uma Classe (tipo de objeto/referência) e por isso começa com letra maiúscula.</p>
+                    </div>
+
+                    <div id="des-9"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">AppCalculadora.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Adicione uma String de log no seu método principal para registrar as ações do usuário, diferenciando-a claramente das variáveis numéricas primitivas.</p>
+                        <pre class="p-4 text-emerald-300 font-mono text-sm overflow-x-auto">
+double numeroPrimitivo = 10.5; // Tipo primitivo (double)
+String logMensagem = "Log: Calculando..."; // Tipo de referência (Classe String)</pre>
+                    </div>
+                </div>
+
+                <!-- Passo 10 - Convenções de Nomenclatura (Quadrix/Clean Code) -->
+                <div class="glass p-6 rounded-xl border border-slate-700 question-card" data-q="10" data-answer="ERRADO">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded text-sm">Passo 10 -
+                            Quadrix (Convenções de Nomenclatura)</span>
+                    </div>
+                    <p class="text-lg text-white mb-6 leading-relaxed">
+                        De acordo com as convenções oficiais da linguagem Java adotadas para manter o Clean Code, os nomes de classes e interfaces devem utilizar a convenção <code>camelCase</code> (ex: <code>calculadoraBasica</code>), ao passo que variáveis de instância e nomes de métodos devem utilizar estritamente a convenção <code>PascalCase</code> (ex: <code>PrimeiroNumero</code>).
+                    </p>
+
+                    <div class="flex gap-4 mb-6">
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q10" value="CERTO" class="radio-input hidden"> CERTO
+                        </label>
+                        <label
+                            class="radio-label flex-1 text-center border-2 border-slate-600 rounded-lg py-4 bg-slate-800/50 text-white font-bold text-xl relative">
+                            <input type="radio" name="q10" value="ERRADO" class="radio-input hidden"> ERRADO
+                        </label>
+                    </div>
+
+                    <button onclick="responder(10)" id="btn-resp-10"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition shadow-lg">Confirmar
+                        Resposta</button>
+
+                    <div id="actions-10" class="hidden-box flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="toggleSection('exp-10')"
+                            class="flex-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-lightbulb"></i> Ver Explicação</button>
+                        <button onclick="toggleSection('des-10')"
+                            class="flex-1 border border-emerald-400 text-emerald-400 hover:bg-emerald-400/10 py-2 rounded font-bold transition"><i
+                                class="ph-bold ph-code"></i> Tutorial Guiado - Passo 10</button>
+                    </div>
+
+                    <div id="exp-10"
+                        class="hidden-box mt-4 p-4 bg-slate-800/80 rounded-lg border-l-4 border-emerald-500">
+                        <p class="text-emerald-400 font-bold mb-1">Gabarito: ERRADO</p>
+                        <p class="text-sm text-slate-300">A banca inverteu as regras. Classes usam PascalCase (Iniciais Maiúsculas, ex: <code>CalculadoraBasica</code>). Variáveis e métodos usam camelCase (primeira letra minúscula, ex: <code>primeiroNumero</code>, <code>calcularSoma</code>).</p>
+                    </div>
+
+                    <div id="des-10"
+                        class="hidden-box mt-4 bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1">
+                            <span class="terminal-dot dot-red"></span><span class="terminal-dot dot-yellow"></span><span
+                                class="terminal-dot dot-green"></span>
+                            <span class="text-xs text-slate-400 ml-2 font-mono">CalculadoraBasica.java</span>
+                        </div>
+                        <p class="p-4 text-slate-300 text-sm border-b border-slate-700"><strong>Ação:</strong> Passe um pente fino no seu projeto local: garanta que sua classe comece com letra maiúscula e que as variáveis do cálculo comecem com letra minúscula. Rode o comando 'git commit' para salvar a versão fin                <div class="text-center pt-8">
+                    <button onclick="switchView('finish')"
+                        class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg transition border border-slate-500 flex items-center justify-center gap-2 mx-auto">
+                        Finalizar Sprint (Commits) <i class="ph-bold ph-git-commit text-xl text-emerald-400"></i>
+                    </button>
+                </div>
+
+            </section>
+
+            <section id="finish" class="view-content space-y-6">
+                <div class="glass p-10 rounded-2xl text-center border-emerald-500/50">
+                    <div
+                        class="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-400">
+                        <i class="ph-fill ph-trophy text-4xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-bold text-white mb-4">Sprint Concluída!</h1>
+                    <p class="text-lg text-slate-300 mb-8 max-w-lg mx-auto">Você completou o ciclo de treinamento para a
+                        Banca Cebraspe/Quadrix E codificou uma Calculadora Básica aprendendo Fluxos de Controle (If,
+                        Switch, While). Lembre-se de rodar <code>git commit</code> e dar <code>git push</code> no
+                        repositório ETB-PAY!</p>
+
+                    <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                        <button onclick="downloadMarkdown()"
+                            class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition flex items-center gap-2 border border-slate-500">
+                            <i class="ph-bold ph-download-simple text-xl"></i> Resumo (.MD)
+                        </button>
+                        <button id="btn-download-pdf" onclick="downloadPDF()"
+                            class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] transition flex items-center gap-2">
+                            <i class="ph-bold ph-file-pdf text-xl"></i> Guia de Estudos (PDF)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Desafio da Semana: Feature Request ETB-PAY -->
+                <div class="glass mt-8 p-6 md:p-8 rounded-xl border border-amber-500/30 bg-slate-900/50 text-left">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 border-b border-slate-700/50 pb-4">
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            🚀 Desafio da Semana: Feature Request ETB-PAY
+                        </h2>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 mt-2 md:mt-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            Status da Task: Backlog de Engenharia
+                        </span>
+                    </div>
+
+                    <p class="text-slate-300 text-base mb-6 leading-relaxed">
+                        Squads, a diretoria do ETB-PAY solicitou uma nova feature no menu da nossa Calculadora (Opção 5): o <strong>Simulador de Cashback Simplificado</strong>. Vocês devem capturar a Categoria do Cliente (<code>char</code>) e o Valor do Saldo (<code>double</code>) para processar o retorno.
+                    </p>
+
+                    <div class="space-y-4 mb-6">
+                        <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">Especificação Técnica</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Regra Switch -->
+                            <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700/50">
+                                <h4 class="text-white font-bold text-sm mb-2 flex items-center gap-1.5">
+                                    <i class="ph-bold ph-git-merge text-amber-400"></i> Estrutura Switch-Case
+                                </h4>
+                                <ul class="text-slate-400 text-xs space-y-1.5 list-disc list-inside">
+                                    <li>Caso <code class="text-amber-300">'B'</code> (Bronze): Aplique 1% de cashback.</li>
+                                    <li>Caso <code class="text-amber-300">'P'</code> (Prata): Aplique 2% de cashback.</li>
+                                    <li>Caso <code class="text-amber-300">'O'</code> (Ouro): Aplique 5% de cashback.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Regra Console -->
+                            <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700/50">
+                                <h4 class="text-white font-bold text-sm mb-2 flex items-center gap-1.5">
+                                    <i class="ph-bold ph-terminal-window text-amber-400"></i> Relatório Final no Console
+                                </h4>
+                                <p class="text-slate-400 text-xs leading-relaxed">
+                                    Ao concluir o cálculo dentro do Switch, o programa deve obrigatoriamente imprimir na tela um resumo utilizando <code>System.out.println</code> estruturado exatamente assim:
+                                </p>
+                                <pre class="bg-slate-950 p-2 rounded text-[10px] text-emerald-400 font-mono mt-1 border border-slate-800">
+Categoria do Cliente: [Bronze / Prata / Ouro]
+Valor do Saldo: R$ [Valor]
+Percentual Aplicado: [1% / 2% / 5%]
+Valor do Cashback: R$ [Resultado]</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#020617] rounded-lg border border-slate-700 overflow-hidden">
+                        <div class="terminal-header px-4 py-2 flex items-center gap-1 bg-slate-950 border-b border-slate-800">
+                            <span class="terminal-dot dot-red"></span>
+                            <span class="terminal-dot dot-yellow"></span>
+                            <span class="terminal-dot dot-green"></span>
+                            <span class="text-[10px] text-slate-500 ml-2 font-mono">Terminal - commit da task</span>
+                        </div>
+                        <pre class="p-4 text-emerald-300 font-mono text-xs overflow-x-auto bg-[#090d16]">
+> git add .
+> git commit -m "feat: simulador de cashback simplificado"</pre>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div id="pdf-template"
+        style="display: none; background: #ffffff; color: #1e293b; padding: 40px; font-family: 'Segoe UI', Arial, sans-serif; width: 100%; max-width: 800px; margin: 0 auto;">
+        <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 20px; margin-bottom: 30px;">
+            <h1 style="color: #0f172a; font-size: 32px; margin-bottom: 5px;">ETB-PAY | Guia de Estudos</h1>
+            <p style="color: #475569; font-size: 18px; margin: 0;">Revisão: POO, Java & Git (10 Passos)</p>
+        </div>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Git e Fluxos de Controle (Fundamentos)</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: disc; padding-left: 20px;">
+            <li><strong>Git:</strong> <code>git init</code> (inicia), <code>git add .</code> (prepara),
+                <code>git commit -m</code> (salva histórico).</li>
+            <li><strong>IF / ELSE:</strong> Comando de decisão. Valida uma condição lógica antes de executar um bloco (ex: impedir divisão por zero).</li>
+            <li><strong>SWITCH:</strong> Comando de múltiplas escolhas, excelente para substituir vários if/else em menus.</li>
+            <li><strong>WHILE:</strong> Laço de repetição. Executa código continuadamente <em>enquanto</em> a condição for <code>true</code>.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q1 - POO / Extensão e Polimorfismo</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Ao introduzirmos Polimorfismo, para calcular diferentes operações, o sistema básico teria que sofrer profundas modificações em cada chamada de classe. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> Afirmar que a arquitetura polimórfica exige modificações profundas no sistema raiz para adicionar ou estender comportamentos.</li>
+            <li><strong>A Regra (Por Quê):</strong> O polimorfismo e o binding dinâmico permitem estender comportamentos através de interfaces comuns (ex: <code>Operacao</code>) sem necessidade de modificar a classe-raiz.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q2 - Java Web / RESTful JSON</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Em arquitetura RESTful, o resultado da operação matemática deve ser devolvido obrigatoriamente e de forma exclusiva no formato XML. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> Restringir o formato de retorno de uma API RESTful de forma obrigatória e exclusiva ao XML.</li>
+            <li><strong>A Regra (Por Quê):</strong> APIs RESTful suportam múltiplos formatos de retorno (JSON, XML, HTML, etc.), sendo o JSON o padrão mais leve e utilizado do mercado moderno.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q3 - Java Web / Deploy</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> A extensão padronizada no Java para empacotamento web é .WAR. (CERTO)</li>
+            <li><strong>O Erro (O Quê):</strong> N/A (A afirmação é verdadeira).</li>
+            <li><strong>A Regra (Por Quê):</strong> Arquivos .WAR (Web Application Archive) empacotam componentes da camada web (servlets, JSPs, HTML). Arquivos .JAR (Java Archive) empacotam aplicações standalone ou bibliotecas.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q4 - POO / Encapsulamento</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Membros private só podem ser acessados fora da classe em que foram declarados. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> Afirmar que membros de acesso private são acessíveis fora de sua classe declarada.</li>
+            <li><strong>A Regra (Por Quê):</strong> O modificador de acesso private restringe a visibilidade do membro estritamente a dentro da própria classe. Acessos externos devem ser controlados via Getters/Setters.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q5 - POO / Conceito de Classe</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Uma classe define os atributos e comportamentos do objeto instanciado na memória. (CERTO)</li>
+            <li><strong>O Erro (O Quê):</strong> N/A (A afirmação é verdadeira).</li>
+            <li><strong>A Regra (Por Quê):</strong> A classe funciona como um molde ou planta baixa estrutural que define as variáveis de instância (atributos) e métodos (comportamentos) dos objetos.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q6 - POO / Herança</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> A subclasse herda os atributos e comportamentos da superclasse. (CERTO)</li>
+            <li><strong>O Erro (O Quê):</strong> N/A (A afirmação é verdadeira).</li>
+            <li><strong>A Regra (Por Quê):</strong> A herança (implementada pela palavra-chave <code>extends</code> no Java) permite que uma subclasse herde e reutilize a estrutura e lógica pública/protegida de uma superclasse.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q7 - POO / Vantagens</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> A arquitetura em POO diminui o tempo de desenvolvimento a longo prazo e produz software flexível. (CERTO)</li>
+            <li><strong>O Erro (O Quê):</strong> N/A (A afirmação é verdadeira).</li>
+            <li><strong>A Regra (Por Quê):</strong> A Programação Orientada a Objetos incentiva o reuso de código, o isolamento de responsabilidades e a modularização, facilitando manutenções futuras.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q8 - Tipos de Dados / Pegadinha do Float</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Ao declararmos uma variável com precisão decimal simples como 'float resultado = 5.5;', o compilador executará com sucesso. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> Considerar que literais de ponto flutuante são interpretados como float por padrão.</li>
+            <li><strong>A Regra (Por Quê):</strong> Todo literal decimal no Java é considerado do tipo double (64 bits). Tentar atribuir double a um float (32 bits) gera erro de compilação por perda de precisão; exige-se o sufixo 'f' (ex: <code>5.5f</code>).</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q9 - Tipos de Dados / String como Primitivo</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> O tipo 'String', utilizado para exibir mensagens no terminal da calculadora, é classificado nativamente como um dos 8 tipos primitivos do Java. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> Classificar String como um tipo de dado primitivo.</li>
+            <li><strong>A Regra (Por Quê):</strong> Java possui exatamente 8 tipos primitivos (byte, short, int, long, float, double, char, boolean). String é uma Classe (tipo de objeto de referência), iniciando com letra maiúscula.</li>
+        </ul>
+
+        <h3
+            style="color: #059669; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #10b981; padding-left: 10px;">
+            Q10 - Convenções de Nomenclatura</h3>
+        <ul
+            style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px; list-style: none; padding-left: 0;">
+            <li><strong>O que a questão disse:</strong> Classes e interfaces devem usar camelCase e variáveis de instância e métodos devem usar PascalCase. (ERRADO)</li>
+            <li><strong>O Erro (O Quê):</strong> Inversão das convenções de nomenclatura CamelCase e PascalCase.</li>
+            <li><strong>A Regra (Por Quê):</strong> Classes e interfaces em Java utilizam a convenção PascalCase (ex: <code>CalculadoraBasica</code>), enquanto métodos e variáveis de instância utilizam a convenção camelCase (ex: <code>calcularSoma</code>, <code>opcaoMenu</code>).</li>
+        </ul>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-collapsed');
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-content').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('onclick').includes(viewId)) {
+                    item.classList.add('active');
+                }
+            });
+
+            if (viewId === 'simulado') {
+                document.getElementById('main-content').scrollTo(0, 0);
+            }
+        }
+
+        // Timer Logic (45 Minutes)
+        let totalSeconds = 45 * 60;
+        let timerRunning = false;
+        let timerInterval = null;
+
+        function updateTimer() {
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            document.getElementById('timer-display').textContent =
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            if (totalSeconds > 0 && timerRunning) {
+                totalSeconds--;
+                if (totalSeconds <= 300) {
+                    document.getElementById('timer-display').classList.add('text-rose-400');
+                    document.getElementById('timer-display').classList.remove('text-white');
+                }
+            } else if (totalSeconds === 0 && timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                alert('Tempo esgotado da Sprint! Dê git commit e encerre os trabalhos.');
+            }
+        }
+
+        // Reset and Start Real Timer
+        function resetTimer() {
+            clearInterval(timerInterval);
+            totalSeconds = 45 * 60;
+            const display = document.getElementById('timer-display');
+            display.classList.remove('text-rose-400');
+            display.classList.add('text-white');
+            updateTimer();
+            startTimerReal();
+        }
+
+        function startTimerReal() {
+            timerRunning = true;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function startSimulado() {
+            switchView('simulado');
+            resetTimer();
+        }
+
+        function responder(qNumber) {
+            const container = document.querySelector(`.question-card[data-q="${qNumber}"]`);
+            const correctAnswer = container.getAttribute('data-answer');
+            const radios = container.querySelectorAll('.radio-input');
+            let selectedValue = null;
+            let selectedLabel = null;
+
+            radios.forEach(radio => {
+                if (radio.checked) {
+                    selectedValue = radio.value;
+                    selectedLabel = radio.parentElement;
+                }
+            });
+
+            if (!selectedValue) {
+                alert('Selecione CERTO ou ERRADO antes de confirmar!');
+                return;
+            }
+
+            const allLabels = container.querySelectorAll('.radio-label');
+            allLabels.forEach(label => {
+                label.classList.add('locked');
+                const input = label.querySelector('input');
+                if (input.value === correctAnswer) {
+                    label.classList.add('status-correct');
+                }
+            });
+
+            if (selectedValue !== correctAnswer) {
+                selectedLabel.classList.remove('status-correct');
+                selectedLabel.classList.add('status-incorrect');
+            }
+
+            document.getElementById(`btn-resp-${qNumber}`).style.display = 'none';
+            document.getElementById(`actions-${qNumber}`).style.display = 'flex';
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section.style.display === 'block') {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
+            }
+        }
+
+        function downloadMarkdown() {
+            const mdContent = `# Guia de Estudos e Código: Java & POO - ETB-PAY
+
+## Comandos Git e Fluxos
+* \`git init\`, \`git add .\`, \`git commit -m "msg"\`
+* **IF/ELSE**: Validações de decisão.
+* **WHILE**: Laços repetitivos infinitos (menus).
+* **SWITCH**: Condições de múltiplas escolhas limpas.
+
+## Construção da Calculadora Básica (10 Passos de Aprendizado)
+* **Passo 1 (Polimorfismo):** Criação da interface \`Operacao\` e configuração do binding dinâmico para execução polimórfica das contas.
+* **Passo 2 (RESTful JSON):** Formatação e saída do resultado do cálculo simulado em String no formato JSON.
+* **Passo 3 (Deploy Web):** Compilação com \`javac\` e execução em linha de comando simulando o deploy/execução no terminal.
+* **Passo 4 (Encapsulamento):** Declaração de variáveis privadas e validação da operação de divisão usando estrutura condicional \`IF\` contra divisão por zero.
+* **Passo 5 (Classe Molde):** Criação da classe base \`CalculadoraBasica\` definindo os atributos (dados) e métodos.
+* **Passo 6 (Herança):** Extensão da calculadora através de \`extends\` criando a subclasse \`CalculadoraAvancada\` com reutilização de código.
+* **Passo 7 (Reuso e Laço):** Criação de um menu contínuo com laço de repetição \`WHILE\` para manter a aplicação ativa.
+* **Passo 8 (Float Literal):** Resolução da perda de precisão utilizando o sufixo literal \`f\` para variáveis do tipo \`float\`.
+* **Passo 9 (String vs Primitivo):** Manipulação da Classe \`String\` para logs estruturados, diferenciando-a dos 8 tipos primitivos do Java.
+* **Passo 10 (Nomenclatura):** Aplicação de padrões Clean Code usando \`PascalCase\` para classes e \`camelCase\` para métodos/variáveis.
+`;
+
+            const blob = new Blob([mdContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Guia_Calculadora_Basica.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadPDF() {
+            const btn = document.getElementById('btn-download-pdf');
+            const originalHTML = btn.innerHTML;
+
+            btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin text-xl"></i> Gerando PDF...';
+            btn.style.pointerEvents = 'none';
+
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block';
+
+            const opt = {
+                margin: 15,
+                filename: 'Guia_Estudos_Calculadora_Basica.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
+
+                btn.innerHTML = '<i class="ph-bold ph-check-circle text-xl"></i> PDF Baixado!';
+                btn.style.backgroundColor = '#16a34a';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.backgroundColor = '';
+                    btn.style.pointerEvents = 'auto';
+                }, 3000);
+            });
+        }
+
+        switchView('intro');
+
+        document.getElementById('timer-display').textContent = '45:00';
+    </script>
+</body>
+
+</html>
