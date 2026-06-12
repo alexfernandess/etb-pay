@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundamentos ITIL e COBIT | Turma 4F</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root { --base-font: 16px; }
+        body { font-size: var(--base-font); overflow: hidden; }
+
+        /* Glass effect */
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+        }
+        .dark .glass { background: rgba(30,41,59,0.4); }
+        .glass:not(.dark .glass) { background: rgba(255,255,255,0.6); border-color: rgba(0,0,0,0.06); }
+
+        /* SPA Views */
+        .spa-view { display:none; animation: fadeIn 0.45s ease-out forwards; }
+        .spa-view.active { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        /* Reveal panels */
+        .reveal-content { max-height:0; overflow:hidden; opacity:0; transition:all .5s cubic-bezier(.4,0,.2,1); }
+        .reveal-content.open { max-height:1200px; opacity:1; margin-top:1.25rem; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width:6px; }
+        .dark ::-webkit-scrollbar-track { background:#0f172a; }
+        ::-webkit-scrollbar-track { background:#f1f5f9; }
+        .dark ::-webkit-scrollbar-thumb { background:#334155; }
+        ::-webkit-scrollbar-thumb { background:#94a3b8; border-radius:3px; }
+
+        /* Timer glow */
+        .timer-active { animation: glow 2s infinite alternate; }
+        @keyframes glow { from{text-shadow:0 0 5px #06b6d4} to{text-shadow:0 0 15px #22d3ee} }
+
+        /* Quiz radios */
+        .q-radio { display:none; }
+        .q-label { display:flex; align-items:center; cursor:pointer; padding:.75rem; border-radius:.5rem; border:1px solid transparent; transition:all .2s; }
+        .q-indicator { width:1.5rem; height:1.5rem; border-radius:50%; border:1px solid #94a3b8; display:flex; align-items:center; justify-content:center; margin-right:1rem; font-size:.75rem; font-weight:bold; color:#94a3b8; transition:all .2s; flex-shrink:0; }
+        .q-radio:checked+.q-label { background:rgba(6,182,212,.1); border-color:rgba(6,182,212,.3); }
+        .q-radio:checked+.q-label .q-indicator { background:#06b6d4; border-color:#06b6d4; color:#0f172a; }
+        .answered .q-radio.correct-ans+.q-label { background:rgba(16,185,129,.1)!important; border-color:rgba(16,185,129,.3)!important; }
+        .answered .q-radio.correct-ans+.q-label .q-indicator { background:#10b981!important; border-color:#10b981!important; color:#0f172a!important; }
+        .answered .q-radio.wrong-ans:checked+.q-label { background:rgba(244,63,94,.1)!important; border-color:rgba(244,63,94,.3)!important; }
+        .answered .q-radio.wrong-ans:checked+.q-label .q-indicator { background:#f43f5e!important; border-color:#f43f5e!important; color:#fff!important; }
+        .answered .q-label { cursor:default; }
+
+        /* Sidebar collapse */
+        #sidebar { transition: width .3s ease, transform .3s ease; }
+        #sidebar.collapsed { width: 0; overflow: hidden; border-right: none; }
+        #sidebar.collapsed * { opacity: 0; pointer-events: none; }
+
+        /* ═══ PRINTABLE STUDY GUIDE ═══ */
+        #print-guide { display: none; }
+        @media print {
+            body, html { overflow: visible !important; background: #fff !important; color: #1e293b !important; font-size: 11pt !important; }
+            #sidebar, header, #stepper-bar, #nav-bar, main > .flex-1 { display: none !important; }
+            #print-guide { display: block !important; page-break-inside: avoid; }
+            .print-page { page-break-after: always; padding: 1.5cm; }
+            .print-page:last-child { page-break-after: avoid; }
+            .print-card { border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px; margin-bottom: 12px; break-inside: avoid; }
+            .print-card h4 { font-size: 11pt; font-weight: 700; margin-bottom: 6px; color: #0f172a; }
+            .print-field { font-size: 9.5pt; margin-bottom: 4px; line-height: 1.45; color: #334155; }
+            .print-field strong { color: #0891b2; }
+            .print-title { font-size: 16pt; font-weight: 800; text-align: center; margin-bottom: 4px; color: #0f172a; }
+            .print-sub { font-size: 9pt; text-align: center; color: #64748b; margin-bottom: 18px; }
+            .print-section { font-size: 12pt; font-weight: 700; color: #0891b2; border-bottom: 2px solid #0891b2; padding-bottom: 4px; margin: 16px 0 10px; }
+        }
+    </style>
+</head>
+
+<body class="flex h-screen w-full antialiased bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 selection:bg-cyan-500/30">
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside id="sidebar" class="w-72 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col z-20 shrink-0 absolute md:relative h-full transform -translate-x-full md:translate-x-0">
+        <div class="h-20 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-950/20">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="toggleSidebarCollapse()">
+                <div class="bg-gradient-to-br from-cyan-500 to-blue-600 p-2 rounded-lg shadow-lg">
+                    <i class="ph-bold ph-rocket-launch text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold tracking-wider text-sm text-slate-900 dark:text-white">Squad 4F</h1>
+                    <p class="text-[10px] text-cyan-600 dark:text-cyan-500 font-mono tracking-widest uppercase font-bold">Gestão de TI</p>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-500 dark:text-slate-400 hover:text-cyan-500"><i class="ph-bold ph-x text-xl"></i></button>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+            <p class="px-2 text-[10px] font-mono text-slate-400 dark:text-slate-500 mb-4 tracking-widest uppercase font-bold">Jornada de Sprints</p>
+            <div class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 dark:text-slate-500 opacity-50 cursor-not-allowed"><i class="ph-fill ph-flag-banner text-xl"></i><span class="text-sm font-semibold">Tópico 1: Iniciação (TAP)</span></div>
+            <div class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 dark:text-slate-500 opacity-50 cursor-not-allowed"><i class="ph-fill ph-shield-warning text-xl"></i><span class="text-sm font-semibold">Tópico 2: Riscos & LGPD</span></div>
+            <div class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 dark:text-slate-500 opacity-50 cursor-not-allowed"><i class="ph-fill ph-kanban text-xl"></i><span class="text-sm font-semibold">Tópico 3: Gestão Ágil</span></div>
+            <div class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 dark:text-slate-500 opacity-50 cursor-not-allowed"><i class="ph-fill ph-exam text-xl"></i><span class="text-sm font-semibold">Tópico 4: Simulado Ágil</span></div>
+            <div class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 dark:text-slate-500 opacity-50 cursor-not-allowed mt-4"><i class="ph-fill ph-rows text-xl"></i><span class="text-sm font-semibold">Tópico 5: Cascata</span></div>
+            <div class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30"><i class="ph-fill ph-books text-xl"></i><span class="text-sm font-bold">Tópico 6: COBIT & ITIL</span></div>
+            <div class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 dark:text-slate-500 opacity-50 cursor-not-allowed"><i class="ph-fill ph-sword text-xl"></i><span class="text-sm font-semibold">Tópico 7: Mega Simulado AV3</span></div>
+        </nav>
+    </aside>
+
+    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-10 hidden md:hidden"></div>
+
+    <!-- ═══════ MAIN ═══════ -->
+    <main class="flex-1 flex flex-col relative w-full h-full transition-all duration-300">
+        <!-- HEADER -->
+        <header class="h-20 flex items-center justify-between px-6 md:px-8 border-b border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-800/40 glass z-10 shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-500 dark:text-slate-400 hover:text-cyan-500"><i class="ph-bold ph-list text-2xl"></i></button>
+                <div>
+                    <h2 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">Fundamentos ITIL e COBIT</h2>
+                    <p class="text-xs font-mono text-cyan-600 dark:text-cyan-600 font-bold uppercase tracking-wider">PMO Academy</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 md:gap-4">
+                <!-- Font Size Controls -->
+                <div class="hidden sm:flex items-center gap-1">
+                    <button onclick="changeFontSize(-1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-cyan-500 text-xs font-bold flex items-center justify-center" title="Diminuir fonte">A-</button>
+                    <button onclick="changeFontSize(1)" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-cyan-500 text-sm font-bold flex items-center justify-center" title="Aumentar fonte">A+</button>
+                </div>
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:text-cyan-500 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none hidden sm:block"><i class="ph-bold ph-sun text-xl" id="themeIcon"></i></button>
+                <!-- Timer -->
+                <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-950 border border-cyan-300 dark:border-cyan-500/30 px-3 py-1.5 rounded-lg shadow-inner">
+                    <button onclick="toggleTimer()" id="btn-timer" class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 focus:outline-none"><i class="ph-fill ph-play text-xl" id="icon-timer"></i></button>
+                    <button onclick="resetTimer()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white focus:outline-none" title="Resetar 80 min"><i class="ph-bold ph-arrow-counter-clockwise text-lg"></i></button>
+                    <div class="flex flex-col items-end ml-1">
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none">Timebox</span>
+                        <span id="timer-display" class="font-mono font-bold text-lg text-slate-900 dark:text-white leading-none">80:00</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- STEPPER -->
+        <div class="flex items-center justify-center gap-1.5 py-3 border-b border-slate-200 dark:border-slate-800/50 shrink-0 bg-slate-50 dark:bg-transparent" id="stepper-bar"></div>
+
+        <!-- CONTENT -->
+        <div class="flex-1 overflow-y-auto relative" id="content-area">
+            <div class="max-w-4xl mx-auto px-6 md:px-10 py-8 pb-32 space-y-8">
+
+                <!-- ══════ VIEW 1 ══════ -->
+                <div id="view-1" class="spa-view active">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-cyan-200 dark:border-cyan-500/30 uppercase tracking-widest mb-6">Passo 1 de 10</div>
+                        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">A Bússola e o Motor</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-lg max-w-2xl mx-auto">Entenda a diferença vital entre dois pilares que sustentam qualquer área de TI corporativa.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-purple-500">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="bg-purple-100 dark:bg-purple-500/20 p-3 rounded-xl"><i class="ph-fill ph-compass-tool text-purple-600 dark:text-purple-400 text-2xl"></i></div>
+                                <div><h3 class="text-xl font-bold text-slate-900 dark:text-white">COBIT = A Bússola</h3><span class="text-xs font-mono text-purple-600 dark:text-purple-400 uppercase tracking-widest">Governança de TI</span></div>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">O COBIT garante que todas as ações da TI estejam alinhadas aos <strong class="text-purple-700 dark:text-purple-300">objetivos estratégicos da Diretoria</strong>. Ele dita <em>"O Quê"</em> deve ser feito para agregar valor, mitigar riscos e garantir conformidade.</p>
+                            <div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 p-4 rounded-xl"><p class="text-sm text-purple-800 dark:text-purple-200/80"><i class="ph-bold ph-target text-purple-500 mr-1"></i> <strong>Foco:</strong> Alta Direção, Conselho, Stakeholders.</p></div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-500">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="bg-cyan-100 dark:bg-cyan-500/20 p-3 rounded-xl"><i class="ph-fill ph-engine text-cyan-600 dark:text-cyan-400 text-2xl"></i></div>
+                                <div><h3 class="text-xl font-bold text-slate-900 dark:text-white">ITIL = O Motor</h3><span class="text-xs font-mono text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Gestão de Serviços</span></div>
+                            </div>
+                            <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">O ITIL organiza a <strong class="text-cyan-700 dark:text-cyan-300">operação da TI no dia a dia</strong>: suporte técnico, atendimento ao usuário, gerenciamento de incidentes e mudanças. Ele dita <em>"Como"</em> as coisas funcionam na prática.</p>
+                            <div class="bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 p-4 rounded-xl"><p class="text-sm text-cyan-800 dark:text-cyan-200/80"><i class="ph-bold ph-target text-cyan-500 mr-1"></i> <strong>Foco:</strong> Operação, Service Desk, Usuário Final.</p></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl mt-8 text-center">
+                        <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Resumo para concurso:</strong> O COBIT diz <em>"Para onde ir"</em>. O ITIL diz <em>"Como chegar lá"</em>. São <strong>complementares</strong>, nunca excludentes.</p>
+                    </div>
+
+                    <!-- Botão Download PDF -->
+                    <div class="flex justify-center mt-10">
+                        <button onclick="window.print()" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-3 text-sm uppercase tracking-wider">
+                            <i class="ph-bold ph-file-pdf text-xl"></i> Baixar Guia de Estudos Completo (PDF)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ══════ VIEW 2 ══════ -->
+                <div id="view-2" class="spa-view">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-purple-200 dark:border-purple-500/30 uppercase tracking-widest mb-6">Passo 2 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">COBIT: Governança vs Gestão</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">Dois conceitos que as bancas adoram cobrar. Não confunda quem manda com quem executa.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-t-4 border-t-purple-500">
+                            <div class="flex items-center gap-3 mb-5"><div class="bg-purple-100 dark:bg-purple-500/20 p-3 rounded-xl"><i class="ph-fill ph-crown text-purple-600 dark:text-purple-400 text-2xl"></i></div><h3 class="text-xl font-bold text-slate-900 dark:text-white">Governança (EDM)</h3></div>
+                            <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-5">Papel da <strong class="text-purple-700 dark:text-purple-300">Alta Direção / Conselho</strong>. Define diretrizes, apetite de risco e objetivos corporativos.</p>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3 bg-purple-50 dark:bg-purple-500/10 p-3 rounded-lg"><span class="bg-purple-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">E</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Avaliar</strong> (Evaluate) — Analisar cenários e opções.</span></div>
+                                <div class="flex items-center gap-3 bg-purple-50 dark:bg-purple-500/10 p-3 rounded-lg"><span class="bg-purple-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">D</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Dirigir</strong> (Direct) — Dar direção e prioridades.</span></div>
+                                <div class="flex items-center gap-3 bg-purple-50 dark:bg-purple-500/10 p-3 rounded-lg"><span class="bg-purple-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">M</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Monitorar</strong> (Monitor) — Cobrar os resultados.</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-t-4 border-t-cyan-500">
+                            <div class="flex items-center gap-3 mb-5"><div class="bg-cyan-100 dark:bg-cyan-500/20 p-3 rounded-xl"><i class="ph-fill ph-wrench text-cyan-600 dark:text-cyan-400 text-2xl"></i></div><h3 class="text-xl font-bold text-slate-900 dark:text-white">Gestão (PBRM)</h3></div>
+                            <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-5">Papel do <strong class="text-cyan-700 dark:text-cyan-300">Gerente / Equipe de TI</strong>. Executa o que a Governança mandou.</p>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">P</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Planejar</strong> (Plan) — Desenhar a solução.</span></div>
+                                <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">B</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Construir</strong> (Build) — Desenvolver e implantar.</span></div>
+                                <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">R</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Rodar</strong> (Run) — Operar no dia a dia.</span></div>
+                                <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">M</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Monitorar</strong> (Monitor) — Medir desempenho.</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl mt-8 text-center"><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Macete:</strong> <em>"Governança = Quem MANDA (Conselho). Gestão = Quem FAZ (Equipe)."</em></p></div>
+                </div>
+
+                <!-- ══════ VIEW 3 ══════ -->
+                <div id="view-3" class="spa-view">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-purple-200 dark:border-purple-500/30 uppercase tracking-widest mb-6">Passo 3 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">COBIT: Cascata de Objetivos</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">Como o COBIT traduz necessidades genéricas do negócio em ações concretas de TI.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl flex items-start gap-4 border-l-4 border-l-purple-500"><div class="bg-purple-500 text-white font-bold text-sm w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1">1</div><div><h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Necessidades dos Stakeholders</h3><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">O ponto de partida. Ex: <em>"Queremos lucro, segurança dos dados e não levar multa."</em></p></div></div>
+                        <div class="flex justify-center"><i class="ph-bold ph-arrow-down text-purple-400/50 text-2xl"></i></div>
+                        <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl flex items-start gap-4 border-l-4 border-l-purple-400"><div class="bg-purple-400 text-white font-bold text-sm w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1">2</div><div><h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Objetivos Corporativos</h3><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Metas mensuráveis. Ex: <em>"Aumentar faturamento em 15%" ou "Zero vazamentos em 12 meses".</em></p></div></div>
+                        <div class="flex justify-center"><i class="ph-bold ph-arrow-down text-purple-400/50 text-2xl"></i></div>
+                        <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl flex items-start gap-4 border-l-4 border-l-cyan-500"><div class="bg-cyan-500 text-white font-bold text-sm w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1">3</div><div><h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Objetivos de Alinhamento (TI)</h3><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">A TI traduz. Ex: <em>"Sistemas disponíveis 99.9%", "Dados criptografados em repouso e em trânsito".</em></p></div></div>
+                        <div class="flex justify-center"><i class="ph-bold ph-arrow-down text-cyan-400/50 text-2xl"></i></div>
+                        <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl flex items-start gap-4 border-l-4 border-l-cyan-400"><div class="bg-cyan-400 text-slate-900 font-bold text-sm w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1">4</div><div><h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Objetivos de Governança e Gestão</h3><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Processos específicos. Ex: <em>"Implantar gestão de incidentes", "Criar comitê de mudanças".</em></p></div></div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl mt-8 text-center"><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Macete:</strong> A cascata flui <em>de cima para baixo</em>. Do Negócio para a TI, nunca ao contrário.</p></div>
+                </div>
+
+                <!-- ══════ VIEW 4 ══════ -->
+                <div id="view-4" class="spa-view">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-purple-200 dark:border-purple-500/30 uppercase tracking-widest mb-6">Passo 4 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">COBIT: Gestão de Riscos</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">A alta direção define o limite. A TI implementa os controles.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-amber-500 mb-6">
+                        <div class="flex items-center gap-3 mb-4"><div class="bg-amber-100 dark:bg-amber-500/20 p-3 rounded-xl"><i class="ph-fill ph-shield-warning text-amber-500 text-2xl"></i></div><h3 class="text-xl font-bold text-slate-900 dark:text-white">Como funciona?</h3></div>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">A alta direção define o <strong class="text-amber-600 dark:text-amber-300">apetite de risco</strong>: quanto risco a organização aceita correr. A TI implementa controles para manter dentro desse limite.</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 bg-amber-50 dark:bg-amber-500/10 p-3 rounded-lg"><i class="ph-bold ph-number-circle-one text-amber-500 text-lg"></i><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Identificar</strong> ameaças e vulnerabilidades.</span></div>
+                            <div class="flex items-center gap-3 bg-amber-50 dark:bg-amber-500/10 p-3 rounded-lg"><i class="ph-bold ph-number-circle-two text-amber-500 text-lg"></i><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Avaliar</strong> impacto e probabilidade.</span></div>
+                            <div class="flex items-center gap-3 bg-amber-50 dark:bg-amber-500/10 p-3 rounded-lg"><i class="ph-bold ph-number-circle-three text-amber-500 text-lg"></i><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Mitigar</strong> com controles técnicos e administrativos.</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-rose-500">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2"><i class="ph-fill ph-hospital text-rose-400"></i> Exemplo Prático (Hospitais)</h3>
+                        <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">A alta gestão define que o risco de <strong class="text-rose-600 dark:text-rose-300">vazamento de dados de pacientes (LGPD)</strong> é inaceitável. Para atender a esse nível de risco, a TI implementa controles como <strong>criptografia de banco de dados</strong> e <strong>Autenticação em Dois Fatores (2FA)</strong> nos sistemas hospitalares.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl mt-8 text-center"><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Alerta de prova:</strong> Risco é pilar do <strong>COBIT</strong>, não responsabilidade exclusiva do jurídico ou da TI isoladamente.</p></div>
+                </div>
+
+                <!-- ══════ VIEW 5 ══════ -->
+                <div id="view-5" class="spa-view">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-cyan-200 dark:border-cyan-500/30 uppercase tracking-widest mb-6">Passo 5 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">ITIL: Foco no Valor</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">O ITIL não entrega "software" ou "servidores". Ele entrega <strong class="text-cyan-600 dark:text-cyan-400">valor</strong>.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-500 mb-6">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2"><i class="ph-fill ph-book-open text-cyan-500"></i> O que é um Serviço de TI?</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Um meio de <strong class="text-cyan-700 dark:text-cyan-300">entregar valor ao cliente</strong>, facilitando os resultados desejados, <strong>sem que ele precise assumir diretamente os custos e riscos específicos</strong> da operação de TI.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-purple-500 mb-6">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2"><i class="ph-fill ph-handshake text-purple-500"></i> Co-criação de Valor</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">O valor é <strong class="text-purple-700 dark:text-purple-300">co-criado</strong> entre provedor e consumidor.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 p-4 rounded-xl"><p class="text-sm text-cyan-800 dark:text-cyan-200/80"><strong class="text-cyan-700 dark:text-cyan-300">Provedor:</strong> Entrega o sistema, suporte e infraestrutura.</p></div>
+                            <div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 p-4 rounded-xl"><p class="text-sm text-purple-800 dark:text-purple-200/80"><strong class="text-purple-700 dark:text-purple-300">Consumidor:</strong> Define a necessidade, usa e dá feedback.</p></div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl text-center"><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Macete:</strong> Serviço ≠ Software. Serviço = <em>Resultado de valor entregue ao cliente</em>.</p></div>
+                </div>
+
+                <!-- ══════ VIEW 6 ══════ -->
+                <div id="view-6" class="spa-view">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-cyan-200 dark:border-cyan-500/30 uppercase tracking-widest mb-6">Passo 6 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">ITIL: Central de Serviços</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">O ponto único de contato entre a TI e o usuário.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-500 mb-6">
+                        <div class="flex items-center gap-3 mb-4"><div class="bg-cyan-100 dark:bg-cyan-500/20 p-3 rounded-xl"><i class="ph-fill ph-headset text-cyan-600 dark:text-cyan-400 text-2xl"></i></div><div><h3 class="text-xl font-bold text-slate-900 dark:text-white">Service Desk (SPOC)</h3><span class="text-xs font-mono text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Single Point Of Contact</span></div></div>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">Canal <strong class="text-cyan-700 dark:text-cyan-300">único e centralizado</strong> pelo qual o usuário interage com a TI. Todas as solicitações, incidentes e dúvidas passam por ela.</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><i class="ph-bold ph-check-circle text-cyan-500"></i><span class="text-sm text-slate-600 dark:text-slate-300">Registra e categoriza todos os chamados.</span></div>
+                            <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><i class="ph-bold ph-check-circle text-cyan-500"></i><span class="text-sm text-slate-600 dark:text-slate-300">Realiza o primeiro diagnóstico e escalonamento.</span></div>
+                            <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><i class="ph-bold ph-check-circle text-cyan-500"></i><span class="text-sm text-slate-600 dark:text-slate-300">É a vitrine da TI para o negócio — a primeira impressão.</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl text-center"><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Pegadinha:</strong> Service Desk ≠ Help Desk. O Service Desk é estratégico e engloba toda a comunicação.</p></div>
+                </div>
+
+                <!-- ══════ VIEW 7 ══════ -->
+                <div id="view-7" class="spa-view">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-cyan-200 dark:border-cyan-500/30 uppercase tracking-widest mb-6">Passo 7 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">ITIL: Gerenciamento de Incidentes</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">O serviço parou? A prioridade é uma só: <strong class="text-cyan-600 dark:text-cyan-400">velocidade</strong>.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-rose-500 mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"><i class="ph-fill ph-warning-circle text-rose-500"></i> O que é um Incidente?</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Uma <strong class="text-rose-600 dark:text-rose-300">interrupção não planejada</strong> de um serviço de TI ou uma redução na qualidade de um serviço de TI.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-500 mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"><i class="ph-fill ph-target text-cyan-500"></i> Objetivo Principal</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed"><strong class="text-cyan-700 dark:text-cyan-300">Restaurar a operação normal o mais rápido possível</strong> e minimizar o impacto. Não importa se a solução é temporária.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-amber-500">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2"><i class="ph-fill ph-fire text-amber-500"></i> Analogia: O Bombeiro</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">O foco é <strong class="text-amber-600 dark:text-amber-300">apagar o fogo agora</strong>. Investigar a causa do incêndio é trabalho do perito (Gerenciamento de Problemas).</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl mt-6 text-center"><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Na prova:</strong> Incidente = <em>Apagar o fogo</em>. Solução rápida, mesmo que provisória.</p></div>
+                </div>
+
+                <!-- ══════ VIEW 8 ══════ -->
+                <div id="view-8" class="spa-view">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-cyan-200 dark:border-cyan-500/30 uppercase tracking-widest mb-6">Passo 8 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">ITIL: Gerenciamento de Problemas</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">A diferença entre Incidente e Problema é a pergunta mais cobrada sobre ITIL.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-purple-500 mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"><i class="ph-fill ph-magnifying-glass text-purple-500"></i> O que é um Problema?</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">A <strong class="text-purple-700 dark:text-purple-300">causa raiz</strong> de um ou mais incidentes. Identificado quando um incidente se repete ou há um padrão de falhas.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-500 mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"><i class="ph-fill ph-target text-cyan-500"></i> Objetivo Principal</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed"><strong class="text-cyan-700 dark:text-cyan-300">Reduzir a probabilidade e o impacto dos incidentes</strong> identificando suas causas reais e gerenciando soluções de contorno e erros conhecidos.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><i class="ph-fill ph-scales text-amber-500"></i> Incidente vs Problema</h3>
+                        <div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead><tr class="border-b border-slate-200 dark:border-slate-700"><th class="py-3 px-4 text-slate-400 font-mono uppercase text-xs tracking-widest">Critério</th><th class="py-3 px-4 text-cyan-600 dark:text-cyan-400 font-mono uppercase text-xs tracking-widest">Incidente</th><th class="py-3 px-4 text-purple-600 dark:text-purple-400 font-mono uppercase text-xs tracking-widest">Problema</th></tr></thead><tbody class="text-slate-600 dark:text-slate-300"><tr class="border-b border-slate-100 dark:border-slate-800"><td class="py-3 px-4 font-semibold text-slate-900 dark:text-white">O que é?</td><td class="py-3 px-4">Interrupção do serviço</td><td class="py-3 px-4">Causa raiz de incidentes</td></tr><tr class="border-b border-slate-100 dark:border-slate-800"><td class="py-3 px-4 font-semibold text-slate-900 dark:text-white">Foco</td><td class="py-3 px-4">Restaurar rápido</td><td class="py-3 px-4">Encontrar a causa</td></tr><tr class="border-b border-slate-100 dark:border-slate-800"><td class="py-3 px-4 font-semibold text-slate-900 dark:text-white">Urgência</td><td class="py-3 px-4">Alta (agora!)</td><td class="py-3 px-4">Pode ser investigado depois</td></tr><tr><td class="py-3 px-4 font-semibold text-slate-900 dark:text-white">Analogia</td><td class="py-3 px-4">Bombeiro apaga o fogo</td><td class="py-3 px-4">Perito investiga a causa</td></tr></tbody></table></div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl text-center"><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Clássica:</strong> <em>"Incidente restaura. Problema investiga."</em></p></div>
+                </div>
+
+                <!-- ══════ VIEW 9 ══════ -->
+                <div id="view-9" class="spa-view">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-cyan-200 dark:border-cyan-500/30 uppercase tracking-widest mb-6">Passo 9 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">ITIL: Habilitação de Mudanças</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">Nenhuma alteração em produção sem avaliação formal de riscos.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-500 mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2"><i class="ph-fill ph-target text-cyan-500"></i> Objetivo</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed"><strong class="text-cyan-700 dark:text-cyan-300">Maximizar o número de mudanças bem-sucedidas</strong> na infraestrutura de TI, garantindo que riscos sejam avaliados e que haja aprovação antes de qualquer alteração ser aplicada em Produção.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><i class="ph-fill ph-flow-arrow text-cyan-500"></i> Fluxo Simplificado</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">1</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Requisição</strong> — Alguém solicita uma mudança.</span></div>
+                            <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">2</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Avaliação de Risco</strong> — Qual o impacto se der errado?</span></div>
+                            <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">3</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Aprovação</strong> — Comitê de mudanças (CAB) autoriza ou rejeita.</span></div>
+                            <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">4</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Implementação</strong> — Aplica em janela de manutenção.</span></div>
+                            <div class="flex items-center gap-3 bg-cyan-50 dark:bg-cyan-500/10 p-3 rounded-lg"><span class="bg-cyan-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">5</span><span class="text-sm text-slate-600 dark:text-slate-300"><strong class="text-slate-900 dark:text-white">Revisão Pós-Implementação</strong> — Deu certo? Documentar.</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 rounded-2xl text-center"><p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed"><i class="ph-bold ph-lightbulb text-amber-500 mr-1"></i> <strong class="text-slate-900 dark:text-white">Para a prova:</strong> Mudança sem controle = incidente garantido. O <strong>CAB</strong> (Change Advisory Board) é o comitê que aprova.</p></div>
+                </div>
+
+                <!-- ══════ VIEW 10: SIMULADO ══════ -->
+                <div id="view-10" class="spa-view space-y-10">
+                    <div class="text-center mb-8">
+                        <div class="inline-block bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-4 py-1.5 rounded-full text-xs font-bold font-mono border border-emerald-200 dark:border-emerald-500/30 uppercase tracking-widest mb-6">Passo 10 de 10</div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">Simulado Double Gain</h1>
+                        <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">5 questões no estilo Cebraspe. Marque Certo ou Errado.</p>
+                    </div>
+
+                    <!-- Q1 -->
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-purple-400" id="qblock-1">
+                        <div class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-400 uppercase tracking-widest"><i class="ph-bold ph-books text-purple-500 text-lg"></i> Q1. Conceito Geral</div>
+                        <p class="text-lg font-medium text-slate-900 dark:text-white mb-6 leading-relaxed">O COBIT e o ITIL possuem o mesmo objetivo principal: ambos focam estritamente no suporte técnico ao usuário final e no reestabelecimento de senhas.</p>
+                        <div class="space-y-2 mb-6 text-slate-600 dark:text-slate-300 text-sm" id="options-1">
+                            <div><input type="radio" name="q1" id="q1c" class="q-radio wrong-ans"><label for="q1c" class="q-label"><span class="q-indicator">C</span><span>Certo</span></label></div>
+                            <div><input type="radio" name="q1" id="q1e" class="q-radio correct-ans" value="correct"><label for="q1e" class="q-label"><span class="q-indicator">E</span><span>Errado</span></label></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <button onclick="responderQuestao(1)" id="btn-resp-1" class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button>
+                            <div class="flex gap-2 ml-auto w-full sm:w-auto">
+                                <button id="btn-gab-1" onclick="toggleGabarito('ans-1',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-eye text-lg"></i> Ver Gabarito</button>
+                                <button id="btn-ex-1" onclick="toggleEBSERH('ebserh-1',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-50 dark:bg-purple-900/40 hover:bg-purple-100 dark:hover:bg-purple-800/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</button>
+                            </div>
+                        </div>
+                        <div id="ans-1" class="reveal-content"><div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 p-5 rounded-xl"><h4 class="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-check-circle text-lg"></i> Gabarito: Errado</h4><p class="text-sm text-emerald-800 dark:text-emerald-100/80 leading-relaxed">O ITIL foca em serviços e operação (suporte), mas o COBIT foca na Governança (alinhamento estratégico com a alta direção e conformidade).</p></div></div>
+                        <div id="ebserh-1" class="reveal-content"><div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 p-5 rounded-xl"><h4 class="font-bold text-purple-700 dark:text-purple-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</h4><p class="text-sm text-purple-800 dark:text-purple-100/80 leading-relaxed">A DTI usa ITIL para organizar o Service Desk e restaurar acessos. Mas usa COBIT para criar painéis de indicadores para a Diretoria Executiva aprovar projetos de valor.</p></div></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-400" id="qblock-2">
+                        <div class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-400 uppercase tracking-widest"><i class="ph-bold ph-headset text-cyan-500 text-lg"></i> Q2. ITIL — Incidentes</div>
+                        <p class="text-lg font-medium text-slate-900 dark:text-white mb-6 leading-relaxed">O Gerenciamento de Incidentes do ITIL tem como objetivo principal restaurar a operação normal do serviço o mais rápido possível, minimizando o impacto adverso nas operações de negócio.</p>
+                        <div class="space-y-2 mb-6 text-slate-600 dark:text-slate-300 text-sm" id="options-2"><div><input type="radio" name="q2" id="q2c" class="q-radio correct-ans" value="correct"><label for="q2c" class="q-label"><span class="q-indicator">C</span><span>Certo</span></label></div><div><input type="radio" name="q2" id="q2e" class="q-radio wrong-ans"><label for="q2e" class="q-label"><span class="q-indicator">E</span><span>Errado</span></label></div></div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4"><button onclick="responderQuestao(2)" id="btn-resp-2" class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button><div class="flex gap-2 ml-auto w-full sm:w-auto"><button id="btn-gab-2" onclick="toggleGabarito('ans-2',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-eye text-lg"></i> Ver Gabarito</button><button id="btn-ex-2" onclick="toggleEBSERH('ebserh-2',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-50 dark:bg-purple-900/40 hover:bg-purple-100 dark:hover:bg-purple-800/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</button></div></div>
+                        <div id="ans-2" class="reveal-content"><div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 p-5 rounded-xl"><h4 class="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-check-circle text-lg"></i> Gabarito: Certo</h4><p class="text-sm text-emerald-800 dark:text-emerald-100/80 leading-relaxed">O foco do incidente é a velocidade de restauração, não a investigação profunda (Problemas).</p></div></div>
+                        <div id="ebserh-2" class="reveal-content"><div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 p-5 rounded-xl"><h4 class="font-bold text-purple-700 dark:text-purple-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</h4><p class="text-sm text-purple-800 dark:text-purple-100/80 leading-relaxed">Se o sistema de agendamento de um HU cair, a prioridade é subi-lo imediatamente com solução de contorno, para que os pacientes não fiquem na fila.</p></div></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-purple-400" id="qblock-3">
+                        <div class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-400 uppercase tracking-widest"><i class="ph-bold ph-bank text-purple-500 text-lg"></i> Q3. COBIT — Alinhamento</div>
+                        <p class="text-lg font-medium text-slate-900 dark:text-white mb-6 leading-relaxed">A Governança de TI (COBIT) define que as decisões de TI devem ser tomadas de forma isolada pelos desenvolvedores, sem consultar os objetivos gerais de negócio.</p>
+                        <div class="space-y-2 mb-6 text-slate-600 dark:text-slate-300 text-sm" id="options-3"><div><input type="radio" name="q3" id="q3c" class="q-radio wrong-ans"><label for="q3c" class="q-label"><span class="q-indicator">C</span><span>Certo</span></label></div><div><input type="radio" name="q3" id="q3e" class="q-radio correct-ans" value="correct"><label for="q3e" class="q-label"><span class="q-indicator">E</span><span>Errado</span></label></div></div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4"><button onclick="responderQuestao(3)" id="btn-resp-3" class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button><div class="flex gap-2 ml-auto w-full sm:w-auto"><button id="btn-gab-3" onclick="toggleGabarito('ans-3',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-eye text-lg"></i> Ver Gabarito</button><button id="btn-ex-3" onclick="toggleEBSERH('ebserh-3',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-50 dark:bg-purple-900/40 hover:bg-purple-100 dark:hover:bg-purple-800/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</button></div></div>
+                        <div id="ans-3" class="reveal-content"><div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 p-5 rounded-xl"><h4 class="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-check-circle text-lg"></i> Gabarito: Errado</h4><p class="text-sm text-emerald-800 dark:text-emerald-100/80 leading-relaxed">A premissa número um da Governança é o alinhamento da TI com o Negócio.</p></div></div>
+                        <div id="ebserh-3" class="reveal-content"><div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 p-5 rounded-xl"><h4 class="font-bold text-purple-700 dark:text-purple-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</h4><p class="text-sm text-purple-800 dark:text-purple-100/80 leading-relaxed">Painéis gerenciais não são criados porque "a tecnologia é legal", mas para atender metas de faturamento, transparência e controle cobradas pela administração da rede.</p></div></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-cyan-400" id="qblock-4">
+                        <div class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-400 uppercase tracking-widest"><i class="ph-bold ph-git-merge text-cyan-500 text-lg"></i> Q4. ITIL — Mudanças</div>
+                        <p class="text-lg font-medium text-slate-900 dark:text-white mb-6 leading-relaxed">Para garantir estabilidade, qualquer alteração na infraestrutura de TI deve passar por um processo formal de Gerenciamento de Mudanças (ITIL), avaliando riscos e impactos antes da implementação.</p>
+                        <div class="space-y-2 mb-6 text-slate-600 dark:text-slate-300 text-sm" id="options-4"><div><input type="radio" name="q4" id="q4c" class="q-radio correct-ans" value="correct"><label for="q4c" class="q-label"><span class="q-indicator">C</span><span>Certo</span></label></div><div><input type="radio" name="q4" id="q4e" class="q-radio wrong-ans"><label for="q4e" class="q-label"><span class="q-indicator">E</span><span>Errado</span></label></div></div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4"><button onclick="responderQuestao(4)" id="btn-resp-4" class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button><div class="flex gap-2 ml-auto w-full sm:w-auto"><button id="btn-gab-4" onclick="toggleGabarito('ans-4',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-eye text-lg"></i> Ver Gabarito</button><button id="btn-ex-4" onclick="toggleEBSERH('ebserh-4',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-50 dark:bg-purple-900/40 hover:bg-purple-100 dark:hover:bg-purple-800/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</button></div></div>
+                        <div id="ans-4" class="reveal-content"><div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 p-5 rounded-xl"><h4 class="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-check-circle text-lg"></i> Gabarito: Certo</h4><p class="text-sm text-emerald-800 dark:text-emerald-100/80 leading-relaxed">Mudanças sem controle são a maior causa de quedas de sistema.</p></div></div>
+                        <div id="ebserh-4" class="reveal-content"><div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 p-5 rounded-xl"><h4 class="font-bold text-purple-700 dark:text-purple-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</h4><p class="text-sm text-purple-800 dark:text-purple-100/80 leading-relaxed">Um hospital pede atualização crítica no BD. A Sede não faz na hora; passa por um comitê para avaliar o risco de parar a rede no horário de pico.</p></div></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="bg-white dark:bg-slate-800/40 glass p-6 md:p-8 rounded-2xl border-l-4 border-l-amber-400" id="qblock-5">
+                        <div class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-400 uppercase tracking-widest"><i class="ph-bold ph-shield-warning text-amber-500 text-lg"></i> Q5. COBIT — Conformidade</div>
+                        <p class="text-lg font-medium text-slate-900 dark:text-white mb-6 leading-relaxed">A gestão de riscos e a garantia de que a TI cumpre com as leis e regulamentos externos são preocupações exclusivas do departamento jurídico, estando fora do escopo do COBIT.</p>
+                        <div class="space-y-2 mb-6 text-slate-600 dark:text-slate-300 text-sm" id="options-5"><div><input type="radio" name="q5" id="q5c" class="q-radio wrong-ans"><label for="q5c" class="q-label"><span class="q-indicator">C</span><span>Certo</span></label></div><div><input type="radio" name="q5" id="q5e" class="q-radio correct-ans" value="correct"><label for="q5e" class="q-label"><span class="q-indicator">E</span><span>Errado</span></label></div></div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4"><button onclick="responderQuestao(5)" id="btn-resp-5" class="w-full sm:w-auto px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-sm uppercase tracking-wider shadow-lg shadow-orange-500/20">Responder</button><div class="flex gap-2 ml-auto w-full sm:w-auto"><button id="btn-gab-5" onclick="toggleGabarito('ans-5',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-eye text-lg"></i> Ver Gabarito</button><button id="btn-ex-5" onclick="toggleEBSERH('ebserh-5',this)" class="hidden flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-50 dark:bg-purple-900/40 hover:bg-purple-100 dark:hover:bg-purple-800/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 font-bold rounded-lg text-sm uppercase tracking-wider"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</button></div></div>
+                        <div id="ans-5" class="reveal-content"><div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 p-5 rounded-xl"><h4 class="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-check-circle text-lg"></i> Gabarito: Errado</h4><p class="text-sm text-emerald-800 dark:text-emerald-100/80 leading-relaxed">Compliance e Riscos são o coração da governança.</p></div></div>
+                        <div id="ebserh-5" class="reveal-content"><div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 p-5 rounded-xl"><h4 class="font-bold text-purple-700 dark:text-purple-400 flex items-center gap-2 mb-2"><i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático</h4><p class="text-sm text-purple-800 dark:text-purple-100/80 leading-relaxed">Durante auditorias do TCU sobre controle de acessos ou LGPD, são os processos de Governança que fornecem as evidências de segurança e regularidade institucional.</p></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAV BAR -->
+        <div class="shrink-0 border-t border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-800/40 glass px-6 md:px-8 py-4 flex items-center justify-between z-10" id="nav-bar">
+            <button id="btn-prev" onclick="prevStep()" class="px-6 py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all flex items-center gap-2 text-sm"><i class="ph-bold ph-arrow-left"></i> Voltar</button>
+            <span id="nav-label" class="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:block">1 / 10</span>
+            <button id="btn-next" onclick="nextStep()" class="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all flex items-center gap-2 text-sm shadow-lg shadow-cyan-600/30">Próximo Passo <i class="ph-bold ph-arrow-right"></i></button>
+        </div>
+    </main>
+
+    <!-- ═══════ PRINTABLE STUDY GUIDE (hidden, only for @media print) ═══════ -->
+    <div id="print-guide">
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 1: CAPA / ROADMAP DA APROVAÇÃO                         -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">ROADMAP DA APROVAÇÃO — AV3</div>
+            <div class="print-sub">Mega Simulado Final | Data da Operação: 26 de junho de 2026</div>
+
+            <div class="print-section">💬 A Mensagem do Tech Lead</div>
+            <div class="print-card">
+                <div class="print-field" style="text-align:justify;">
+                    Chegamos à reta final. Durante este semestre, vocês deixaram de olhar a Tecnologia da Informação apenas como "escritores de código" e passaram a enxergá-la com a visão da Alta Gestão. Entenderam como os projetos nascem, como os riscos são mitigados para evitar falhas legais (LGPD), como a agilidade garante entregas contínuas e como a Governança e os Serviços mantêm a operação corporativa funcionando. Este guia definitivo consolida a inteligência necessária para o nosso Mega Simulado Final e para os desafios reais do mercado.
+                </div>
+            </div>
+
+            <div class="print-section">🗺️ O Mapa da Mina — Os 4 Pilares do Simulado</div>
+
+            <div class="print-card">
+                <h4>Pilar 1: Gestão de Projetos (PMBOK e Cascata)</h4>
+                <div class="print-field">Foco absoluto no <strong>Termo de Abertura do Projeto (TAP)</strong>, na figura do Patrocinador (Sponsor), na diferença entre os 5 grupos de processos e no escopo fechado do modelo Cascata (Waterfall).</div>
+            </div>
+            <div class="print-card">
+                <h4>Pilar 2: Direito Digital, LGPD e Riscos</h4>
+                <div class="print-field">Foco nos <strong>papéis da LGPD</strong> (Titular, Controlador, Operador, DPO), nos princípios de proteção (Finalidade, Adequação, Segurança, Prevenção), nas <strong>4 estratégias de resposta a riscos</strong> (Evitar, Mitigar, Transferir, Aceitar) e nas sanções do Art. 52.</div>
+            </div>
+            <div class="print-card">
+                <h4>Pilar 3: Gestão Ágil de Projetos (Scrum e Kanban)</h4>
+                <div class="print-field">Foco no <strong>Manifesto Ágil</strong>, na diferença operacional entre Scrum (Sprints, 3 Papéis, 3 Artefatos, 5 Cerimônias) e Kanban (Fluxo contínuo, limite de WIP), além do conceito de MVP (Produto Mínimo Viável).</div>
+            </div>
+            <div class="print-card">
+                <h4>Pilar 4: Governança (COBIT) e Serviços (ITIL)</h4>
+                <div class="print-field">Foco em <strong>não confundir a Bússola com o Motor</strong>. COBIT = Governança (EDM, Cascata de Objetivos, Alta Direção). ITIL = Operação (Service Desk/SPOC, Incidentes vs Problemas, Habilitação de Mudanças/CAB). São complementares, nunca concorrentes.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 2: PILAR 1 — RESUMO TEÓRICO (PMBOK / CASCATA)         -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 1 — Gestão de Projetos</div>
+            <div class="print-sub">PMBOK • Modelo Cascata (Waterfall) • Parte A: Resumo Teórico</div>
+
+            <div class="print-section">📘 O que é um Projeto?</div>
+            <div class="print-card">
+                <h4>Definição Oficial (PMBOK)</h4>
+                <div class="print-field">Um projeto é um <strong>esforço temporário</strong> empreendido para criar um <strong>produto, serviço ou resultado único</strong>. Temporário significa que possui início e fim definidos. Único significa que o resultado nunca é idêntico a outro — mesmo que parecido, as condições, equipe e contexto são diferentes.</div>
+                <div class="print-field"><strong>Projeto ≠ Operação:</strong> A operação é contínua e repetitiva (ex: folha de pagamento todo mês). O projeto é finito (ex: implantar o novo sistema de folha).</div>
+            </div>
+
+            <div class="print-section">📘 Os 5 Grupos de Processos do PMBOK</div>
+            <div class="print-card">
+                <h4>1. Iniciação</h4>
+                <div class="print-field"><strong>Objetivo:</strong> Autorizar formalmente o projeto ou uma nova fase. Aqui nasce o <strong>Termo de Abertura do Projeto (TAP)</strong>. O Patrocinador (Sponsor) assina e designa o Gerente de Projeto, dando-lhe autoridade para utilizar recursos organizacionais. É a "certidão de nascimento" do projeto.</div>
+            </div>
+            <div class="print-card">
+                <h4>2. Planejamento</h4>
+                <div class="print-field"><strong>Objetivo:</strong> Definir o escopo total, refinar os objetivos e desenvolver o plano de ação. Inclui planejamento de cronograma, custos, qualidade, recursos, comunicações e riscos. É o grupo mais detalhado e com maior número de processos.</div>
+            </div>
+            <div class="print-card">
+                <h4>3. Execução</h4>
+                <div class="print-field"><strong>Objetivo:</strong> Realizar o trabalho definido no plano para satisfazer os requisitos. Aqui a equipe constrói as entregas. É onde se consome a maior parte do orçamento e dos recursos humanos.</div>
+            </div>
+            <div class="print-card">
+                <h4>4. Monitoramento e Controle</h4>
+                <div class="print-field"><strong>Objetivo:</strong> Acompanhar, revisar e regular o progresso e o desempenho do projeto. Identificar desvios em relação ao plano e recomendar ações corretivas. <strong>Este grupo é contínuo</strong> — acontece do início ao fim, em paralelo com todos os outros grupos.</div>
+            </div>
+            <div class="print-card">
+                <h4>5. Encerramento</h4>
+                <div class="print-field"><strong>Objetivo:</strong> Finalizar todas as atividades, formalizar a aceitação do produto, documentar as lições aprendidas e liberar os recursos. Sem encerramento formal, o projeto nunca termina oficialmente.</div>
+            </div>
+
+            <div class="print-section">📘 O Termo de Abertura do Projeto (TAP)</div>
+            <div class="print-card">
+                <h4>Detalhamento do TAP</h4>
+                <div class="print-field"><strong>Quem assina:</strong> O <strong>Patrocinador (Sponsor)</strong> — a pessoa ou grupo que fornece os recursos financeiros e o apoio político ao projeto. Ele NÃO é o gerente do projeto.</div>
+                <div class="print-field"><strong>Quando é criado:</strong> Na <strong>Iniciação</strong>, ANTES de qualquer planejamento detalhado. O TAP contém informações de alto nível: justificativa, objetivos resumidos, premissas, restrições, riscos iniciais e critérios de sucesso.</div>
+                <div class="print-field"><strong>Para que serve:</strong> Autoriza formalmente a existência do projeto e dá ao gerente a autoridade para aplicar recursos da organização nas atividades.</div>
+            </div>
+
+            <div class="print-section">📘 O Modelo Cascata (Waterfall)</div>
+            <div class="print-card">
+                <h4>Características Fundamentais</h4>
+                <div class="print-field"><strong>Escopo fechado:</strong> Todos os requisitos são levantados e congelados no início. Mudanças após o congelamento são extremamente caras e burocráticas.</div>
+                <div class="print-field"><strong>Fases sequenciais:</strong> Requisitos → Projeto (Design) → Implementação → Verificação → Manutenção. Uma fase só começa quando a anterior está concluída.</div>
+                <div class="print-field"><strong>Quando usar:</strong> Projetos com requisitos claros, estáveis e bem definidos desde o início (ex: construção civil, regulamentação governamental fixa).</div>
+                <div class="print-field"><strong>Ponto fraco:</strong> Pouca flexibilidade para mudanças. O cliente só vê o produto final no fim, e se não gostar, o custo de refazer é altíssimo.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 3: PILAR 1 — ENGENHARIA REVERSA (QUESTÕES)             -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 1 — Engenharia Reversa</div>
+            <div class="print-sub">PMBOK • Cascata • Parte B: Questões Comentadas (Certo/Errado)</div>
+
+            <div class="print-section">🔍 Questões de Certo ou Errado — Gestão de Projetos</div>
+
+            <div class="print-card">
+                <h4>Q1. Termo de Abertura do Projeto (TAP)</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "O TAP é elaborado pelo Gerente do Projeto após o planejamento detalhado."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> O TAP não depende de planejamento detalhado.</div>
+                <div class="print-field"><strong>A Regra:</strong> O TAP é assinado pelo Patrocinador (Sponsor) na Iniciação, ANTES do planejamento detalhado. Ele autoriza formalmente o início do projeto.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q2. Grupos de Processos do PMBOK</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "Os 5 grupos de processos do PMBOK devem ser executados em sequência linear obrigatória."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> Os grupos se sobrepõem e são iterativos.</div>
+                <div class="print-field"><strong>A Regra:</strong> Iniciação, Planejamento, Execução, Monitoramento e Encerramento podem ocorrer de forma sobreposta. Monitoramento e Controle, por exemplo, é contínuo durante todo o ciclo de vida.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q3. Modelo Cascata — Escopo Fechado</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "No modelo Cascata (Waterfall), o cliente pode solicitar mudanças de escopo a qualquer momento do projeto, sem impacto significativo no cronograma."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> O Cascata não aceita mudanças facilmente após o congelamento de requisitos.</div>
+                <div class="print-field"><strong>A Regra:</strong> No modelo Cascata, os requisitos são definidos e congelados no início. Mudanças posteriores exigem retrabalho significativo, custos extras e atrasos. Justamente por isso, modelos ágeis surgiram como alternativa.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q4. Modelo Cascata — Fases Sequenciais</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "Uma característica do modelo Cascata é que suas fases podem ser executadas simultaneamente, assim como no modelo ágil."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> As fases do Cascata são sequenciais, não simultâneas.</div>
+                <div class="print-field"><strong>A Regra:</strong> No Waterfall, cada fase (Requisitos → Design → Implementação → Verificação → Manutenção) é concluída integralmente antes que a próxima comece. Essa rigidez é justamente o que diferencia o Cascata dos modelos iterativos e ágeis.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 4: PILAR 2 — RESUMO TEÓRICO (LGPD / RISCOS)           -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 2 — Direito Digital, LGPD e Riscos</div>
+            <div class="print-sub">Lei Geral de Proteção de Dados • Gestão de Riscos • Parte A: Resumo Teórico</div>
+
+            <div class="print-section">📘 LGPD — Papéis Fundamentais</div>
+            <div class="print-card">
+                <h4>Os 4 Atores da LGPD</h4>
+                <div class="print-field"><strong>1. Titular:</strong> A pessoa física dona dos dados pessoais (ex: o paciente, o aluno, o cidadão). É o protagonista da lei — todos os direitos giram em torno dele.</div>
+                <div class="print-field"><strong>2. Controlador:</strong> A pessoa jurídica ou física que <strong>toma as decisões</strong> sobre o tratamento dos dados. Define a finalidade e os meios. (ex: o hospital que decide coletar dados dos pacientes).</div>
+                <div class="print-field"><strong>3. Operador:</strong> A pessoa jurídica ou física que <strong>executa o tratamento</strong> dos dados em nome do controlador. Não decide, apenas processa. (ex: a empresa de cloud que hospeda o banco de dados do hospital).</div>
+                <div class="print-field"><strong>4. Encarregado (DPO — Data Protection Officer):</strong> Pessoa indicada pelo controlador para ser o <strong>canal de comunicação</strong> entre o controlador, os titulares e a ANPD (Autoridade Nacional de Proteção de Dados).</div>
+            </div>
+
+            <div class="print-section">📘 LGPD — Princípios de Proteção</div>
+            <div class="print-card">
+                <h4>Princípios que Caem na Prova</h4>
+                <div class="print-field"><strong>Finalidade:</strong> Os dados só podem ser coletados para propósitos legítimos, específicos e informados ao titular. Coletar "para uso futuro indefinido" é ilegal.</div>
+                <div class="print-field"><strong>Adequação:</strong> O tratamento deve ser compatível com as finalidades informadas. Não pode coletar dados de saúde para enviar propaganda.</div>
+                <div class="print-field"><strong>Necessidade:</strong> Coletar apenas o mínimo necessário para a finalidade. Princípio da minimização de dados.</div>
+                <div class="print-field"><strong>Segurança:</strong> Medidas técnicas e administrativas para proteger os dados de acessos não autorizados, destruição, perda ou vazamento.</div>
+                <div class="print-field"><strong>Prevenção:</strong> Adotar medidas para prevenir danos ANTES que eles ocorram. Ação proativa, não reativa.</div>
+            </div>
+
+            <div class="print-section">📘 LGPD — Sanções (Art. 52)</div>
+            <div class="print-card">
+                <h4>O que acontece com quem descumpre?</h4>
+                <div class="print-field"><strong>Advertência:</strong> Com indicação de prazo para adoção de medidas corretivas.</div>
+                <div class="print-field"><strong>Multa simples:</strong> Até <strong>2% do faturamento</strong> do grupo econômico no Brasil, limitada a <strong>R$ 50 milhões por infração</strong>.</div>
+                <div class="print-field"><strong>Multa diária:</strong> Cumulativa até o limite total de R$ 50 milhões.</div>
+                <div class="print-field"><strong>Outras:</strong> Publicização da infração (dano reputacional), bloqueio ou eliminação dos dados pessoais, suspensão parcial ou total do banco de dados.</div>
+            </div>
+
+            <div class="print-section">📘 Gestão de Riscos — As 4 Respostas</div>
+            <div class="print-card">
+                <h4>Respostas a Riscos Negativos (Ameaças)</h4>
+                <div class="print-field"><strong>1. Evitar:</strong> Eliminar a ameaça completamente, alterando o plano do projeto. Exemplo: Cancelar o uso de um fornecedor instável e contratar outro com SLA garantido.</div>
+                <div class="print-field"><strong>2. Mitigar:</strong> Reduzir a probabilidade ou o impacto do risco a um nível aceitável. Exemplo: Implantar backup diário e redundância de servidores para reduzir o impacto de uma falha de hardware.</div>
+                <div class="print-field"><strong>3. Transferir:</strong> Passar o impacto financeiro do risco para um terceiro. Exemplo: Contratar um seguro contra incêndio no Data Center ou terceirizar a custódia de dados para um provedor certificado.</div>
+                <div class="print-field"><strong>4. Aceitar:</strong> Reconhecer formalmente o risco e decidir <strong>conscientemente</strong> não tomar nenhuma ação proativa, pois o custo de mitigação excede o dano potencial. Aceitar ≠ Ignorar. A aceitação é documentada e registrada no Registro de Riscos.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 5: PILAR 2 — ENGENHARIA REVERSA (QUESTÕES)             -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 2 — Engenharia Reversa</div>
+            <div class="print-sub">LGPD • Riscos • Parte B: Questões Comentadas (Certo/Errado)</div>
+
+            <div class="print-section">🔍 Questões de Certo ou Errado — LGPD e Riscos</div>
+
+            <div class="print-card">
+                <h4>Q5. Princípio da LGPD</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "A LGPD proíbe o armazenamento de dados pessoais como CPF."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> A lei não proíbe armazenamento.</div>
+                <div class="print-field"><strong>A Regra:</strong> A LGPD exige consentimento, finalidade clara e proteção rigorosa. Você PODE armazenar dados pessoais, desde que cumpra os princípios de segurança, prevenção e tenha base legal.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q6. Gestão de Riscos — Aceitação</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "Aceitar o risco significa ignorá-lo."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> Aceitar é uma decisão consciente e documentada, nunca ignorar.</div>
+                <div class="print-field"><strong>A Regra:</strong> As 4 respostas são: Evitar, Mitigar, Transferir e Aceitar. Aceitar é registrar formalmente que o custo de mitigação excede o dano potencial. O risco segue monitorado.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q7. LGPD — Multas (Art. 52)</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "A multa máxima prevista na LGPD é de R$ 10 milhões por infração, independentemente do faturamento da empresa."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> O valor máximo não é R$ 10 milhões e depende do faturamento.</div>
+                <div class="print-field"><strong>A Regra:</strong> A multa é de até 2% do faturamento do grupo econômico no Brasil, limitada a R$ 50 milhões por infração. Além disso, pode haver bloqueio de dados e publicização da infração.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q8. LGPD — Controlador vs Operador</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "O Operador de dados pessoais é quem decide a finalidade e os meios de tratamento dos dados, enquanto o Controlador apenas executa as instruções."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> Os papéis estão invertidos no enunciado.</div>
+                <div class="print-field"><strong>A Regra:</strong> O <strong>Controlador</strong> é quem toma as decisões sobre o tratamento (finalidade e meios). O <strong>Operador</strong> apenas executa o tratamento em nome do controlador. Ex: O hospital (controlador) decide coletar dados; a empresa de cloud (operador) hospeda.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 6: PILAR 3 — RESUMO TEÓRICO (ÁGIL / SCRUM / KANBAN)   -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 3 — Gestão Ágil de Projetos</div>
+            <div class="print-sub">Manifesto Ágil • Scrum • Kanban • MVP • Parte A: Resumo Teórico</div>
+
+            <div class="print-section">📘 O Manifesto Ágil (2001)</div>
+            <div class="print-card">
+                <h4>Os 4 Valores Fundamentais</h4>
+                <div class="print-field"><strong>1. Indivíduos e interações</strong> mais que processos e ferramentas.</div>
+                <div class="print-field"><strong>2. Software em funcionamento</strong> mais que documentação abrangente.</div>
+                <div class="print-field"><strong>3. Colaboração com o cliente</strong> mais que negociação de contratos.</div>
+                <div class="print-field"><strong>4. Responder a mudanças</strong> mais que seguir um plano.</div>
+                <div class="print-field"><strong>Atenção:</strong> O manifesto NÃO diz que processos, documentação e planos são inúteis. Ele diz que os itens da esquerda têm <strong>mais valor</strong> que os da direita.</div>
+            </div>
+
+            <div class="print-section">📘 Scrum — Os 3 Papéis</div>
+            <div class="print-card">
+                <h4>Product Owner (PO)</h4>
+                <div class="print-field">Responsável por <strong>maximizar o valor do produto</strong>. Gerencia o Product Backlog (lista priorizada de tudo que precisa ser feito). É a voz do cliente/negócio dentro do time. Ele prioriza, mas NÃO distribui tarefas para os devs.</div>
+            </div>
+            <div class="print-card">
+                <h4>Scrum Master (SM)</h4>
+                <div class="print-field"><strong>Facilitador e líder-servidor.</strong> Remove impedimentos, protege o time de interferências externas e garante que o Scrum seja seguido corretamente. Ele NÃO é chefe, NÃO distribui tarefas e NÃO avalia desempenho individual.</div>
+            </div>
+            <div class="print-card">
+                <h4>Developers (Dev Team)</h4>
+                <div class="print-field">Equipe multifuncional e <strong>autogerenciável</strong> que transforma itens do backlog em incrementos entregáveis. Eles próprios decidem como organizar o trabalho dentro da Sprint. Tamanho ideal: 3 a 9 pessoas.</div>
+            </div>
+
+            <div class="print-section">📘 Scrum — Artefatos</div>
+            <div class="print-card">
+                <h4>Os 3 Artefatos do Scrum</h4>
+                <div class="print-field"><strong>Product Backlog:</strong> Lista ordenada de tudo que é necessário no produto. Gerenciado exclusivamente pelo PO. Evolui continuamente.</div>
+                <div class="print-field"><strong>Sprint Backlog:</strong> Subconjunto do Product Backlog selecionado para a Sprint atual + o plano de como entregar. Pertence ao Dev Team.</div>
+                <div class="print-field"><strong>Incremento:</strong> Soma de todos os itens do Product Backlog completados durante a Sprint + os incrementos anteriores. Deve estar em condição utilizável (Definition of Done).</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 7: PILAR 3 — CERIMÔNIAS + KANBAN + MVP                -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 3 — Cerimônias, Kanban e MVP</div>
+            <div class="print-sub">Continuação da Teoria Ágil • Parte A (cont.)</div>
+
+            <div class="print-section">📘 Scrum — As 5 Cerimônias (Eventos)</div>
+            <div class="print-card">
+                <h4>1. Sprint Planning (Planejamento da Sprint)</h4>
+                <div class="print-field"><strong>Timebox:</strong> Até 8 horas para Sprint de 1 mês. <strong>Objetivo:</strong> Definir O QUÊ será entregue na Sprint e COMO o trabalho será realizado. O PO apresenta os itens prioritários, o Dev Team seleciona o que consegue entregar.</div>
+            </div>
+            <div class="print-card">
+                <h4>2. Daily Scrum (Reunião Diária)</h4>
+                <div class="print-field"><strong>Timebox:</strong> Máximo de 15 minutos, mesmo horário e local. <strong>Objetivo:</strong> Sincronizar atividades e criar um plano para as próximas 24 horas. Cada dev responde: O que fiz ontem? O que farei hoje? Tem impedimento? É do Dev Team, NÃO é relatório para o Scrum Master.</div>
+            </div>
+            <div class="print-card">
+                <h4>3. Sprint Review (Revisão da Sprint)</h4>
+                <div class="print-field"><strong>Timebox:</strong> Até 4 horas. <strong>Objetivo:</strong> Inspecionar o incremento e adaptar o Product Backlog. O time demonstra o que foi feito para o PO e stakeholders. É uma reunião de <strong>demonstração e feedback do PRODUTO</strong>.</div>
+            </div>
+            <div class="print-card">
+                <h4>4. Sprint Retrospective (Retrospectiva)</h4>
+                <div class="print-field"><strong>Timebox:</strong> Até 3 horas. <strong>Objetivo:</strong> Inspecionar como a Sprint foi em relação a pessoas, processos e ferramentas. Criar um plano de melhorias. É uma reunião sobre o <strong>PROCESSO</strong>, não sobre o produto. Review ≠ Retrospective.</div>
+            </div>
+            <div class="print-card">
+                <h4>5. A Sprint em si</h4>
+                <div class="print-field"><strong>Timebox:</strong> Máximo de 1 mês (geralmente 2 semanas). É o container de todos os outros eventos. Durante a Sprint, NÃO se fazem mudanças que coloquem em risco o objetivo da Sprint.</div>
+            </div>
+
+            <div class="print-section">📘 Kanban — Princípios Operacionais</div>
+            <div class="print-card">
+                <h4>Kanban: Fluxo Contínuo</h4>
+                <div class="print-field"><strong>Gestão Visual:</strong> Quadro com colunas (To Do → Doing → Done) que permite a qualquer pessoa visualizar o estado do trabalho instantaneamente.</div>
+                <div class="print-field"><strong>Limite de WIP (Work in Progress):</strong> Cada coluna tem um limite máximo de itens simultâneos. Isso evita sobrecarga e força a equipe a terminar antes de começar algo novo.</div>
+                <div class="print-field"><strong>Sem Sprints obrigatórias:</strong> O Kanban não exige iterações fixas. O trabalho flui continuamente. Não tem papéis prescritos (PO, SM) como o Scrum.</div>
+            </div>
+
+            <div class="print-section">📘 MVP — Produto Mínimo Viável</div>
+            <div class="print-card">
+                <h4>Conceito de MVP</h4>
+                <div class="print-field">O MVP é a versão mais simples de um produto que pode ser lançada para validar uma hipótese de mercado com o menor esforço possível. Ele entrega valor real ao usuário, mas com funcionalidades mínimas. O objetivo é <strong>aprender rápido</strong> com feedback real antes de investir em funcionalidades completas.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 8: PILAR 3 — ENGENHARIA REVERSA (QUESTÕES ÁGIL)        -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 3 — Engenharia Reversa</div>
+            <div class="print-sub">Scrum • Kanban • MVP • Parte B: Questões Comentadas (Certo/Errado)</div>
+
+            <div class="print-section">🔍 Questões de Certo ou Errado — Gestão Ágil</div>
+
+            <div class="print-card">
+                <h4>Q9. Papéis do Scrum — Scrum Master</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "O Scrum Master é o chefe da equipe e distribui as tarefas entre os desenvolvedores."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> O Scrum Master não é chefe e não distribui tarefas.</div>
+                <div class="print-field"><strong>A Regra:</strong> Ele é um facilitador/líder-servidor que remove impedimentos. A equipe de desenvolvimento (Dev Team) é autogerenciável e decide por conta própria como organizar o trabalho. O Product Owner prioriza o Backlog.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q10. Daily Scrum</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "A Daily Scrum serve para que o Scrum Master avalie o desempenho individual de cada membro da equipe."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> A Daily é do Dev Team para sincronizar, não para avaliação.</div>
+                <div class="print-field"><strong>A Regra:</strong> Duração máxima de 15 minutos. Cada membro responde: O que fiz? O que vou fazer? Tem impedimento? É uma cerimônia de inspeção e adaptação do plano diário, conduzida pelos próprios Developers.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q11. Sprint Review vs Retrospective</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "A Sprint Retrospective é a cerimônia onde o time demonstra o incremento desenvolvido para os stakeholders coletarem feedback sobre o produto."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> A descrição é da Sprint Review, não da Retrospective.</div>
+                <div class="print-field"><strong>A Regra:</strong> <strong>Review</strong> = inspeciona o PRODUTO (demonstração + feedback com stakeholders). <strong>Retrospective</strong> = inspeciona o PROCESSO (o que melhorar em pessoas, ferramentas e relacionamentos). São eventos diferentes com objetivos diferentes.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q12. Kanban vs Scrum</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "Kanban obriga o uso de Sprints com timebox fixo, assim como o Scrum."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> Kanban é fluxo contínuo, sem sprints obrigatórias.</div>
+                <div class="print-field"><strong>A Regra:</strong> Kanban limita o WIP (Work in Progress) e usa um quadro visual. Não tem sprints fixas nem papéis prescritos como o Scrum. O foco é em fluxo contínuo e visualização do trabalho.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q13. Product Owner e o Backlog</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "No Scrum, qualquer membro da equipe pode alterar a priorização do Product Backlog, pois o time é autogerenciável."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> O Product Backlog é gerenciado exclusivamente pelo Product Owner.</div>
+                <div class="print-field"><strong>A Regra:</strong> O Dev Team é autogerenciável na organização do TRABALHO (como fazer), mas a PRIORIZAÇÃO do que entra no Backlog é responsabilidade exclusiva do PO. Autogerenciamento ≠ anarquia.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 9: PILAR 4 — RESUMO TEÓRICO (COBIT + ITIL)            -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 4 — Governança (COBIT) e Serviços (ITIL)</div>
+            <div class="print-sub">A Bússola e o Motor • Parte A: Resumo Teórico</div>
+
+            <div class="print-section">📘 COBIT — A Bússola (Governança de TI)</div>
+            <div class="print-card">
+                <h4>O que é o COBIT?</h4>
+                <div class="print-field">Framework de <strong>Governança de TI</strong> que garante que todas as ações da TI estejam alinhadas aos objetivos estratégicos da organização. Ele dita <strong>"O Quê"</strong> deve ser feito para agregar valor, mitigar riscos e garantir conformidade legal. Seu público-alvo é a <strong>Alta Direção, Conselho e Stakeholders</strong>.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Governança (EDM) vs Gestão (PBRM)</h4>
+                <div class="print-field"><strong>Governança = EDM (Alta Direção / Conselho):</strong></div>
+                <div class="print-field">• <strong>E</strong>valiar (Evaluate) — Analisar cenários, opções e necessidades dos stakeholders.</div>
+                <div class="print-field">• <strong>D</strong>irigir (Direct) — Dar direção, definir prioridades e o apetite de risco.</div>
+                <div class="print-field">• <strong>M</strong>onitorar (Monitor) — Cobrar resultados e verificar conformidade.</div>
+                <div class="print-field"><strong>Gestão = PBRM (Gerente / Equipe de TI):</strong></div>
+                <div class="print-field">• <strong>P</strong>lanejar (Plan) — Desenhar a solução.</div>
+                <div class="print-field">• <strong>B</strong> (Build) — Construir e implantar.</div>
+                <div class="print-field">• <strong>R</strong>odar (Run) — Operar no dia a dia.</div>
+                <div class="print-field">• <strong>M</strong>onitorar (Monitor) — Medir desempenho operacional.</div>
+                <div class="print-field"><strong>Macete:</strong> "Governança = Quem MANDA (Conselho). Gestão = Quem FAZ (Equipe)."</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Cascata de Objetivos do COBIT</h4>
+                <div class="print-field">1. <strong>Necessidades dos Stakeholders</strong> → "Queremos lucro, segurança e conformidade."</div>
+                <div class="print-field">2. <strong>Objetivos Corporativos</strong> → "Aumentar faturamento em 15%, zero vazamentos em 12 meses."</div>
+                <div class="print-field">3. <strong>Objetivos de Alinhamento (TI)</strong> → "Sistemas disponíveis 99.9%, dados criptografados."</div>
+                <div class="print-field">4. <strong>Objetivos de Governança e Gestão</strong> → "Implantar gestão de incidentes, criar comitê de mudanças."</div>
+                <div class="print-field"><strong>A cascata flui DE CIMA PARA BAIXO.</strong> Do Negócio para a TI, nunca ao contrário.</div>
+            </div>
+
+            <div class="print-section">📘 ITIL — O Motor (Gestão de Serviços de TI)</div>
+            <div class="print-card">
+                <h4>O que é o ITIL?</h4>
+                <div class="print-field">Framework que organiza a <strong>operação da TI no dia a dia</strong>: suporte técnico, atendimento ao usuário, gerenciamento de incidentes e mudanças. Ele dita <strong>"Como"</strong> as coisas funcionam na prática. Seu público-alvo é a <strong>Operação, Service Desk e Usuário Final</strong>.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Conceito de Serviço e Co-criação de Valor</h4>
+                <div class="print-field"><strong>Serviço de TI:</strong> Um meio de entregar <strong>valor ao cliente</strong>, facilitando os resultados desejados, sem que ele precise assumir diretamente os custos e riscos específicos da operação de TI. Serviço ≠ Software. Serviço = resultado de valor.</div>
+                <div class="print-field"><strong>Co-criação de Valor:</strong> O valor é co-criado entre provedor (entrega o sistema) e consumidor (define a necessidade e dá feedback). Nenhum dos dois cria valor sozinho.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Central de Serviços — Service Desk (SPOC)</h4>
+                <div class="print-field"><strong>SPOC = Single Point Of Contact.</strong> Canal único e centralizado pelo qual o usuário interage com a TI. Registra e categoriza chamados, realiza primeiro diagnóstico e escalona. É a "vitrine" da TI para o negócio.</div>
+                <div class="print-field"><strong>Service Desk ≠ Help Desk.</strong> O Help Desk é apenas técnico (resolve senhas e impressoras). O Service Desk é estratégico e engloba toda a comunicação entre TI e negócio.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PÁGINA 10: PILAR 4 — ITIL (CONT.) + ENGENHARIA REVERSA        -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="print-page">
+            <div class="print-title">Pilar 4 — Práticas ITIL + Engenharia Reversa</div>
+            <div class="print-sub">Incidentes • Problemas • Mudanças • Parte A (cont.) + Parte B: Questões</div>
+
+            <div class="print-section">📘 Práticas ITIL — Detalhamento</div>
+            <div class="print-card">
+                <h4>Gerenciamento de Incidentes</h4>
+                <div class="print-field"><strong>O que é:</strong> Uma interrupção não planejada de um serviço de TI ou uma redução na qualidade.</div>
+                <div class="print-field"><strong>Objetivo:</strong> Restaurar a operação normal o mais rápido possível e minimizar o impacto. A solução pode ser temporária (workaround).</div>
+                <div class="print-field"><strong>Analogia:</strong> O Bombeiro apaga o fogo AGORA. Investigar a causa é trabalho do perito (Problemas).</div>
+            </div>
+            <div class="print-card">
+                <h4>Gerenciamento de Problemas</h4>
+                <div class="print-field"><strong>O que é:</strong> A causa raiz de um ou mais incidentes. Identificado quando incidentes se repetem ou há padrão de falhas.</div>
+                <div class="print-field"><strong>Objetivo:</strong> Reduzir a probabilidade e o impacto dos incidentes, encontrando suas causas reais e documentando soluções de contorno e erros conhecidos.</div>
+                <div class="print-field"><strong>Analogia:</strong> O Perito investiga a causa do incêndio para evitar que aconteça novamente.</div>
+                <div class="print-field"><strong>Diferença fatal:</strong> Incidente = restaurar rápido (urgência). Problema = investigar a causa (pode ser depois).</div>
+            </div>
+            <div class="print-card">
+                <h4>Habilitação de Mudanças (Change Enablement)</h4>
+                <div class="print-field"><strong>Objetivo:</strong> Maximizar o número de mudanças bem-sucedidas na infraestrutura de TI, garantindo que riscos sejam avaliados e aprovados ANTES de qualquer alteração em Produção.</div>
+                <div class="print-field"><strong>CAB (Change Advisory Board):</strong> Comitê que avalia riscos e aprova mudanças. Mudanças emergenciais passam por aprovação acelerada, mas NUNCA sem controle.</div>
+                <div class="print-field"><strong>Regra de ouro:</strong> Mudança sem controle = incidente garantido.</div>
+            </div>
+
+            <div class="print-section">🔍 Questões de Certo ou Errado — COBIT e ITIL</div>
+
+            <div class="print-card">
+                <h4>Q14. COBIT vs ITIL — Conceito Geral</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "O COBIT e o ITIL possuem o mesmo objetivo principal: ambos focam estritamente no suporte técnico ao usuário final e no reestabelecimento de senhas."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> O COBIT foca em governança estratégica, não em suporte técnico.</div>
+                <div class="print-field"><strong>A Regra:</strong> O ITIL foca em serviços e operação (suporte). O COBIT foca na Governança (alinhamento estratégico com a alta direção e conformidade). São complementares, nunca iguais.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q15. ITIL — Incidentes</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "O Gerenciamento de Incidentes do ITIL tem como objetivo principal restaurar a operação normal do serviço o mais rápido possível, minimizando o impacto adverso."</div>
+                <div class="print-field"><strong>Gabarito: CERTO. ✓</strong></div>
+                <div class="print-field"><strong>Por que está certo:</strong> Essa é a definição textual do ITIL. O foco é velocidade de restauração, não investigação profunda (que é do Gerenciamento de Problemas).</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q16. COBIT — Alinhamento com o Negócio</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "A Governança de TI (COBIT) define que as decisões de TI devem ser tomadas de forma isolada pelos desenvolvedores, sem consultar os objetivos gerais de negócio."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> A premissa nº 1 da Governança é o alinhamento da TI com o Negócio.</div>
+                <div class="print-field"><strong>A Regra:</strong> A cascata de objetivos flui do negócio para a TI. Decisões isoladas pela TI violam o princípio fundamental do COBIT.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q17. ITIL — Mudanças</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "Para garantir estabilidade, qualquer alteração na infraestrutura de TI deve passar por um processo formal de Gerenciamento de Mudanças (ITIL), avaliando riscos e impactos antes da implementação."</div>
+                <div class="print-field"><strong>Gabarito: CERTO. ✓</strong></div>
+                <div class="print-field"><strong>Por que está certo:</strong> Mudanças sem controle são a maior causa de quedas de sistema. O CAB avalia riscos e o fluxo garante aprovação formal antes da implementação.</div>
+            </div>
+
+            <div class="print-card">
+                <h4>Q18. COBIT — Compliance</h4>
+                <div class="print-field"><strong>Enunciado:</strong> "A gestão de riscos e a garantia de que a TI cumpre com as leis e regulamentos são preocupações exclusivas do departamento jurídico, estando fora do escopo do COBIT."</div>
+                <div class="print-field"><strong>Gabarito: ERRADO.</strong></div>
+                <div class="print-field"><strong>O Erro:</strong> Compliance e Riscos são o coração da Governança de TI.</div>
+                <div class="print-field"><strong>A Regra:</strong> A Governança de TI garante que processos, controles e evidências existam para atender auditorias (TCU/CGU) e a LGPD. O COBIT trata risco e conformidade como pilares, não como responsabilidade exclusiva do jurídico.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ══════════ STEPPER & SPA NAVIGATION ══════════
+        const TOTAL = 10;
+        let currentStep = 1;
+
+        function buildStepper() {
+            const bar = document.getElementById('stepper-bar');
+            bar.innerHTML = '';
+            for (let i = 1; i <= TOTAL; i++) {
+                const el = document.createElement('div');
+                el.id = 'step-' + i;
+                el.className = i === 1 ? 'text-cyan-500 transition-colors duration-300' : 'text-slate-300 dark:text-slate-600 transition-colors duration-300';
+                el.innerHTML = '<i class="ph-bold ph-minus text-4xl md:text-5xl"></i>';
+                bar.appendChild(el);
+            }
+        }
+
+        function showStep(n) {
+            if (n < 1 || n > TOTAL) return;
+            currentStep = n;
+            document.querySelectorAll('.spa-view').forEach(v => { v.classList.remove('active'); v.style.display = 'none'; });
+            const t = document.getElementById('view-' + n);
+            t.style.display = 'block'; void t.offsetWidth; t.classList.add('active');
+            for (let i = 1; i <= TOTAL; i++) {
+                document.getElementById('step-' + i).className = i === n
+                    ? 'text-cyan-500 transition-colors duration-300'
+                    : 'text-slate-300 dark:text-slate-600 transition-colors duration-300';
+            }
+            const bp = document.getElementById('btn-prev'), bn = document.getElementById('btn-next');
+            bp.style.visibility = n === 1 ? 'hidden' : 'visible';
+            if (n === TOTAL) { bn.innerHTML = '<i class="ph-bold ph-flag-checkered"></i> Finalizar'; bn.className = 'px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-600/30'; }
+            else { bn.innerHTML = 'Próximo Passo <i class="ph-bold ph-arrow-right"></i>'; bn.className = 'px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all flex items-center gap-2 text-sm shadow-lg shadow-cyan-600/30'; }
+            document.getElementById('nav-label').textContent = n + ' / ' + TOTAL;
+            document.getElementById('content-area').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextStep() { showStep(currentStep + 1); }
+        function prevStep() { showStep(currentStep - 1); }
+
+        // ══════════ QUIZ ══════════
+        function responderQuestao(q) {
+            const r = document.getElementsByName('q' + q); let sel = false;
+            for (let i = 0; i < r.length; i++) if (r[i].checked) { sel = true; break; }
+            if (!sel) { const b = document.getElementById('qblock-' + q); b.classList.add('ring-2', 'ring-rose-500'); setTimeout(() => b.classList.remove('ring-2', 'ring-rose-500'), 500); return; }
+            document.getElementById('options-' + q).classList.add('answered');
+            for (let i = 0; i < r.length; i++) r[i].disabled = true;
+            document.getElementById('btn-resp-' + q).classList.add('hidden');
+            document.getElementById('btn-gab-' + q).classList.remove('hidden');
+            document.getElementById('btn-ex-' + q).classList.remove('hidden');
+        }
+
+        function toggleGabarito(id, btn) {
+            const d = document.getElementById(id);
+            if (!d.classList.contains('open')) { d.classList.add('open'); btn.innerHTML = '<i class="ph-bold ph-eye-slash text-lg"></i> Esconder'; }
+            else { d.classList.remove('open'); btn.innerHTML = '<i class="ph-bold ph-eye text-lg"></i> Ver Gabarito'; }
+        }
+
+        function toggleEBSERH(id, btn) {
+            const d = document.getElementById(id);
+            if (!d.classList.contains('open')) { d.classList.add('open'); btn.innerHTML = '<i class="ph-bold ph-hospital text-lg"></i> Esconder'; }
+            else { d.classList.remove('open'); btn.innerHTML = '<i class="ph-bold ph-hospital text-lg"></i> Exemplo Prático'; }
+        }
+
+        // ══════════ TIMER 80min ══════════
+        const DT = 80 * 60; let tr = DT, ti = null, ir = false;
+        const dd = document.getElementById('timer-display'), it = document.getElementById('icon-timer'), bt = document.getElementById('btn-timer');
+        function fmt(s) { return Math.floor(s/60).toString().padStart(2,'0') + ':' + (s%60).toString().padStart(2,'0'); }
+        function playAlarm() { const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.setValueAtTime(440,c.currentTime);o.frequency.setValueAtTime(880,c.currentTime+.2);g.gain.setValueAtTime(.3,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+1.5);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+1.5); }
+        function upd() { if(tr>0){tr--;dd.textContent=fmt(tr);}else{clearInterval(ti);ir=false;it.classList.replace('ph-pause','ph-clock');bt.classList.add('text-rose-500');dd.classList.add('text-rose-500');dd.classList.remove('timer-active');playAlarm();} }
+        function toggleTimer() { if(tr<=0)return;ir=!ir;if(ir){it.classList.replace('ph-play','ph-pause');dd.classList.add('timer-active');new(window.AudioContext||window.webkitAudioContext)();ti=setInterval(upd,1000);}else{it.classList.replace('ph-pause','ph-play');dd.classList.remove('timer-active');clearInterval(ti);} }
+        function resetTimer() { clearInterval(ti);ir=false;tr=DT;dd.textContent=fmt(tr);it.classList.replace('ph-pause','ph-play');dd.classList.remove('text-rose-500');bt.classList.remove('text-rose-500');dd.classList.remove('timer-active'); }
+
+        // ══════════ THEME TOGGLE ══════════
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const ic = document.getElementById('themeIcon');
+            if (document.documentElement.classList.contains('dark')) ic.classList.replace('ph-moon', 'ph-sun');
+            else ic.classList.replace('ph-sun', 'ph-moon');
+        });
+
+        // ══════════ FONT SIZE (A+ / A-) ══════════
+        let baseFontSize = 16;
+        function changeFontSize(dir) {
+            baseFontSize = Math.min(24, Math.max(14, baseFontSize + dir * 2));
+            document.documentElement.style.setProperty('--base-font', baseFontSize + 'px');
+            document.body.style.fontSize = baseFontSize + 'px';
+        }
+
+        // ══════════ SIDEBAR ══════════
+        function toggleSidebar() {
+            const s = document.getElementById('sidebar'), o = document.getElementById('mobile-overlay');
+            if (s.classList.contains('-translate-x-full')) { s.classList.remove('-translate-x-full'); o.classList.remove('hidden'); }
+            else { s.classList.add('-translate-x-full'); o.classList.add('hidden'); }
+        }
+
+        let sidebarCollapsed = false;
+        function toggleSidebarCollapse() {
+            const s = document.getElementById('sidebar');
+            if (window.innerWidth < 768) { toggleSidebar(); return; }
+            sidebarCollapsed = !sidebarCollapsed;
+            if (sidebarCollapsed) { s.classList.add('collapsed'); s.classList.add('md:w-0'); s.classList.remove('md:w-72'); }
+            else { s.classList.remove('collapsed'); s.classList.remove('md:w-0'); s.classList.add('md:w-72'); }
+        }
+
+        // ══════════ INIT ══════════
+        buildStepper();
+        showStep(1);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio Técnico ETB-Pay | Dev Júnior</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        etb: {
+                            dark: '#0f172a',    // slate-900
+                            card: '#1e293b',    // slate-800
+                            accent: '#10b981',  // emerald-500
+                            alert: '#f59e0b',   // amber-500
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-block {
+            background: #000000;
+            border-left: 4px solid #10b981;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        @media print {
+
+            header,
+            .cursor-pointer,
+            button {
+                display: none !important;
+            }
+
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            .glass-card {
+                background: none !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #000000 !important;
+            }
+
+            pre,
+            code {
+                background-color: #f1f5f9 !important;
+                color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            .text-white {
+                color: #000000 !important;
+            }
+
+            span,
+            p,
+            li {
+                color: #334155 !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500 flex items-center justify-center">
+                    <i class="fa-solid fa-building-columns text-emerald-400 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">ETB<span
+                            class="text-emerald-400">-PAY</span></h1>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest font-mono">Developer Portal</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center gap-4 font-mono text-sm">
+                    <span class="text-slate-400"><i class="fa-solid fa-code-branch mr-1"></i> Squad 3G</span>
+                    <span
+                        class="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
+                        <i class="fa-solid fa-circle-check mr-1"></i> Status: Processo Seletivo
+                    </span>
+                </div>
+                <button onclick="window.print()"
+                    class="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-slate-900 border border-emerald-500/30 font-mono text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all duration-200 cursor-pointer">
+                    <i class="fa-solid fa-file-pdf mr-1.5"></i>Salvar em PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Left Column: Context & Code -->
+        <div class="lg:col-span-2 space-y-8">
+
+            <!-- Hero Briefing -->
+            <section class="glass-card rounded-2xl p-8 border-t-4 border-t-emerald-500">
+                <div class="flex items-center gap-2 mb-4">
+                    <span
+                        class="bg-blue-500/20 text-blue-400 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Back-End
+                        Júnior</span>
+                    <span
+                        class="bg-slate-700 text-slate-300 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Java
+                        JDBC</span>
+                </div>
+                <h2 class="text-3xl font-bold mb-4">Desafio: Motor de Contas ETB-Pay</h2>
+                <p class="text-slate-300 mb-6 leading-relaxed">
+                    Bem-vindos à fase técnica do processo seletivo do ETB-Pay. O objetivo central é criar, do zero, o
+                    projeto Java chamado <strong>desafioJDBC</strong> para servir como motor de persistência de clientes
+                    e contas da nossa Fintech utilizando <strong>Java Puro e JDBC</strong>. O projeto deve ser
+                    estruturado obrigatoriamente seguindo o padrão arquitetural <strong>DAO (Data Access
+                        Object)</strong> e conter uma classe dedicada chamada <strong>ConexaoDB</strong> para gerenciar
+                    o driver de conexão. O desafio elimina a complexidade de frameworks web (como Spring Boot) para
+                    focar estritamente no domínio de Orientação a Objetos (Associação) e persistência no banco
+                    <strong>SQLite</strong>.
+                </p>
+
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 flex gap-4">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xl mt-1"></i>
+                    <div>
+                        <h4 class="font-bold text-amber-500 mb-1">Atenção Arquitetural</h4>
+                        <p class="text-sm text-amber-200/80">Proibido vincular uma conta no exato momento da criação do
+                            cliente. O fluxo exige que o cliente seja criado primeiro. A conta será vinculada
+                            posteriormente utilizando a Chave Estrangeira (ID do Cliente).</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Database Setup -->
+            <section class="glass-card rounded-2xl p-8">
+                <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-database text-emerald-400"></i> 1. Modelagem do Banco (SQLite)
+                </h3>
+                <p class="text-slate-300 mb-4 text-sm leading-relaxed">
+                    Utilizaremos o <strong>SQLite</strong> para evitar problemas de rede no laboratório. O
+                    desenvolvimento do projeto será realizado de forma <strong>FASEADA</strong>. Nesta <strong>PRIMEIRA
+                        ETAPA</strong>, o foco exclusivo da squad é criar a base de dados SQLite diretamente pelo
+                    <strong>VS Code</strong> (utilizando suas extensões de banco de dados) e codificar as classes de
+                    negócio (entidades): <code>Cliente.java</code> e <code>Conta.java</code>. Execute o script SQL
+                    abaixo na sua IDE para criar a estrutura inicial.
+                </p>
+                <div class="code-block rounded-lg p-4 overflow-x-auto">
+                    <pre><code class="text-sm font-mono text-slate-300"><span class="text-slate-500">-- Tabela Pai: Clientes</span>
+<span class="text-emerald-400">CREATE TABLE</span> clientes (
+    id_cliente <span class="text-blue-400">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+    cpf <span class="text-blue-400">VARCHAR(11) NOT NULL UNIQUE</span>,
+    nome <span class="text-blue-400">VARCHAR(100) NOT NULL</span>,
+    email <span class="text-blue-400">VARCHAR(100) NOT NULL</span>,
+    telefone <span class="text-blue-400">VARCHAR(15)</span>
+);
+
+<span class="text-slate-500">-- Tabela Filha: Contas (Relacionamento 1:N)</span>
+<span class="text-emerald-400">CREATE TABLE</span> contas (
+    id_conta <span class="text-blue-400">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+    numero_conta <span class="text-blue-400">VARCHAR(20) NOT NULL UNIQUE</span>,
+    tipo_conta <span class="text-blue-400">VARCHAR(20) NOT NULL</span>, <span class="text-slate-500">-- 'CORRENTE' ou 'POUPANCA'</span>
+    saldo <span class="text-blue-400">DECIMAL(10, 2) NOT NULL DEFAULT</span> <span class="text-amber-400">0.00</span>,
+    id_cliente <span class="text-blue-400">INTEGER NOT NULL</span>,
+    <span class="text-emerald-400">FOREIGN KEY</span> (id_cliente) <span class="text-emerald-400">REFERENCES</span> clientes(id_cliente)
+);</code></pre>
+                </div>
+            </section>
+
+            <!-- The Mission (Console Menu) -->
+            <section class="glass-card rounded-2xl p-8">
+                <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-emerald-400"></i> 2. Requisitos do Sistema (Menu Console)
+                </h3>
+                <p class="text-slate-400 mb-6 text-sm">
+                    Sua aplicação Java deve ter um loop <code>while</code> com um <code>switch-case</code> contendo as 4
+                    opções abaixo. Use a classe <code>Scanner</code> para capturar os dados.
+                </p>
+
+                <div class="space-y-4">
+                    <!-- Task 1 -->
+                    <div
+                        class="bg-slate-800/50 border border-slate-700 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span
+                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
+                            <h4 class="font-bold text-lg text-white">Cadastrar Novo Cliente</h4>
+                        </div>
+                        <p class="text-sm text-slate-400 ml-9">
+                            Solicite CPF, Nome, Email e Telefone. Realize um <code>INSERT</code> na tabela <code
+                                class="text-emerald-400">clientes</code>. Não insira nenhuma conta neste momento.
+                        </p>
+                    </div>
+
+                    <!-- Task 2 -->
+                    <div
+                        class="bg-slate-800/50 border border-slate-700 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span
+                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
+                            <h4 class="font-bold text-lg text-white">Listar Base de Clientes</h4>
+                        </div>
+                        <p class="text-sm text-slate-400 ml-9">
+                            Execute um <code>SELECT * FROM clientes</code> e imprima os dados no console de forma
+                            formatada.
+                        </p>
+                    </div>
+
+                    <!-- Task 3 -->
+                    <div
+                        class="bg-slate-800/50 border border-slate-700 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span
+                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm">3</span>
+                            <h4 class="font-bold text-lg text-white">Vincular Conta a um Cliente</h4>
+                        </div>
+                        <p class="text-sm text-slate-400 ml-9 mb-3">
+                            <strong class="text-amber-400">Core Business do Desafio:</strong> Solicite o
+                            <code>ID do Cliente</code>. Valide se ele existe no banco. Se existir, peça o Número da
+                            Conta e o Tipo (Corrente/Poupança). Insira na tabela <code
+                                class="text-emerald-400">contas</code> vinculando ao ID informado.
+                        </p>
+                        <div
+                            class="ml-9 bg-slate-900 border border-slate-700 rounded p-3 text-xs font-mono text-slate-300">
+                            > Informe o ID do Cliente: 1 <br>
+                            > [Sucesso] Cliente 'Alex' encontrado.<br>
+                            > Informe o número da nova conta: 10234-5<br>
+                            > Conta vinculada com sucesso!
+                        </div>
+                    </div>
+
+                    <!-- Task 4 -->
+                    <div
+                        class="bg-slate-800/50 border border-slate-700 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span
+                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm">4</span>
+                            <h4 class="font-bold text-lg text-white">Buscar Contas por Cliente</h4>
+                        </div>
+                        <p class="text-sm text-slate-400 ml-9">
+                            Solicite o <code>ID do Cliente</code> e execute um
+                            <code>SELECT * FROM contas WHERE id_cliente = ?</code> para exibir o extrato de contas
+                            atreladas a ele.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column: Setup & Checklist -->
+        <div class="space-y-6">
+
+            <!-- Evaluation Criteria -->
+            <div class="glass-card rounded-2xl p-6 border border-slate-700">
+                <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-white">
+                    <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Critérios de Avaliação
+                </h3>
+                <div
+                    class="text-xs text-amber-400 bg-amber-500/10 p-3 rounded-lg border border-amber-500/25 mb-4 leading-relaxed">
+                    🚀 <strong>Atenção Squad 3G - Entrega Faseada:</strong> Apenas o item <strong>Nº 1 (Modelagem de
+                        Classes)</strong> faz parte do entregável obrigatório desta primeira etapa (Criação do banco de
+                    dados SQLite e das classes de negócio Cliente e Conta). Os itens <strong>Nº 2</strong> e <strong>Nº
+                        3</strong> serão integralmente desenvolvidos e codificados, de forma coletiva em sala de aula.
+                </div>
+                <div class="space-y-4">
+                    <div class="border-l-2 border-emerald-500 pl-3">
+                        <h4 class="font-semibos-slate-400 mt-1">Criação correta das classes <code>Cliente</code> e
+                            <code>Conta</code>, aplicando os conceitos de associação.
+                            </p>
+                    </div>
+                    <div class="border-l-2 border-emerald-500 pl-3">
+                        <h4 class="font-semibold text-sm text-white">2. Persistência (Unidades 9 e 10)</h4>
+                        <p class="text-xs text-slate-400 mt-1">Uso correto de <code>PreparedStatement</code> para evitar
+                            SQL Injection nas rotinas de banco.</p>
+                    </div>
+                    <div class="border-l-2 border-emerald-500 pl-3">
+                        <h4 class="font-semibold text-sm text-white">3. Tratamento de Exceções</h4>
+                        <p class="text-xs text-slate-400 mt-1">Uso de blocos <code>try-catch</code> para lidar com
+                            falhas de conexão no <code>DriverManager</code>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setup Box -->
+            <div class="glass-card rounded-2xl p-6 border border-slate-700">
+                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-gears text-slate-400"></i> Setup do Projeto
+                </h3>
+                <ul class="space-y-3 text-sm text-slate-300">
+                    <li class="flex items-start gap-2">
+                        <i class="fa-brands fa-java text-amber-500 mt-0.5 text-lg"></i>
+                        <span>JDK 17 ou superior instalado (opcional).</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-puzzle-piece text-blue-500 mt-0.5 text-lg"></i>
+                        <span>Instalar a extensão <strong>Extension Pack for Java</strong> (da Microsoft) no VS Code
+                            para habilitar o suporte completo à compilação e execução automatizada do projeto.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-cube text-blue-500 mt-0.5 text-lg"></i>
+                        <span>Driver JDBC do SQLite referenciado no projeto (<a
+                                href="https://www.sqlite.org/2026/sqlite-tools-win-x64-3530200.zip" target="_blank"
+                                class="text-emerald-400 hover:text-emerald-300 hover:underline font-mono">sqlite-jdbc.jar</a>).</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-code text-emerald-500 mt-0.5 text-lg"></i>
+                        <span>Estrutura obrigatória seguindo o padrão arquitetural DAO (Data Access Object) e contendo a
+                            classe dedicada <code>ConexaoDB</code> para gerenciar a conexão.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Boilerplate Tip -->
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-6">
+                <h3 class="font-bold text-blue-400 text-sm mb-2 uppercase tracking-wider">
+                    <i class="fa-solid fa-lightbulb mr-1"></i> Dica Tech
+                </h3>
+                <p class="text-xs text-blue-200/80 leading-relaxed mb-3">
+                    String de conexão para o SQLite: <br>
+                    <code
+                        class="bg-slate-900 p-1 rounded text-emerald-400 mt-1 inline-block">jdbc:sqlite:etbpay.db</code>
+                </p>
+                <p class="text-xs text-blue-200/80 leading-relaxed">
+                    O arquivo do banco será criado automaticamente na raiz do seu projeto ao executar a primeira
+                    conexão.
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="border-t border-slate-800 mt-12 py-8 text-center text-slate-500 text-sm">
+        <p>Escola Técnica de Brasília - ETB | Linguagem e Técnicas de Programação II</p>
+        <p class="mt-2 font-mono text-xs opacity-50">"A experiência faz o mestre, a prática faz o código."</p>
+    </footer>
+
+</body>
+
+</html>

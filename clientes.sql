@@ -1,54 +1,30 @@
--- 1. Resetando o ambiente destino
+-- Garante um estado limpo antes da carga
 DROP TABLE IF EXISTS tb_clientes;
 
--- 2. DDL: Criação da tabela destino blindada
+-- Criação da estrutura blindada padrão ouro
 CREATE TABLE tb_clientes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    cpf TEXT UNIQUE NOT NULL,
+    id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    email TEXT,
+    email TEXT NOT NULL UNIQUE,
+    cpf TEXT UNIQUE NOT NULL CHECK (length(cpf) = 11 AND NOT cpf GLOB '*[^0-9]*'),
     telefone TEXT CHECK (
-        telefone IS NULL OR
-        (LENGTH(telefone) = 11 AND GLOB('[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]', telefone))
+        length(telefone) <= 11 
+        AND NOT telefone GLOB '*[^0-9]*'
     )
 );
 
-BEGIN TRANSACTION;
+-- Carga Atômica de 10 Registros 100% Válidos para Homologação
+INSERT INTO tb_clientes (cpf, nome, email, telefone) VALUES 
+    ('11122233344', 'Ana Silva', 'ana.silva@etb.com', '61991223344'),
+    ('22233344455', 'Bruno Costa', 'bruno.costa@etb.com', '61992334455'),
+    ('33344455566', 'Carla Dias', 'carla.dias@etb.com', '61993445566'),
+    ('44455566677', 'Diego Souza', 'diego.souza@etb.com', '61994556677'),
+    ('55566677788', 'Elena Rocha', 'elena.rocha@etb.com', '61995667788'),
+    ('66677788899', 'Felipe Lima', 'felipe.lima@etb.com', '61996778899'),
+    ('77788899900', 'Gabriela Alves', 'gabriela.alves@etb.com', '61997889900'),
+    ('88899900011', 'Hugo Santos', 'hugo.santos@etb.com', '61998990011'),
+    ('99900011122', 'Isabela Reis', 'isabela.reis@etb.com', '61999001122'),
+    ('00011122233', 'Joao Ferreira', 'joao.ferreia@etb.com', '61990112233');
 
--- 3. Executando a carga com saneamento de dados preliminar
-INSERT INTO tb_clientes (cpf, nome, email, telefone)
-SELECT
-    cpf,
-    nome,
-    email,
-    NULL -- O campo telefone inicia vazio na migração
-FROM clientes_old
-WHERE
-    -- Filtro para capturar apenas CPFs estruturalmente viáveis (tamanho 11 ou 12)
-    LENGTH(cpf) IN (11, 12)
-    -- Evita que strings de lixo do mesmo tamanho passem (como '---.--.--')
-    AND GLOB('*[0-9]*', cpf);
-
-COMMIT;
-
+-- Validação de sucesso para a Squad
 SELECT * FROM tb_clientes;
-SELECT count(*) AS 'TOTAL DE CLIENTES MIGRADOS' FROM tb_clientes; -- número de registros migrados
-
--- 4. Recuperando o registro que estava trocado no legado
-INSERT INTO tb_clientes (cpf, nome, email, telefone)
-VALUES (777788899900, 'João da Silva', 'joao.silva@etb.com', NULL);
-
--- 5. Higienizando o CPF do cliente Alex
-UPDATE tb_clientes
-SET cpf = '07762634177'
-WHERE nome = 'Alex%';
-
--- 5.1 Higienização dinâmica usando REPLACE
-UPDATE tb_clientes
-SET cpf = REPLACE(cpf, '-', '')
-WHERE cpf LIKE '%-%';
-
--- 5.2Saneamento Avançado: Removendo Pontos E Hifens de uma só vez
-UPDATE tb_clientes 
-SET cpf = REPLACE(REPLACE(cpf, '.', ''), '-', '')
-WHERE cpf LIKE '%.%' OR cpf LIKE '%-%'; 
