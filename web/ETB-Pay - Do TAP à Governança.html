@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY: Do TAP à Governança</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 20px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #334155;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .slide-transition {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:bg-[#0f172a] dark:text-slate-100 overflow-hidden font-sans">
+
+    <!-- HEADER -->
+    <header
+        class="px-6 py-4 flex justify-between items-center shadow-sm z-10 bg-white border-b border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 transition-colors">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-white">
+                    <rect width="18" height="18" x="3" y="3" rx="2" />
+                    <path d="M3 9h18" />
+                    <path d="M9 21V9" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="font-black text-sm md:text-base uppercase tracking-tight leading-tight">ETB-PAY: Do TAP à
+                    Governança</h1>
+                <p class="text-[10px] font-bold tracking-widest uppercase opacity-60">Prof. Alex Alves • Elite Squad</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <span id="slide-counter" class="text-sm font-bold opacity-50 hidden md:block">SLIDE 1 / 13</span>
+            <button id="theme-toggle"
+                class="p-2 rounded-full transition-all hover:scale-110 bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-yellow-400"
+                title="Alternar Tema">
+                <span id="theme-icon"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- PROGRESS BAR -->
+    <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 relative">
+        <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-500 ease-out" style="width: 7.6%;">
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden relative">
+        <div
+            class="w-full max-w-5xl h-[70vh] rounded-3xl shadow-xl overflow-hidden border flex flex-col transition-all duration-500 bg-white border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 dark:shadow-blue-900/10">
+
+            <div class="p-6 md:p-8 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4">
+                <span id="slide-icon-container"></span>
+                <h2 id="slide-title" class="text-2xl md:text-3xl font-black tracking-tight"></h2>
+            </div>
+
+            <div id="slide-content-container" class="p-6 md:p-8 flex-1 overflow-y-auto slide-transition">
+                <!-- Conteúdo via JS -->
+            </div>
+
+            <div id="answer-section"
+                class="hidden p-6 border-t border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50">
+                <button id="btn-reveal"
+                    class="w-full py-4 border-2 border-dashed border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-sm uppercase tracking-wider">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    Revelar Gabarito e Feedback
+                </button>
+                <div id="answer-feedback"
+                    class="hidden slide-transition bg-emerald-500/10 border border-emerald-500/30 p-6 rounded-xl flex items-start gap-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-emerald-500 flex-shrink-0 mt-0.5">
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    <p id="answer-text"
+                        class="text-base font-medium text-emerald-700 dark:text-emerald-300 leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER CONTROLS -->
+    <footer class="p-4 md:p-6 flex justify-between items-center z-10 w-full max-w-5xl mx-auto">
+        <button id="btn-prev"
+            class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 active:scale-95">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6" />
+            </svg>
+            Anterior
+        </button>
+
+        <div id="dots-container" class="hidden sm:flex gap-2"></div>
+
+        <button id="btn-next"
+            class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/50 active:scale-95">
+            Próximo
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </button>
+    </footer>
+
+    <script>
+        const icons = {
+            alert: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+            play: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="m10 10 5 3-5 3v-6Z"/></svg>`,
+            book: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+            shield: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-2 7-2 2.5 0 4.5 1 6.5 2a1 1 0 0 1 1 1z"/></svg>`,
+            file: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>`,
+            triangle: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-rose-500"><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>`,
+            target: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-rose-600"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+            check: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+            sun: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+            moon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+            graduation: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`
+        };
+
+        const slidesData = [
+            {
+                title: "Instruções de Aula",
+                icon: icons.alert,
+                content: `
+                    <div class="flex flex-col items-center justify-center text-center space-y-8 h-full">
+                        <div class="bg-amber-100 dark:bg-amber-500/10 p-6 rounded-full animate-pulse-slow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black uppercase tracking-widest text-amber-500">⚠️ Orientações para os Alunos</h2>
+                        <div class="text-xl md:text-2xl leading-relaxed max-w-3xl">
+                            <p class="mb-4">Abram o <strong>VSCode</strong>.</p>
+                            <p class="mb-4 text-slate-600 dark:text-slate-400">Utilizem esta ferramenta para <strong>anotação dos principais termos ou dúvidas</strong> que surgirem durante a aula.</p>
+                            <p class="font-bold text-blue-500 italic mt-6">"A prática da documentação começa na anotação!"</p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Projeto de Pesquisa (Nota)",
+                icon: icons.graduation,
+                content: `
+                    <div class="flex flex-col space-y-6 h-full justify-center">
+                        <div class="p-6 rounded-2xl bg-blue-50 dark:bg-blue-500/10 border-l-4 border-blue-500">
+                            <h3 class="text-xl font-bold mb-2">Missão: Elaboração do TAP</h3>
+                            <p class="text-slate-600 dark:text-slate-300">Como complemento de nota e carga horária, cada Squad deverá entregar um <strong>Termo de Abertura de Projeto (TAP)</strong> preenchido para o sistema ETB-PAY.</p>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <h4 class="font-bold text-sm mb-2">Requisitos de Entrega:</h4>
+                                <ul class="text-xs space-y-1 list-disc pl-4 text-slate-500">
+                                    <li>Alinhamento Estratégico (PDTIC simulado)</li>
+                                    <li>Escopo e Exclusões claros</li>
+                                    <li>Mapeamento de Stakeholders</li>
+                                    <li>Análise Preliminar de Riscos</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/30 flex items-center justify-center">
+                                <p class="text-center font-bold text-emerald-600">Prazo: Próxima Quarta-feira</p>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "O Projeto ETB-PAY",
+                icon: icons.play,
+                content: `
+                    <div class="flex flex-col space-y-6 h-full justify-center">
+                        <div class="p-6 rounded-2xl border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-500/10">
+                            <h3 class="text-2xl font-bold mb-2">O Desafio</h3>
+                            <p class="text-lg">Nosso processador de pagamentos (ETB-PAY) está em processo de aquisição por uma instituição financeira. Precisamos provar maturidade em Governança.</p>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-500/50 rounded-2xl p-6 hover:bg-slate-50 dark:hover:bg-slate-500/5 transition-colors">
+                            <h3 class="text-xl font-bold mb-2 italic">Start do Projeto</h3>
+                            <p class="text-center text-slate-500 mb-6">O que define o início oficial de tudo?</p>
+                            <a href="https://www.youtube.com/watch?v=5qAVlFQq0OA" target="_blank" class="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 flex items-center gap-2 transition shadow-lg">Vídeo: O que é um Projeto?</a>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "PMBOK e Ciclo IPEME",
+                icon: icons.book,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                <h3 class="text-xl font-bold mb-4 text-blue-500">Framework PMBOK</h3>
+                                <p class="text-sm">Guia de boas práticas em gerenciamento de projetos. Define o <strong>Ciclo IPEME</strong>:</p>
+                                <div class="grid grid-cols-5 gap-1 mt-4 text-[10px] font-bold text-center">
+                                    <div class="p-2 bg-blue-500 text-white rounded">I</div>
+                                    <div class="p-2 bg-slate-400 rounded text-white">P</div>
+                                    <div class="p-2 bg-slate-400 rounded text-white">E</div>
+                                    <div class="p-2 bg-slate-400 rounded text-white">M</div>
+                                    <div class="p-2 bg-slate-400 rounded text-white">E</div>
+                                </div>
+                                <p class="mt-2 text-[10px] text-center opacity-60">Iniciação • Planejamento • Execução • M&C • Encerramento</p>
+                            </div>
+                            <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                <h3 class="text-xl font-bold mb-4 text-emerald-500">Abordagem Ágil</h3>
+                                <p class="text-sm">Foco em entrega de valor iterativa. No ETB-PAY, o ágil permite correções rápidas de rumo conforme o feedback do mercado.</p>
+                                <ul class="mt-4 text-xs space-y-1 list-disc pl-4 opacity-70">
+                                    <li>Sprints (Ciclos Curtos)</li>
+                                    <li>Adaptabilidade ao invés de rigidez</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "COBIT 2019: Governança",
+                icon: icons.shield,
+                content: `
+                    <div class="flex flex-col h-full space-y-6 justify-center">
+                        <div class="p-6 bg-purple-500/10 border border-purple-500/30 rounded-xl text-center">
+                            <h3 class="text-xl font-bold text-purple-600 mb-2">Objetivo do Framework</h3>
+                            <p class="text-sm md:text-base leading-relaxed">O COBIT fornece um modelo de referência completo para a <strong>Governança e Gestão de TI</strong>. Seu propósito é alinhar a tecnologia aos objetivos estratégicos do negócio, otimizando recursos e gerenciando riscos de forma holística.</p>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                            <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg"><span class="font-bold text-xs">EDM</span><p class="text-[10px]">Governança</p></div>
+                            <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg"><span class="font-bold text-xs">APO / BAI</span><p class="text-[10px]">Gestão (Construção)</p></div>
+                            <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg"><span class="font-bold text-xs">DSS / MEA</span><p class="text-[10px]">Gestão (Operação/Monitoramento)</p></div>
+                        </div>
+                        <div class="p-4 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-xl">
+                            <p class="text-xs"><strong>🎯 Foco BNDES:</strong> Governança (EDM) é responsabilidade da alta administração. Ela avalia necessidades, dirige ações e monitora resultados de alto nível.</p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "O TAP: Certidão de Nascimento",
+                icon: icons.file,
+                content: `
+                    <div class="flex flex-col items-center justify-center text-center space-y-8 h-full">
+                        <div class="p-4 bg-blue-100 dark:bg-blue-500/10 rounded-full animate-bounce">
+                            ${icons.file.replace('width="32" height="32"', 'width="60" height="60"')}
+                        </div>
+                        <h3 class="text-3xl font-black uppercase">Termo de Abertura (TAP)</h3>
+                        <p class="text-lg font-light max-w-2xl leading-relaxed">O artefato que <strong>autoriza formalmente</strong> a existência do projeto. No ETB-PAY, ele é o que separa a "ideia" do projeto "oficial".</p>
+                        
+                        <div class="p-4 bg-amber-50 dark:bg-amber-500/10 border-l-4 border-amber-500 text-left w-full max-w-md">
+                            <h4 class="font-bold text-sm">Provocação:</h4>
+                            <p class="text-xs mt-1">Se você começar a codar o ETB-PAY sem o TAP, quem responde por qualquer prejuízo financeiro ou falha de conformidade?</p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Modelo de Estrutura do TAP",
+                icon: icons.file,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-4">
+                        <p class="text-sm font-bold text-slate-500 uppercase tracking-widest text-center">Estrutura SEI / Padrão Institucional</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+                            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <h4 class="font-bold text-blue-500 border-b mb-1">1. Alinhamento Estratégico</h4>
+                                <p>Pilar, Meta, Indicador e Ação Estratégica (PDTIC).</p>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <h4 class="font-bold text-blue-500 border-b mb-1">2. Objetivos e Escopo</h4>
+                                <p>O que será feito e o que está <strong>excluído</strong>.</p>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <h4 class="font-bold text-blue-500 border-b mb-1">3. Restrições e Premissas</h4>
+                                <p>Contratuais, orçamentárias e arquiteturais.</p>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <h4 class="font-bold text-blue-500 border-b mb-1">4. Riscos Iniciais</h4>
+                                <p>Inviabilidade técnica, equipe e ambiente.</p>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 md:col-span-2">
+                                <h4 class="font-bold text-blue-500 border-b mb-1">5. Equipe e Assinaturas</h4>
+                                <p><strong>Product Owner (Gestor Alfa)</strong>, Líder Técnico e Patrocinador.</p>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Tríplice Restrição",
+                icon: icons.triangle,
+                content: `
+                    <div class="flex flex-col md:flex-row gap-8 items-center h-full">
+                        <div class="flex-1 space-y-4">
+                            <h3 class="text-xl font-bold">O Triângulo de Ferro</h3>
+                            <div class="space-y-4 text-sm">
+                                <div class="p-3 bg-blue-50 dark:bg-blue-500/5 rounded-lg">
+                                    <strong class="text-blue-500">Escopo:</strong> O que o ETB-PAY deve entregar (Requisitos de Alto Nível).
+                                </div>
+                                <div class="p-3 bg-amber-50 dark:bg-amber-500/5 rounded-lg">
+                                    <strong class="text-amber-500">Prazo:</strong> Cronograma de Marcos (Datas cruciais).
+                                </div>
+                                <div class="p-3 bg-emerald-50 dark:bg-emerald-500/5 rounded-lg">
+                                    <strong class="text-emerald-500">Custo:</strong> Orçamento previsto e alocação de recursos.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center justify-center">
+                            <div class="relative w-48 h-48 flex items-center justify-center">
+                                <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full text-slate-300 dark:text-slate-600">
+                                    <polygon points="50,10 90,90 10,90" fill="none" stroke="currentColor" stroke-width="2" />
+                                </svg>
+                                <div class="z-10 font-black text-slate-800 dark:text-slate-200 text-xs">QUALIDADE</div>
+                            </div>
+                            <p class="text-[10px] mt-4 opacity-60 text-center">Alterar um lado exige ajuste nos outros!</p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Stakeholders",
+                icon: icons.target,
+                content: `
+                    <div class="flex flex-col items-center justify-center text-center space-y-8 h-full">
+                        <div class="p-4 bg-rose-100 dark:bg-rose-500/10 rounded-full">
+                            ${icons.target.replace('width="32" height="32"', 'width="60" height="60"')}
+                        </div>
+                        <h3 class="text-2xl font-black uppercase">Partes Interessadas</h3>
+                        <p class="text-lg font-light max-w-2xl">O ETB-PAY afeta desde o Board da empresa até o usuário que paga o boleto.</p>
+                        
+                        <div class="p-4 bg-blue-50 dark:bg-blue-500/10 border-l-4 border-blue-500 text-left w-full max-w-md">
+                            <h4 class="font-bold text-sm">Provocação:</h4>
+                            <p class="text-xs mt-1">Quem é a pessoa mais importante em um projeto: quem programa ou quem paga a conta?</p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Desafio QConcursos #1",
+                icon: icons.target,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded">CESGRANRIO</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed">Segundo o PMBOK, o TAP (Termo de Abertura do Projeto) deve conter a(o):</p>
+                        <ul class="space-y-3 text-lg mt-4">
+                            <li class="p-3">A) descrição detalhada do processo de comunicação</li>
+                            <li class="p-3">B) estimativa de custos de todas as atividades</li>
+                            <li class="p-3">C) estratégia para gerenciamento dos riscos</li>
+                            <li class="p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-500/30 font-medium"><span class="font-bold text-blue-600">D)</span> propósito ou a justificativa do projeto</li>
+                        </ul>
+                    </div>`,
+                answer: "Alternativa D. O TAP fornece o 'Porquê' do projeto. Detalhamentos técnicos e de risco ocorrem no Planejamento."
+            },
+            {
+                title: "Desafio QConcursos #2",
+                icon: icons.target,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded">CESGRANRIO</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed">Segundo o PMBOK 4ª edição, o TAP <strong class="text-rose-500 underline">NÃO</strong> deve conter:</p>
+                        <ul class="space-y-3 text-lg mt-4">
+                            <li class="p-3">A) responsabilidades e nível de autoridade do gerente</li>
+                            <li class="p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-500/30 font-medium"><span class="font-bold text-blue-600">B)</span> a estratégia para gerenciamento dos riscos</li>
+                            <li class="p-3">C) os requisitos de alto nível</li>
+                            <li class="p-3">D) o resumo do cronograma de marcos</li>
+                        </ul>
+                    </div>`,
+                answer: "Alternativa B. Estratégias detalhadas de risco são artefatos de Planejamento. O TAP foca no macro."
+            },
+            {
+                title: "Desafio QConcursos #3",
+                icon: icons.target,
+                isQuestion: true,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded">CEBRASPE / CESPE</span>
+                        </div>
+                        <p class="text-xl font-medium italic p-6 bg-slate-100 dark:bg-slate-800 rounded-xl">"O documento emitido pelo patrocinador que autoriza formalmente a existência de um projeto dando autoridade ao gerente é chamado de TAP."</p>
+                        <div class="flex gap-12 mt-8 justify-center">
+                            <div class="flex items-center gap-3 text-2xl font-black text-slate-800 dark:text-white"><div class="w-8 h-8 rounded-full border-4 border-blue-500 bg-blue-500"></div> CERTO</div>
+                            <div class="flex items-center gap-3 text-2xl font-black text-slate-300 dark:text-slate-600"><div class="w-8 h-8 rounded-full border-4 border-current"></div> ERRADO</div>
+                        </div>
+                    </div>`,
+                answer: "Gabarito: CERTO. Esta é a definição clássica cobrada pelo Cebraspe para BNDES e outros concursos de TI."
+            },
+            {
+                title: "Resumo Final",
+                icon: icons.check,
+                content: `
+                    <div class="flex flex-col items-center justify-center text-center space-y-8 h-full">
+                        <div class="p-6 bg-emerald-100 dark:bg-emerald-500/10 rounded-full">
+                            ${icons.check.replace('width="32" height="32"', 'width="60" height="60"')}
+                        </div>
+                        <h3 class="text-3xl font-black text-emerald-600 uppercase">Missão Cumprida</h3>
+                        <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">Vocês têm agora a base do <strong>PMBOK</strong>, do <strong>COBIT</strong> e a ferramenta <strong>TAP</strong> para dar vida ao ETB-PAY.</p>
+                        <div class="p-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Lembrem-se: O Projeto de Pesquisa vale nota!</div>
+                    </div>`
+            }
+        ];
+
+        let currentSlide = 0;
+        let isDarkMode = true;
+
+        const DOM = {
+            html: document.documentElement,
+            themeToggle: document.getElementById('theme-toggle'),
+            themeIcon: document.getElementById('theme-icon'),
+            slideCounter: document.getElementById('slide-counter'),
+            progressBar: document.getElementById('progress-bar'),
+            iconContainer: document.getElementById('slide-icon-container'),
+            title: document.getElementById('slide-title'),
+            contentContainer: document.getElementById('slide-content-container'),
+            answerSection: document.getElementById('answer-section'),
+            btnReveal: document.getElementById('btn-reveal'),
+            answerFeedback: document.getElementById('answer-feedback'),
+            answerText: document.getElementById('answer-text'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next'),
+            dotsContainer: document.getElementById('dots-container')
+        };
+
+        function updateTheme() {
+            if (isDarkMode) {
+                DOM.html.classList.add('dark');
+                DOM.themeIcon.innerHTML = icons.sun;
+            } else {
+                DOM.html.classList.remove('dark');
+                DOM.themeIcon.innerHTML = icons.moon;
+            }
+        }
+
+        DOM.themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            updateTheme();
+        });
+
+        function renderSlide() {
+            const slide = slidesData[currentSlide];
+
+            DOM.contentContainer.classList.remove('slide-transition');
+            void DOM.contentContainer.offsetWidth;
+            DOM.contentContainer.classList.add('slide-transition');
+
+            DOM.iconContainer.innerHTML = slide.icon;
+            DOM.title.textContent = slide.title;
+            DOM.contentContainer.innerHTML = slide.content;
+
+            const progress = ((currentSlide + 1) / slidesData.length) * 100;
+            DOM.progressBar.style.width = `${progress}%`;
+            DOM.slideCounter.textContent = `SLIDE ${currentSlide + 1} / ${slidesData.length}`;
+
+            if (slide.isQuestion) {
+                DOM.answerSection.classList.remove('hidden');
+                DOM.btnReveal.classList.remove('hidden');
+                DOM.answerFeedback.classList.add('hidden');
+                DOM.answerText.textContent = slide.answer;
+            } else {
+                DOM.answerSection.classList.add('hidden');
+            }
+
+            DOM.btnPrev.disabled = currentSlide === 0;
+            DOM.btnPrev.style.opacity = currentSlide === 0 ? '0.3' : '1';
+            DOM.btnNext.disabled = currentSlide === slidesData.length - 1;
+            DOM.btnNext.style.opacity = currentSlide === slidesData.length - 1 ? '0.3' : '1';
+
+            updateDots();
+        }
+
+        DOM.btnReveal.addEventListener('click', () => {
+            DOM.btnReveal.classList.add('hidden');
+            DOM.answerFeedback.classList.remove('hidden');
+        });
+
+        function nextSlide() {
+            if (currentSlide < slidesData.length - 1) {
+                currentSlide++;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        }
+
+        DOM.btnNext.addEventListener('click', nextSlide);
+        DOM.btnPrev.addEventListener('click', prevSlide);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        function createDots() {
+            DOM.dotsContainer.innerHTML = '';
+            slidesData.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `h-2 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-blue-500 w-8' : 'bg-slate-300 dark:bg-slate-700 w-2'}`;
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    renderSlide();
+                });
+                DOM.dotsContainer.appendChild(dot);
+            });
+        }
+
+        function updateDots() {
+            const dots = DOM.dotsContainer.children;
+            Array.from(dots).forEach((dot, index) => {
+                dot.className = `h-2 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-blue-500 w-8' : 'bg-slate-300 dark:bg-slate-700 w-2'}`;
+            });
+        }
+
+        updateTheme();
+        createDots();
+        renderSlide();
+    </script>
+</body>
+
+</html>

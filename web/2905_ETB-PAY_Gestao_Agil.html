@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Gestão Ágil</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 20px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #334155;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .slide-transition {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:bg-[#0f172a] dark:text-slate-100 overflow-hidden font-sans">
+
+    <!-- HEADER -->
+    <header
+        class="px-6 py-4 flex justify-between items-center shadow-sm z-10 bg-white border-b border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 transition-colors">
+        <div class="flex items-center gap-3">
+            <div class="bg-cyan-500 p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-slate-900">
+                    <path d="M8 6v6" />
+                    <path d="M15 6v6" />
+                    <path d="M2 12h20" />
+                    <path d="M2 6h20" />
+                    <path d="M2 18h20" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="font-black text-sm md:text-base uppercase tracking-tight leading-tight">ETB-PAY: Gestão Ágil
+                </h1>
+                <p class="text-[10px] font-bold tracking-widest uppercase opacity-60 text-cyan-500">Turma 4º F • PMO
+                    Academy</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <span id="slide-counter" class="text-sm font-bold opacity-50 hidden md:block">SLIDE 1 / 10</span>
+            <button id="theme-toggle"
+                class="p-2 rounded-full transition-all hover:scale-110 bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-cyan-400"
+                title="Alternar Tema">
+                <span id="theme-icon"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- PROGRESS BAR -->
+    <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 relative">
+        <div id="progress-bar" class="h-full bg-cyan-500 transition-all duration-500 ease-out" style="width: 0%;">
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden relative">
+        <div
+            class="w-full max-w-5xl h-[75vh] rounded-3xl shadow-xl overflow-hidden border flex flex-col transition-all duration-500 bg-white border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 dark:shadow-cyan-900/10">
+
+            <div class="p-6 md:p-8 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4">
+                <span id="slide-icon-container"></span>
+                <h2 id="slide-title"
+                    class="text-2xl md:text-3xl font-black tracking-tight text-cyan-600 dark:text-cyan-400"></h2>
+            </div>
+
+            <div id="slide-content-container" class="p-6 md:p-8 flex-1 overflow-y-auto slide-transition flex flex-col">
+                <!-- Conteúdo via JS -->
+            </div>
+
+            <!-- GABARITO SECTION -->
+            <div id="answer-section"
+                class="hidden p-6 border-t border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50">
+                <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                    <button id="btn-reveal"
+                        class="w-full md:w-auto px-6 py-4 border-2 border-dashed border-cyan-500 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white dark:hover:text-slate-900 font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-sm uppercase tracking-wider shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        Ver Gabarito
+                    </button>
+                    <div id="answer-feedback"
+                        class="hidden w-full slide-transition bg-cyan-500/10 border border-cyan-500/30 p-5 rounded-xl flex items-start gap-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="text-cyan-500 flex-shrink-0 mt-0.5">
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                        <div id="answer-text"
+                            class="text-sm md:text-base font-medium text-slate-700 dark:text-slate-200 leading-relaxed w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER CONTROLS -->
+    <footer class="p-4 md:p-6 flex justify-between items-center z-10 w-full max-w-5xl mx-auto">
+        <button id="btn-prev"
+            class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 active:scale-95">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6" />
+            </svg>
+            Anterior
+        </button>
+
+        <div id="dots-container" class="hidden sm:flex gap-2"></div>
+
+        <button id="btn-next"
+            class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-900/50 active:scale-95">
+            Próximo
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </button>
+    </footer>
+
+    <script>
+        // Ícones SVG embutidos para evitar dependências externas
+        const icons = {
+            strategy: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/></svg>`,
+            users: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+            exam: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>`,
+            sun: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+            moon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+            layers: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>`,
+            list: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`
+        };
+
+        const slidesData = [
+            // SLIDE 1: Teoria Scrum & Kanban
+            {
+                title: "Teoria Focalizada",
+                icon: icons.strategy,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="text-center mb-4">
+                            <h3 class="text-3xl font-black uppercase text-cyan-600 dark:text-cyan-400">Scrum e Kanban no ETB-PAY</h3>
+                            <p class="text-lg font-light mt-3 max-w-3xl mx-auto leading-relaxed text-slate-600 dark:text-slate-300">
+                                Para o ecossistema do <strong>ETB-PAY</strong> sair do papel, a Governança de TI exige previsibilidade e entrega de valor. 
+                                O <strong>Kanban</strong> fornece a gestão visual (fluxo puxado), enquanto o <strong>Scrum</strong> estrutura o ritmo e os papéis do PMO.
+                            </p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-4">
+                            <div class="p-5 rounded-2xl bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-500/30">
+                                <h4 class="font-bold text-cyan-700 dark:text-cyan-400 mb-2 border-b border-cyan-200 dark:border-cyan-500/30 pb-2">Product Owner (PO)</h4>
+                                <p class="text-slate-600 dark:text-slate-400">A voz do cliente e do negócio. Dita <strong>o quê</strong> deve ser feito, priorizando as histórias no Backlog pelo valor de mercado (ROI).</p>
+                            </div>
+                            <div class="p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30">
+                                <h4 class="font-bold text-blue-700 dark:text-blue-400 mb-2 border-b border-blue-200 dark:border-blue-500/30 pb-2">The Team (Devs)</h4>
+                                <p class="text-slate-600 dark:text-slate-400">A força motriz técnica. Decidem <strong>como</strong> planejar e construir o incremento, estimando o esforço técnico de cada card.</p>
+                            </div>
+                            <div class="p-5 rounded-2xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-500/30">
+                                <h4 class="font-bold text-purple-700 dark:text-purple-400 mb-2 border-b border-purple-200 dark:border-purple-500/30 pb-2">Scrum Master</h4>
+                                <p class="text-slate-600 dark:text-slate-400">O facilitador. Remove impedimentos e garante que a equipe utilize o fluxo do Kanban corretamente, protegendo o time.</p>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 2: Artefatos & Tamanho da Equipe (Novo)
+            {
+                title: "Fundamentos Ágeis",
+                icon: icons.layers,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="p-6 rounded-2xl border-l-4 border-cyan-500 bg-cyan-50 dark:bg-cyan-500/10">
+                            <h3 class="text-2xl font-bold mb-2 text-cyan-700 dark:text-cyan-400">Artefatos do Scrum & A Equipe</h3>
+                            <p class="text-lg text-slate-700 dark:text-slate-300">Ferramentas essenciais de transparência e as diretrizes do <strong>Scrum Guide (scrum.org)</strong> para a composição da Squad.</p>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-6 items-start">
+                            <div class="space-y-4">
+                                <h4 class="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-sm flex items-center gap-2"><i class="text-cyan-500"></i> Os 3 Artefatos Principais</h4>
+                                <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    <strong class="text-blue-500 dark:text-blue-400 block mb-1">Product Backlog</strong> 
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">A lista única, ordenada e emergente de tudo o que é necessário para a construção e melhoria do produto.</span>
+                                </div>
+                                <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    <strong class="text-purple-500 dark:text-purple-400 block mb-1">Sprint Backlog</strong> 
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">O plano de ação para a Sprint: A Meta da Sprint + Itens selecionados + Plano tático de entrega.</span>
+                                </div>
+                                <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    <strong class="text-emerald-500 dark:text-emerald-400 block mb-1">Incremento</strong> 
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">O resultado palpável, "Pronto" e utilizável entregue no fim da Sprint. Um passo concreto em direção à Visão do Produto.</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center text-center h-full">
+                                <div class="flex justify-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                </div>
+                                <h4 class="font-bold text-xl text-slate-800 dark:text-white mb-4">O Tamanho da Squad</h4>
+                                <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    O Scrum Team deve ser pequeno o suficiente para se manter ágil e grande o bastante para completar um trabalho significativo dentro de uma Sprint. 
+                                </p>
+                                <div class="mt-4 p-3 bg-white dark:bg-slate-900 rounded-lg text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-200 dark:border-cyan-800">
+                                    Normalmente 10 ou menos pessoas (incluindo PO e SM).
+                                </div>
+                                <p class="text-sm text-slate-500 mt-4">Times menores comunicam-se melhor e são muito mais produtivos.</p>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 3: O Backlog do ETB-PAY (Novo)
+            {
+                title: "Preparando a Sprint",
+                icon: icons.list,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="text-center mb-4">
+                            <h3 class="text-3xl font-black uppercase text-purple-600 dark:text-purple-400">O Backlog do ETB-PAY</h3>
+                            <p class="text-lg font-light mt-2 max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
+                                Antes da nossa <em>Planning</em> no Jira, precisamos mapear os <strong>Épicos</strong> (grandes agrupamentos de entregas) e detalhá-los em <strong>User Stories</strong> (histórias de usuário).
+                            </p>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mt-2">
+                            <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border-t-4 border-cyan-500 shadow-sm border-l border-r border-b border-slate-200 dark:border-slate-700">
+                                <div class="inline-block px-3 py-1 bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 text-xs font-bold rounded mb-4 tracking-wider">ÉPICO 1: IDENTIDADE & ACESSO</div>
+                                <ul class="space-y-4">
+                                    <li class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                        <strong class="text-slate-800 dark:text-slate-200 text-sm block mb-1">📝 Cadastrar Clientes</strong>
+                                        <span class="text-slate-600 dark:text-slate-400 text-sm italic">"Como usuário, quero me cadastrar validando meu CPF para criar uma conta na corretora com segurança."</span>
+                                    </li>
+                                    <li class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                        <strong class="text-slate-800 dark:text-slate-200 text-sm block mb-1">🔐 Acessar Conta</strong>
+                                        <span class="text-slate-600 dark:text-slate-400 text-sm italic">"Como cliente cadastrado, quero fazer login fornecendo minhas credenciais para visualizar meu painel financeiro."</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border-t-4 border-purple-500 shadow-sm border-l border-r border-b border-slate-200 dark:border-slate-700">
+                                <div class="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 text-xs font-bold rounded mb-4 tracking-wider">ÉPICO 2: OPERAÇÕES FINANCEIRAS</div>
+                                <ul class="space-y-4">
+                                    <li class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                        <strong class="text-slate-800 dark:text-slate-200 text-sm block mb-1">💸 Realizar Operações de Débito</strong>
+                                        <span class="text-slate-600 dark:text-slate-400 text-sm italic">"Como cliente, quero debitar do meu saldo para realizar pagamentos e abater na minha conta em tempo real."</span>
+                                    </li>
+                                    <li class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                        <strong class="text-slate-800 dark:text-slate-200 text-sm block mb-1">💰 Realizar Operações de Crédito</strong>
+                                        <span class="text-slate-600 dark:text-slate-400 text-sm italic">"Como cliente, quero depositar saldo na minha conta ETB-PAY via transferência para começar a operar."</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 4: Hands On Sprint Planning
+            {
+                title: "Desafio Hands-On",
+                icon: icons.users,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="p-6 rounded-2xl border-l-4 border-purple-500 bg-purple-50 dark:bg-purple-500/10">
+                            <h3 class="text-2xl font-bold mb-2 text-purple-700 dark:text-purple-400">A Sprint Planning Simulada</h3>
+                            <p class="text-lg text-slate-700 dark:text-slate-300">A teoria acaba aqui. Vamos rodar uma Planning ao vivo no Jira para o lançamento da primeira versão funcional do ETB-PAY.</p>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="p-5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="bg-cyan-100 dark:bg-cyan-500/20 p-2 rounded-lg text-cyan-600 dark:text-cyan-400"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="19" cy="11" r="2"/><path d="M19 8v6"/><path d="M16 11h6"/></svg></div>
+                                    <h4 class="font-bold text-slate-800 dark:text-white">Professor = Product Owner</h4>
+                                </div>
+                                <p class="text-sm text-slate-600 dark:text-slate-400">Eu trarei o <em>Product Backlog</em> que acabamos de ver priorizado. Apresentarei o que o cliente espera (o Valor) e responderei as dúvidas de requisitos de vocês.</p>
+                            </div>
+                            <div class="p-5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="bg-purple-100 dark:bg-purple-500/20 p-2 rounded-lg text-purple-600 dark:text-purple-400"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                                    <h4 class="font-bold text-slate-800 dark:text-white">Turma = Scrum Team</h4>
+                                </div>
+                                <p class="text-sm text-slate-600 dark:text-slate-400">Vocês analisarão as histórias, definirão <strong>"Como"</strong> farão (arquitetura/BD) e decidirão a capacidade da Sprint. O escopo selecionado vai para a coluna TO DO.</p>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 5: Questão 1
+            {
+                title: "Double Gain #1",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded text-cyan-600 dark:text-cyan-400">CEBRASPE - CPNUJE</span>
+                            <span>Gestão Ágil / Scrum</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 italic p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-l-4 border-cyan-500">
+                            "No Scrum, o product backlog é uma lista ordenada e emergente do que é necessário para melhorar o produto."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-lg"><strong class="text-emerald-600 dark:text-emerald-400">Gabarito: CERTO</strong></div>
+                        <p><strong>Gabarito Técnico:</strong> A afirmativa reflete com exatidão a definição do Scrum Guide. O Product Backlog não é um documento fechado e congelado (como no modelo Cascata); ele é <em>emergente</em>, o que significa que ele evolui, muda e se adapta constantemente conforme o produto e o mercado mudam.</p>
+                        <div class="mt-4 p-4 bg-red-50 dark:bg-red-500/10 border-l-4 border-red-500 rounded-r-lg">
+                            <p class="text-red-800 dark:text-red-300 text-sm"><strong class="font-bold">A Pegadinha da Banca:</strong> Bancas costumam substituir a palavra "emergente" por "estática" ou afirmar falsamente que "o escopo completo deve estar definido rigorosamente antes da primeira Sprint". Lembre-se: no Ágil, o planejamento é contínuo.</p>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 6: Questão 2
+            {
+                title: "Double Gain #2",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded text-purple-600 dark:text-purple-400">CEBRASPE - CPNUJE</span>
+                            <span>Cerimônias Scrum</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 italic p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-l-4 border-purple-500">
+                            "No Scrum, a sprint retrospective é a etapa na qual o cliente (usuário) identifica as mudanças mais úteis para melhorar a eficácia do produto; essas mudanças podem ser adicionadas ao sprint backlog da próxima sprint pelo product owner."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-lg"><strong class="text-red-600 dark:text-red-400">Gabarito: ERRADO</strong></div>
+                        <p><strong>Gabarito Técnico:</strong> O cliente/usuário <strong>não</strong> participa da Sprint Retrospective. Esta é uma cerimônia exclusiva para a inspeção interna e melhoria de processos do próprio Scrum Team (PO, Scrum Master e Devs). A análise de eficácia do produto junto ao cliente e stakeholders ocorre na <strong>Sprint Review</strong>.</p>
+                        <div class="mt-4 p-4 bg-red-50 dark:bg-red-500/10 border-l-4 border-red-500 rounded-r-lg">
+                            <p class="text-red-800 dark:text-red-300 text-sm"><strong class="font-bold">A Pegadinha da Banca:</strong> A banca confunde propositalmente as duas cerimônias finais: <em>Review</em> (Foco no Produto e Feedback do Cliente) versus <em>Retrospective</em> (Foco no Processo e Melhoria da Equipe Interna). Essa é uma das armadilhas mais clássicas de provas para Analista de TI.</p>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 7: Questão 3
+            {
+                title: "Double Gain #3",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded text-cyan-600 dark:text-cyan-400">CEBRASPE - CNJ</span>
+                            <span>Fundamentos Ágeis</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 italic p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-l-4 border-cyan-500">
+                            "Segurança e qualidade são princípios fundamentais das metodologias ágeis e estão relacionados ao valor agregado que as entregas devem incluir, com foco nos benefícios e na satisfação dos clientes."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-lg"><strong class="text-emerald-600 dark:text-emerald-400">Gabarito: CERTO</strong></div>
+                        <p><strong>Gabarito Técnico:</strong> As metodologias ágeis (Scrum, Kanban, XP) priorizam a entrega contínua de valor ao cliente. Isso intrinsecamente inclui a preocupação com a excelência técnica, segurança e boa engenharia de software (Qualidade), pois entregas de alto valor precisam ser funcionais e confiáveis para satisfazer o cliente real.</p>
+                        <div class="mt-4 p-4 bg-red-50 dark:bg-red-500/10 border-l-4 border-red-500 rounded-r-lg">
+                            <p class="text-red-800 dark:text-red-300 text-sm"><strong class="font-bold">A Pegadinha da Banca:</strong> O examinador tenta criar uma dicotomia falsa na mente do candidato, sugerindo que "ser ágil e rápido" significa "fazer de qualquer jeito", comprometendo segurança e qualidade. No Manifesto Ágil, agilidade e excelência andam sempre juntas.</p>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 8: Questão 4
+            {
+                title: "Double Gain #4",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded text-purple-600 dark:text-purple-400">CEBRASPE - CPNUJE</span>
+                            <span>Conceitos Ágeis (MVP)</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 italic p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-l-4 border-purple-500">
+                            "Em desenvolvimento de software, o MVP (minimum viable product) representa uma solução de software rápida e funcional e tem como objetivo validar a viabilidade de um projeto."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-lg"><strong class="text-emerald-600 dark:text-emerald-400">Gabarito: CERTO</strong></div>
+                        <p><strong>Gabarito Técnico:</strong> O Minimum Viable Product (Produto Mínimo Viável) é a versão mais enxuta de um produto que permite a uma equipe lançar e coletar a quantidade máxima de aprendizado validado sobre os clientes com o mínimo esforço. É a ferramenta essencial para testar hipóteses de viabilidade no mercado.</p>
+                        <div class="mt-4 p-4 bg-red-50 dark:bg-red-500/10 border-l-4 border-red-500 rounded-r-lg">
+                            <p class="text-red-800 dark:text-red-300 text-sm"><strong class="font-bold">A Pegadinha da Banca:</strong> A banca muitas vezes usa textos que descrevem o MVP como uma "versão com todas as funcionalidades", "protótipo inacabado de baixa qualidade" ou apenas um "rascunho de tela". O foco do MVP não é o rascunho, é ser funcional o suficiente para validar a viabilidade.</p>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 9: Questão 5
+            {
+                title: "Double Gain #5",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded text-cyan-600 dark:text-cyan-400">CEBRASPE - CNJ</span>
+                            <span>PMBOK & PMO</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 italic p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-l-4 border-cyan-500">
+                            "É tendência atual que os escritórios de projetos (PMO) desempenhem cada vez menos o papel de articuladores junto a líderes, unidades de negócios e proprietários de produtos e passem a focar cada vez mais o desenvolvimento e a entrega de valor e excelência em projetos junto às equipes especializadas."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-lg"><strong class="text-red-600 dark:text-red-400">Gabarito: ERRADO</strong></div>
+                        <p><strong>Gabarito Técnico:</strong> A tendência atual para Escritórios de Projetos (especialmente no PMBOK 7 e Lean PMOs / Value Management Offices) é exatamente o contrário. Eles estão se tornando agentes estratégicos <strong>mais focados na articulação</strong> entre a alta gestão e o negócio para garantir o alinhamento estratégico corporativo, não se isolando apenas com as equipes técnicas.</p>
+                        <div class="mt-4 p-4 bg-red-50 dark:bg-red-500/10 border-l-4 border-red-500 rounded-r-lg">
+                            <p class="text-red-800 dark:text-red-300 text-sm"><strong class="font-bold">A Pegadinha da Banca:</strong> O avaliador inverte propositalmente a tendência do mercado. Ele usa palavras atrativas ("entregar valor", "excelência") para convencer o candidato de que o PMO deve "botar a mão na massa" com as equipes, abandonando a articulação. Um PMO moderno nunca se afasta da governança e da articulação com os líderes!</p>
+                        </div>
+                    </div>`
+            },
+            // SLIDE 10: Conclusão
+            {
+                title: "Encerramento",
+                icon: icons.strategy,
+                content: `
+                    <div class="flex flex-col items-center justify-center text-center space-y-8 h-full">
+                        <div class="p-6 bg-emerald-100 dark:bg-emerald-500/10 rounded-full text-emerald-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 uppercase">Fim da Sprint</h3>
+                        <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">Vocês testaram os limites do <strong>Product Backlog</strong>, simularam a priorização com o <strong>Product Owner</strong> e hackearam as armadilhas das provas de TI.</p>
+                        <div class="p-4 bg-cyan-600 text-white font-bold rounded-xl shadow-lg border border-cyan-400/50">Mantenham seus Boards Kanban no Jira atualizados!</div>
+                    </div>`
+            }
+        ];
+
+        let currentSlide = 0;
+        let isDarkMode = true;
+
+        const DOM = {
+            html: document.documentElement,
+            themeToggle: document.getElementById('theme-toggle'),
+            themeIcon: document.getElementById('theme-icon'),
+            slideCounter: document.getElementById('slide-counter'),
+            progressBar: document.getElementById('progress-bar'),
+            iconContainer: document.getElementById('slide-icon-container'),
+            title: document.getElementById('slide-title'),
+            contentContainer: document.getElementById('slide-content-container'),
+            answerSection: document.getElementById('answer-section'),
+            btnReveal: document.getElementById('btn-reveal'),
+            answerFeedback: document.getElementById('answer-feedback'),
+            answerText: document.getElementById('answer-text'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next'),
+            dotsContainer: document.getElementById('dots-container')
+        };
+
+        function updateTheme() {
+            if (isDarkMode) {
+                DOM.html.classList.add('dark');
+                DOM.themeIcon.innerHTML = icons.sun;
+            } else {
+                DOM.html.classList.remove('dark');
+                DOM.themeIcon.innerHTML = icons.moon;
+            }
+        }
+
+        DOM.themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            updateTheme();
+        });
+
+        function renderSlide() {
+            const slide = slidesData[currentSlide];
+
+            // Re-trigger CSS animation
+            DOM.contentContainer.classList.remove('slide-transition');
+            void DOM.contentContainer.offsetWidth; // trigger reflow
+            DOM.contentContainer.classList.add('slide-transition');
+
+            // Set slide base content
+            DOM.iconContainer.innerHTML = slide.icon;
+            DOM.title.textContent = slide.title;
+            DOM.contentContainer.innerHTML = slide.content;
+
+            // Update Progress bar and counter
+            const progress = ((currentSlide + 1) / slidesData.length) * 100;
+            DOM.progressBar.style.width = `${progress}%`;
+            DOM.slideCounter.textContent = `SLIDE ${currentSlide + 1} / ${slidesData.length}`;
+
+            // Handle Answer Section visibility
+            if (slide.isQuestion) {
+                DOM.answerSection.classList.remove('hidden');
+                DOM.btnReveal.classList.remove('hidden');
+                DOM.answerFeedback.classList.add('hidden');
+
+                // Allow HTML rendering for strong, spans, line breaks
+                DOM.answerText.innerHTML = slide.answer;
+
+                // Reset Reveal Button state
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg> Ver Gabarito`;
+            } else {
+                DOM.answerSection.classList.add('hidden');
+            }
+
+            // Update navigation buttons status
+            DOM.btnPrev.disabled = currentSlide === 0;
+            DOM.btnPrev.style.opacity = currentSlide === 0 ? '0.3' : '1';
+            DOM.btnNext.disabled = currentSlide === slidesData.length - 1;
+            DOM.btnNext.style.opacity = currentSlide === slidesData.length - 1 ? '0.3' : '1';
+
+            updateDots();
+        }
+
+        // Handle Reveal Answer button
+        DOM.btnReveal.addEventListener('click', () => {
+            if (DOM.answerFeedback.classList.contains('hidden')) {
+                DOM.answerFeedback.classList.remove('hidden');
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x1="22" y1="2" y2="22"/>
+                    </svg> Ocultar Gabarito`;
+            } else {
+                DOM.answerFeedback.classList.add('hidden');
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg> Ver Gabarito`;
+            }
+        });
+
+        function nextSlide() {
+            if (currentSlide < slidesData.length - 1) {
+                currentSlide++;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        }
+
+        DOM.btnNext.addEventListener('click', nextSlide);
+        DOM.btnPrev.addEventListener('click', prevSlide);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        function createDots() {
+            DOM.dotsContainer.innerHTML = '';
+            slidesData.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `h-2 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-cyan-500 w-8' : 'bg-slate-300 dark:bg-slate-700 w-2'}`;
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    renderSlide();
+                });
+                DOM.dotsContainer.appendChild(dot);
+            });
+        }
+
+        function updateDots() {
+            const dots = DOM.dotsContainer.children;
+            Array.from(dots).forEach((dot, index) => {
+                dot.className = `h-2 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-cyan-500 w-8' : 'bg-slate-300 dark:bg-slate-700 w-2'}`;
+            });
+        }
+
+        // Inicialização
+        updateTheme();
+        createDots();
+        renderSlide();
+    </script>
+</body>
+
+</html>

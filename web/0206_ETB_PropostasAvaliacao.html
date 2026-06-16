@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB | Tech Lead Board - Avaliação Bimestral</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'], },
+                    colors: {
+                        glass: 'rgba(30, 41, 59, 0.95)',
+                        glassBorder: 'rgba(255, 255, 255, 0.2)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-image: radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.15), transparent 25%);
+            background-color: #0f172a;
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: var(--tw-colors-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--tw-colors-glassBorder);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-slate-100 font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+
+    <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col h-screen">
+
+        <header
+            class="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left shrink-0">
+            <div>
+                <h1
+                    class="text-3xl font-black tracking-tighter bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-sm">
+                    🚀 ETB | Board
+                </h1>
+                <p class="text-slate-300 text-sm mt-1 uppercase tracking-widest font-bold">Roadmap de Avaliação 🎯</p>
+            </div>
+            <div
+                class="glass-panel px-4 py-2 rounded-full flex items-center gap-2 text-xs font-black text-emerald-400 tracking-wider">
+                <span class="relative flex h-3 w-3">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                VOTAÇÃO ABERTA
+            </div>
+        </header>
+
+        <nav class="flex flex-wrap gap-3 mb-6 shrink-0" id="tabs">
+            <button onclick="selectTab('banco')" data-target="banco"
+                class="tab-btn flex-1 md:flex-none glass-panel px-6 py-4 rounded-xl font-bold transition-all border border-slate-600 hover:border-cyan-500 text-slate-300 hover:text-cyan-300 focus:outline-none">
+                <span class="block text-xs uppercase tracking-widest opacity-80 mb-1">Turma 2G 🗄️</span>
+                Banco de Dados
+            </button>
+            <button onclick="selectTab('java')" data-target="java"
+                class="tab-btn flex-1 md:flex-none glass-panel px-6 py-4 rounded-xl font-bold transition-all border border-slate-600 hover:border-emerald-500 text-slate-300 hover:text-emerald-300 focus:outline-none">
+                <span class="block text-xs uppercase tracking-widest opacity-80 mb-1">Turma 3G ☕</span>
+                LTP II - Java
+            </button>
+            <button onclick="selectTab('gestao')" data-target="gestao"
+                class="tab-btn flex-1 md:flex-none glass-panel px-6 py-4 rounded-xl font-bold transition-all border border-slate-600 hover:border-purple-500 text-slate-300 hover:text-purple-300 focus:outline-none">
+                <span class="block text-xs uppercase tracking-widest opacity-80 mb-1">Turma 4F 👔</span>
+                Gestão de TI
+            </button>
+        </nav>
+
+        <main class="glass-panel rounded-2xl flex-1 overflow-y-auto p-6 md:p-8 relative">
+
+            <section id="banco" class="tab-content">
+                <div
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 header-actions">
+                    <div>
+                        <h2 class="text-3xl font-black text-cyan-400 mb-2 drop-shadow-md">Proposta: 2G (Banco de Dados)
+                            🗄️</h2>
+                        <p class="text-slate-300 font-medium">Squads de Engenharia de Dados & Arquitetura</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 buttons-container">
+                        <button onclick="copyToClipboard('banco')"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-900/50 border border-cyan-500 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg> WhatsApp
+                        </button>
+                        <button onclick="downloadPDF('banco')"
+                            class="bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/50 border border-rose-500 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="12" y1="18" x2="12" y2="12"></line>
+                                <polyline points="9 15 12 18 15 15"></polyline>
+                            </svg> Baixar PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-6 pdf-content">
+                    <p class="text-white font-medium leading-relaxed text-lg pdf-text">Olá, equipe! 🚀 Neste bimestre,
+                        vocês são os donos do processo. Temos duas opções de entrega de valor para fecharmos nosso
+                        ciclo. Escolham a que melhor se alinha com o plano de carreira da Squad:</p>
+
+                    <div class="grid md:grid-cols-2 gap-6 p-grid">
+                        <div
+                            class="p-card bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-lg border-l-4 border-l-cyan-500">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="bg-cyan-500 text-slate-900 px-3 py-1 rounded-md text-sm font-black shrink-0 whitespace-nowrap shadow-md">
+                                    Opção A</div>
+                                <h3 class="text-xl font-bold text-white leading-tight">Entrevista Técnica Coletiva
+                                    🗣️🛠️</h3>
+                            </div>
+                            <p class="text-slate-200 font-medium text-sm mb-4">Simulação real de processo seletivo para
+                                Engenharia de Dados.</p>
+                            <ul class="space-y-3 text-sm text-white list-none font-medium">
+                                <li>👥 <strong>Dinâmica:</strong> A Squad inteira participará de um painel técnico
+                                    simultâneo.</li>
+                                <li>🛠️ <strong>Missão:</strong> O grupo defenderá em conjunto as soluções de ETL,
+                                    higienização e modelagem de uma base de dados corporativa.</li>
+                                <li>🎯 <strong>Foco:</strong> Avaliação integrada das hard skills de SQL e competências
+                                    de Soft Skills.</li>
+                            </ul>
+                        </div>
+                        <div
+                            class="p-card bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-lg border-l-4 border-l-indigo-500">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="bg-indigo-500 text-white px-3 py-1 rounded-md text-sm font-black shrink-0 whitespace-nowrap shadow-md">
+                                    Opção B</div>
+                                <h3 class="text-xl font-bold text-white leading-tight">Simulado Double Gain 🏆</h3>
+                            </div>
+                            <p class="text-slate-200 font-medium text-sm mb-4">Caderno tático individual focado em
+                                provas de Alto Desempenho.</p>
+                            <ul class="space-y-3 text-sm text-white list-none font-medium">
+                                <li>📝 <strong>Dinâmica:</strong> Resolução individual de 10 a 15 questões reais de
+                                    concursos (FGV/Cebraspe).</li>
+                                <li>🧠 <strong>Missão:</strong> Desarmar problemas e pegadinhas de SGBDs exigidas em
+                                    certames de TI.</li>
+                                <li>🎯 <strong>Foco:</strong> Raciocínio lógico, precisão teórica e blindagem para
+                                    editais públicos.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="java" class="tab-content">
+                <div
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 header-actions">
+                    <div>
+                        <h2 class="text-3xl font-black text-emerald-400 mb-2 drop-shadow-md">Proposta: 3G (LTP II -
+                            Java) ☕</h2>
+                        <p class="text-slate-300 font-medium">Squads de Desenvolvimento Back-end (Java/JDBC)</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 buttons-container">
+                        <button onclick="copyToClipboard('java')"
+                            class="bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/50 border border-emerald-500 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg> WhatsApp
+                        </button>
+                        <button onclick="downloadPDF('java')"
+                            class="bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/50 border border-rose-500 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="12" y1="18" x2="12" y2="12"></line>
+                                <polyline points="9 15 12 18 15 15"></polyline>
+                            </svg> Baixar PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-6 pdf-content">
+                    <p class="text-white font-medium leading-relaxed text-lg pdf-text">Fala, Devs! 💻 Neste bimestre,
+                        vocês ditam o ritmo da Sprint. Temos duas opções de avaliação. Discutam e escolham qual formato
+                        faz mais sentido para o futuro de vocês no mercado de TI:</p>
+
+                    <div class="grid md:grid-cols-2 gap-6 p-grid">
+                        <div
+                            class="p-card bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-lg border-l-4 border-l-emerald-500">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="bg-emerald-500 text-slate-900 px-3 py-1 rounded-md text-sm font-black shrink-0 whitespace-nowrap text-center shadow-md">
+                                    Opção A</div>
+                                <h3 class="text-xl font-bold text-white leading-tight">Code Review em Grupo 👨‍💻🧩</h3>
+                            </div>
+                            <p class="text-slate-200 font-medium text-sm mb-4">Simulação de painel técnico e contratação
+                                coletiva para desenvolvedores.</p>
+                            <ul class="space-y-3 text-sm text-white list-none font-medium">
+                                <li>👥 <strong>Dinâmica:</strong> Entrevista técnica realizada por Squad. O grupo
+                                    inteiro responde pelo projeto.</li>
+                                <li>🛠️ <strong>Missão:</strong> Apresentar e defender coletivamente a arquitetura de
+                                    uma aplicação corporativa em Java, explicando a persistência via JDBC, as regras de
+                                    validação e a POO.</li>
+                                <li>🎯 <strong>Foco:</strong> Habilidade de leitura de código, articulação lógica e Soft
+                                    Skills organizacionais.</li>
+                            </ul>
+                        </div>
+                        <div
+                            class="p-card bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-lg border-l-4 border-l-indigo-500">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="bg-indigo-500 text-white px-3 py-1 rounded-md text-sm font-black shrink-0 whitespace-nowrap text-center shadow-md">
+                                    Opção B</div>
+                                <h3 class="text-xl font-bold text-white leading-tight">Simulado Double Gain 🏆</h3>
+                            </div>
+                            <p class="text-slate-200 font-medium text-sm mb-4">Bateria de testes individual focada em
+                                Bancas de Concurso Público.</p>
+                            <ul class="space-y-3 text-sm text-white list-none font-medium">
+                                <li>📝 <strong>Dinâmica:</strong> Avaliação escrita e individual baseada em itens
+                                    oficiais de concursos.</li>
+                                <li>🧠 <strong>Missão:</strong> Solucionar pegadinhas estruturais envolvendo Herança,
+                                    Polimorfismo e manipulação JDBC.</li>
+                                <li>🎯 <strong>Foco:</strong> Ganho de performance em avaliações teóricas rígidas de TI.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="gestao" class="tab-content">
+                <div
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 header-actions">
+                    <div>
+                        <h2 class="text-3xl font-black text-purple-400 mb-2 drop-shadow-md">Proposta: 4F (Gestão de TI)
+                            👔</h2>
+                        <p class="text-slate-300 font-medium">Governança, Agile Coaches e PMO</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 buttons-container">
+                        <button onclick="copyToClipboard('gestao')"
+                            class="bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/50 border border-purple-500 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg> WhatsApp
+                        </button>
+                        <button onclick="downloadPDF('gestao')"
+                            class="bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/50 border border-rose-500 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="12" y1="18" x2="12" y2="12"></line>
+                                <polyline points="9 15 12 18 15 15"></polyline>
+                            </svg> Baixar PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-6 pdf-content">
+                    <p class="text-white font-medium leading-relaxed text-lg pdf-text">Futuros Gestores e Agile Coaches!
+                        📈 A governança exige tomada de decisão. Escolham a trilha que mais agrega à visão sistêmica de
+                        vocês:</p>
+
+                    <div class="grid md:grid-cols-2 gap-6 p-grid">
+                        <div
+                            class="p-card bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-lg border-l-4 border-l-purple-500">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="bg-purple-500 text-slate-900 px-3 py-1 rounded-md text-sm font-black shrink-0 whitespace-nowrap text-center shadow-md">
+                                    Opção A</div>
+                                <h3 class="text-xl font-bold text-white leading-tight">Painel Executivo Coletivo 📊🤝
+                                </h3>
+                            </div>
+                            <p class="text-slate-200 font-medium text-sm mb-4">Simulação de uma reunião de alta
+                                governança ou comitê ágil.</p>
+                            <ul class="space-y-3 text-sm text-white list-none font-medium">
+                                <li>👥 <strong>Dinâmica:</strong> A Squad se posiciona unida como uma consultoria diante
+                                    da mesa diretora.</li>
+                                <li>🛠️ <strong>Missão:</strong> Defender um plano de contingência corporativo
+                                    utilizando frameworks (Scrum/Kanban) e alinhamento de processos (ITIL/COBIT).</li>
+                                <li>🎯 <strong>Foco:</strong> Visão holística, liderança, defesa de métricas e oratória
+                                    executiva.</li>
+                            </ul>
+                        </div>
+                        <div
+                            class="p-card bg-slate-800 p-6 rounded-xl border border-slate-600 shadow-lg border-l-4 border-l-indigo-500">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="bg-indigo-500 text-white px-3 py-1 rounded-md text-sm font-black shrink-0 whitespace-nowrap text-center shadow-md">
+                                    Opção B</div>
+                                <h3 class="text-xl font-bold text-white leading-tight">Simulado de Governança 🏆</h3>
+                            </div>
+                            <p class="text-slate-200 font-medium text-sm mb-4">Trilha individual objetiva blindando o
+                                conhecimento teórico.</p>
+                            <ul class="space-y-3 text-sm text-white list-none font-medium">
+                                <li>📝 <strong>Dinâmica:</strong> Exame escrito focado na literalidade dos guias de
+                                    mercado.</li>
+                                <li>🧠 <strong>Missão:</strong> Identificar e anular pegadinhas clássicas de bancas
+                                    sobre papéis e processos de gestão.</li>
+                                <li>🎯 <strong>Foco:</strong> Fixação minuciosa do referencial teórico exigido no
+                                    mercado de governança.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div id="toast"
+            class="fixed bottom-6 right-6 bg-emerald-500 text-slate-900 px-6 py-4 rounded-lg font-black shadow-2xl shadow-emerald-500/20 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
+        </div>
+    </div>
+
+    <script>
+        const btnClasses = {
+            banco: 'border-cyan-500 text-cyan-300 bg-cyan-900/30',
+            java: 'border-emerald-500 text-emerald-300 bg-emerald-900/30',
+            gestao: 'border-purple-500 text-purple-300 bg-purple-900/30'
+        };
+
+        function selectTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = btn.className.replace(/border-(cyan|emerald|purple)-500|text-(cyan|emerald|purple)-300|bg-(cyan|emerald|purple)-900\/30/g, '').trim();
+                btn.classList.add('border-slate-600', 'text-slate-300');
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.querySelector(`[data-target="${tabId}"]`);
+            activeBtn.classList.remove('border-slate-600', 'text-slate-300');
+
+            const colors = btnClasses[tabId].split(' ');
+            colors.forEach(c => activeBtn.classList.add(c));
+            history.pushState(null, null, `#${tabId}`);
+        }
+
+        window.onload = () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && ['banco', 'java', 'gestao'].includes(hash)) {
+                selectTab(hash);
+            } else {
+                selectTab('java');
+            }
+        };
+
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            toast.className = `fixed bottom-6 right-6 px-6 py-4 rounded-lg font-black shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 ${isSuccess ? 'bg-emerald-500 text-slate-900 shadow-emerald-500/30' : 'bg-cyan-500 text-slate-900 shadow-cyan-500/30'}`;
+
+            const icon = isSuccess
+                ? `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+
+            toast.innerHTML = `${icon} ${message}`;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        function copyToClipboard(turma) {
+            let text = "";
+            if (turma === 'banco') {
+                text = "*ESCOLA TÉCNICA DE BRASÍLIA - ETB* 🏫\n_Turma 2G: Banco de Dados_ 🗄️\n\nOlá, equipe! 🚀 Neste bimestre, vocês são os donos do processo. Temos duas opções de entrega de valor para a Avaliação Bimestral. Escolham e votem na melhor estratégia para a Squad:\n\n*OPÇÃO A: Entrevista Técnica em GRUPO (Squad)* 🗣️👥\nSimulação real de processo seletivo coletivo. A Squad inteira participa de um painel simultâneo para defender as decisões de ETL, higienização e modelagem de uma base de dados corporativa. Avalia competências técnicas e suas Soft Skills.\n\n*OPÇÃO B: Simulado Double Gain* 🏆📝\nCaderno individual de questões de nível superior (FGV/Cebraspe). Foco em desarmar as pegadinhas teóricas e práticas de SQL cobradas em grandes concursos.\n\nQual caminho a squad escolhe? 🤔👇";
+            } else if (turma === 'java') {
+                text = "*ESCOLA TÉCNICA DE BRASÍLIA - ETB* 🏫\n_Turma 3G: LTP II - Java_ ☕\n\nFala, Devs! 💻 Neste bimestre, vocês ditam o ritmo da Sprint. Discutam e escolham qual formato de Avaliação Bimestral faz mais sentido para o grupo:\n\n*OPÇÃO A: Code Review em GRUPO (Squad)* 👨‍💻👥\nSimulação de entrevista técnica coletiva para Dev (Júnior/Pleno). A Squad unida responderá pela arquitetura de uma aplicação corporativa em Java diante de um painel técnico, defendendo o uso do JDBC, as regras de validação e a POO. Entrega feedback real de mercado.\n\n*OPÇÃO B: Simulado Double Gain* 🏆📝\nBateria individual de questões objetivas de concursos (Nível TCU/Tribunais). Foco em treinar a leitura rigorosa de sintaxe, herança, polimorfismo e manipulação JDBC.\n\nQual caminho a squad escolhe? 🤔👇";
+            } else if (turma === 'gestao') {
+                text = "*ESCOLA TÉCNICA DE BRASÍLIA - ETB* 🏫\n_Turma 4F: Gestão de TI_ 👔\n\nFuturos Gestores e Agile Coaches! 📈 A governança exige tomada de decisão rápida. Escolham a trilha de avaliação que mais agrega à visão de vocês:\n\n*OPÇÃO A: Painel Executivo em GRUPO (Squad)* 📊👥\nSimulação de uma reunião de comitê ágil ou diretoria. A Squad atuará unida como uma consultoria apresentando e defendendo um plano de ação robusto com Scrum/Kanban e ITIL/COBIT diante de um cenário crítico.\n\n*OPÇÃO B: Simulado de Governança* 🏆📝\nProva individual objetiva focada na literalidade dos guias oficiais (Scrum Guide, PMBOK). Excelente para fixação pura dos conteúdos mais cobrados em editais e certificações.\n\nQual caminho a squad escolhe? 🤔👇";
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Copiado com sucesso! Cole no grupo da turma.", true);
+            });
+        }
+
+        // -----------------------------------------------------------
+        // FUNÇÃO BLINDADA PARA PDF - RETRATO (PORTRAIT)
+        // -----------------------------------------------------------
+        function downloadPDF(turma) {
+            showToast("Gerando PDF Oficial...", false);
+
+            const element = document.getElementById(turma);
+
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `ETB_AvaliacaoBimestral_${turma.toUpperCase()}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#0f172a',
+                    scrollY: 0,
+                    onclone: function (clonedDoc) {
+                        const clonedSection = clonedDoc.getElementById(turma);
+
+                        const style = clonedDoc.createElement('style');
+                        style.innerHTML = `
+                            body, html {
+                                background-color: #0f172a !important;
+                                overflow: visible !important;
+                                height: auto !important;
+                                margin: 0 !important;
+                                padding: 0 !important;
+                            }
+                            #${turma} {
+                                width: 100% !important;
+                                max-width: 100% !important;
+                                box-sizing: border-box !important;
+                                padding: 25px !important;
+                                background-color: #0f172a !important;
+                                height: auto !important;
+                                overflow: visible !important;
+                            }
+                            .header-actions {
+                                display: flex !important;
+                                flex-direction: row !important;
+                                justify-content: space-between !important;
+                                align-items: center !important;
+                                width: 100% !important;
+                                margin: 0 0 24px 0 !important;
+                                box-sizing: border-box !important;
+                            }
+                            .buttons-container { display: none !important; }
+                            .p-grid {
+                                display: flex !important;
+                                flex-direction: column !important;
+                                gap: 24px !important;
+                                width: 100% !important;
+                            }
+                            .p-card {
+                                display: block !important;
+                                width: 100% !important;
+                                min-height: max-content !important;
+                                background-color: #1e293b !important;
+                                border: 2px solid #475569 !important;
+                                border-radius: 12px !important;
+                                padding: 24px !important;
+                                box-sizing: border-box !important;
+                                overflow: visible !important;
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                                page-break-after: avoid !important;
+                                break-after: avoid !important;
+                            }
+                            p, li, strong, span, .pdf-text {
+                                line-height: 1.4 !important;
+                                font-size: 14px !important;
+                                color: #ffffff !important;
+                                opacity: 1 !important;
+                            }
+                            p, ul, li {
+                                margin-top: 4px !important;
+                                margin-bottom: 4px !important;
+                            }
+                            * {
+                                opacity: 1 !important;
+                                backdrop-filter: none !important;
+                                -webkit-backdrop-filter: none !important;
+                                box-shadow: none !important;
+                            }
+                        `;
+                        clonedDoc.head.appendChild(style);
+                    }
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                showToast("PDF baixado com sucesso!", true);
+            }).catch(err => {
+                console.error("Falha na geração: ", err);
+                showToast("Erro ao gerar PDF.", false);
+            });
+        }
+    </script>
+</body>
+
+</html>

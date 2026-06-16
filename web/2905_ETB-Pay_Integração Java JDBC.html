@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Central de Aprovação ETB</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            900: '#0B192C',
+                            800: '#112240',
+                        },
+                        neon: {
+                            green: '#39FF14',
+                            cyan: '#00F0FF',
+                        }
+                    },
+                    fontFamily: {
+                        urbanist: ['Urbanist', 'sans-serif'],
+                        lato: ['Lato', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Urbanist:wght@700;900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            background-color: #0B192C;
+            color: #E2E8F0;
+            font-family: 'Lato', sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .font-title {
+            font-family: 'Urbanist', sans-serif;
+        }
+
+        /* Light Mode Overrides */
+        html:not(.dark) body {
+            background-color: #F8FAFC;
+            color: #0F172A;
+        }
+
+        html:not(.dark) .glass {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        html:not(.dark) .text-neon-cyan {
+            color: #0284C7;
+        }
+
+        html:not(.dark) .text-neon-green {
+            color: #16A34A;
+        }
+
+        html:not(.dark) .border-neon-green {
+            border-color: #16A34A;
+        }
+
+        html:not(.dark) .bg-navy-800 {
+            background-color: #F1F5F9;
+        }
+
+        html:not(.dark) .bg-navy-900 {
+            background-color: #FFFFFF;
+        }
+
+        html:not(.dark) .code-block {
+            background-color: #1E293B;
+            color: #F8FAFC;
+        }
+
+        .glass {
+            background: rgba(17, 34, 64, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .code-block {
+            background-color: #020617;
+            border-left: 4px solid #39FF14;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            overflow-x: auto;
+            color: #A5B4FC;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-item.active {
+            background: rgba(0, 240, 255, 0.1);
+            border-right: 4px solid #00F0FF;
+            color: #00F0FF;
+        }
+
+        /* Font Controls Custom Styles */
+        #font-controls {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(17, 34, 64, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        html:not(.dark) #font-controls {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(148, 163, 184, 0.3);
+        }
+
+        #font-controls button {
+            min-width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        #font-controls .label {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            white-space: nowrap;
+            margin-right: 0.25rem;
+        }
+
+        #font-size-value {
+            min-width: 2.5rem;
+            text-align: center;
+        }
+
+        /* Questões Custom Styles */
+        .gabarito-box {
+            display: none;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .gabarito-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen w-full">
+
+    <aside class="w-72 h-full glass flex flex-col z-20 shrink-0 border-r border-cyan-500/20 fixed left-0 top-0">
+        <div class="p-6 border-b border-cyan-500/20">
+            <h1 class="text-2xl font-title font-bold text-neon-cyan flex items-center gap-2">
+                <i class="ph-fill ph-shield-check"></i> ETB-PAY
+            </h1>
+            <p class="text-xs text-neon-green tracking-widest uppercase mt-1">Central de Aprovação</p>
+        </div>
+
+        <div class="p-6 border-b border-cyan-500/20 bg-navy-800/50">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold uppercase tracking-wider text-slate-400">Coding Sprint</span>
+                <button onclick="toggleTimer()" id="btn-timer"
+                    class="text-neon-cyan hover:text-neon-green transition"><i
+                        class="ph-fill ph-play text-xl"></i></button>
+            </div>
+            <div id="sprint-timer"
+                class="font-title text-4xl text-neon-green font-bold tracking-wider text-center drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]">
+                35:00
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 flex flex-col gap-1">
+            <button onclick="switchTab('analise')"
+                class="nav-item active w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-cyan-500/5 transition flex items-center gap-3">
+                <i class="ph-bold ph-magnifying-glass text-lg"></i> Análise de Banca
+            </button>
+            <button onclick="switchTab('teoria')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-cyan-500/5 transition flex items-center gap-3">
+                <i class="ph-bold ph-book-open text-lg"></i> Revisão Teórica
+            </button>
+            <button onclick="switchTab('pratica')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-cyan-500/5 transition flex items-center gap-3">
+                <i class="ph-bold ph-terminal-window text-lg"></i> Código na Prática
+            </button>
+            <button onclick="switchTab('questoes')"
+                class="nav-item w-full text-left px-6 py-4 font-bold text-slate-300 hover:bg-cyan-500/5 transition flex items-center gap-3">
+                <i class="ph-bold ph-exam text-lg"></i> Bateria de Questões
+            </button>
+        </nav>
+    </aside>
+
+    <main class="ml-72 flex-1 h-full overflow-y-auto relative">
+        <header class="glass sticky top-0 z-30 px-8 py-4 flex justify-between items-center border-b border-cyan-500/20">
+            <div>
+                <h2 class="font-title text-xl font-bold">Engenharia Reversa de Concursos: Java & JDBC</h2>
+                <p class="text-sm text-slate-400">Mapeamento 2024+ (CEBRASPE, FGV, Cesgranrio)</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 bg-navy-800/80 px-4 py-2 rounded-full border border-cyan-500/30">
+                    <img src="https://ui-avatars.com/api/?name=Alex+Alves&background=0284C7&color=fff"
+                        alt="Professor Avatar" class="w-8 h-8 rounded-full border-2 border-neon-cyan">
+                    <span class="text-sm font-bold hidden md:block">Prof. Alex Alves</span>
+                </div>
+                <button onclick="toggleTheme()"
+                    class="p-2 rounded-full bg-navy-800/80 border border-cyan-500/30 text-neon-cyan hover:text-neon-green hover:border-neon-green transition shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+                    <i id="theme-icon" class="ph-fill ph-sun text-xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-8 max-w-6xl mx-auto pb-24">
+
+            <!-- Font Size Controls -->
+            <div class="flex justify-start mb-6">
+                <div id="font-controls" class="z-40">
+                    <div class="label">Fonte</div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="decreaseFont()" type="button"
+                            class="rounded-md border border-cyan-500/30 bg-navy-800/80 text-neon-cyan hover:bg-cyan-500/20 transition flex items-center justify-center">
+                            <i class="ph-bold ph-minus"></i>
+                        </button>
+                        <span id="font-size-value" class="font-mono text-xs text-neon-cyan">16px</span>
+                        <button onclick="increaseFont()" type="button"
+                            class="rounded-md border border-cyan-500/30 bg-navy-800/80 text-neon-cyan hover:bg-cyan-500/20 transition flex items-center justify-center">
+                            <i class="ph-bold ph-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <section id="analise" class="tab-content active space-y-8">
+                <div class="mb-8">
+                    <h1 class="text-4xl font-title font-bold text-white mb-2">Raio-X das Bancas <span
+                            class="text-neon-cyan">(2024+)</span></h1>
+                    <p class="text-slate-400 text-lg">Engenharia reversa das provas recentes para BACEN, Caixa, TSE e
+                        TST.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass p-6 rounded-2xl border-t-4 border-t-neon-cyan">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold font-title">FGV</h3>
+                            <span class="bg-cyan-500/20 text-neon-cyan px-2 py-1 rounded text-xs font-bold">EBSERH</span>
+                        </div>
+                        <p class="text-sm text-slate-300 mb-4">A FGV em 2024 tem focado pesadamente nas fronteiras
+                            conceituais da POO. A armadilha favorita é testar as atualizações do Java 8+ em Interfaces.
+                        </p>
+                        <ul class="text-sm space-y-2 text-slate-400">
+                            <li><i class="ph-bold ph-warning text-red-400"></i> <strong
+                                    class="text-white">Pegadinha:</strong> Afirmar que Interfaces não podem ter métodos
+                                concretos (Falso, uso do <code>default</code>).</li>
+                        </ul>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border-t-4 border-t-neon-green">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold font-title">CEBRASPE</h3>
+                            <span class="bg-green-500/20 text-neon-green px-2 py-1 rounded text-xs font-bold">BACEN / TSE / TST</span>
+                        </div>
+                        <p class="text-sm text-slate-300 mb-4">O foco é "Code Tracing" (Saída do terminal) e
+                            Polimorfismo. Eles fornecem um bloco de código de herança e pedem o resultado da execução.
+                        </p>
+                        <ul class="text-sm space-y-2 text-slate-400">
+                            <li><i class="ph-bold ph-warning text-red-400"></i> <strong
+                                    class="text-white">Pegadinha:</strong> Instanciar uma subclasse através de uma
+                                referência da superclasse e chamar um método sobreposto.</li>
+                        </ul>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border-t-4 border-t-purple-400">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold font-title">Cesgranrio</h3>
+                            <span class="bg-purple-500/20 text-purple-400 px-2 py-1 rounded text-xs font-bold">CAIXA /
+                                BNB / BNDES</span>
+                        </div>
+                        <p class="text-sm text-slate-300 mb-4">Foco pragmático em conexões de banco de dados e APIs do
+                            Java (JDBC e Swing).</p>
+                        <ul class="text-sm space-y-2 text-slate-400">
+                            <li><i class="ph-bold ph-warning text-red-400"></i> <strong
+                                    class="text-white">Pegadinha:</strong> Confundir <code>Statement</code> com
+                                <code>PreparedStatement</code>, e o tratamento obrigatório de <code>SQLException</code>.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="teoria" class="tab-content space-y-8">
+                <div class="mb-8">
+                    <h1 class="text-4xl font-title font-bold text-white mb-2">Concurso vs. Mercado</h1>
+                    <p class="text-slate-400 text-lg">Desconstruindo a teoria de POO para aprovação e aplicação prática.
+                    </p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="glass p-6 rounded-xl border border-slate-700">
+                        <h3 class="text-2xl font-bold text-neon-cyan mb-4 flex items-center gap-2"><i
+                                class="ph-fill ph-code-block"></i> Classes Abstratas vs. Interfaces</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-lg">
+                                <h4 class="font-bold text-red-400 mb-2 flex items-center gap-2"><i
+                                        class="ph-bold ph-exam"></i> Como a Banca Cobra</h4>
+                                <p class="text-sm text-slate-300">"Uma classe abstrata pode ser instanciada diretamente
+                                    através do operador <em>new</em>, desde que todos os seus métodos abstratos sejam
+                                    implementados no construtor." <strong>(FALSO - Nenhuma classe abstrata pode ser
+                                        instanciada diretamente).</strong></p>
+                            </div>
+                            <div class="bg-green-500/10 border border-green-500/20 p-4 rounded-lg">
+                                <h4 class="font-bold text-neon-green mb-2 flex items-center gap-2"><i
+                                        class="ph-bold ph-briefcase"></i> Como o Mercado Usa</h4>
+                                <p class="text-sm text-slate-300">Usamos interfaces para garantir desacoplamento (ex:
+                                    padrão DAO). Uma classe abstrata <code>Conta</code> serve como molde genérico, mas
+                                    instanciamos apenas <code>ContaCorrente</code> ou <code>ContaPoupanca</code>.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700">
+                        <h3 class="text-2xl font-bold text-neon-cyan mb-4 flex items-center gap-2"><i
+                                class="ph-fill ph-database"></i> JDBC & Segurança (SQL Injection)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-lg">
+                                <h4 class="font-bold text-red-400 mb-2 flex items-center gap-2"><i
+                                        class="ph-bold ph-exam"></i> Como a Banca Cobra</h4>
+                                <p class="text-sm text-slate-300">As bancas da Cesgranrio costumam afirmar que a
+                                    interface <code>Statement</code> é mais rápida e segura que a
+                                    <code>PreparedStatement</code> para inserir dados de usuários. <strong>(FALSO -
+                                        Statement é vulnerável a SQL Injection).</strong></p>
+                            </div>
+                            <div class="bg-green-500/10 border border-green-500/20 p-4 rounded-lg">
+                                <h4 class="font-bold text-neon-green mb-2 flex items-center gap-2"><i
+                                        class="ph-bold ph-briefcase"></i> Como o Mercado Usa</h4>
+                                <p class="text-sm text-slate-300">No ETB-PAY, toda comunicação com o SQLite passa por
+                                    <code>PreparedStatement</code> para sanitizar a entrada do usuário (senhas, CPFs)
+                                    via placeholders (<code>?</code>).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pratica" class="tab-content space-y-8">
+                <div class="mb-8 flex justify-between items-end">
+                    <div>
+                        <h1 class="text-4xl font-title font-bold text-white mb-2">Expertise Visual & Integração</h1>
+                        <p class="text-slate-400 text-lg">Aplicando os conceitos no Framework ETB-PAY.</p>
+                    </div>
+                </div>
+
+                <div class="glass p-8 rounded-2xl relative overflow-hidden border-neon-cyan">
+                    <div
+                        class="absolute top-0 right-0 bg-neon-cyan text-navy-900 font-bold px-4 py-1 rounded-bl-lg text-sm">
+                        Padrão DAO</div>
+
+                    <h3 class="text-xl font-bold mb-4 text-white">Implementação Segura com PreparedStatement</h3>
+                    <p class="text-sm text-slate-400 mb-6">O código abaixo reflete exatamente o que é cobrado nos
+                        editais sobre persistência e o que é esperado por uma tech lead no mercado.</p>
+
+                    <div class="code-block text-sm">
+                        <span class="text-purple-400">public class</span> <span
+                            class="text-yellow-300">ClienteDAO</span> <span class="text-purple-400">implements</span>
+                        <span class="text-yellow-300">IClienteRepository</span> {
+
+                        <span class="text-slate-500">/**
+                            * Insere de forma segura prevenindo SQL Injection (Cobrança Cesgranrio)
+                            */</span>
+                        <span class="text-purple-400">public boolean</span> <span
+                            class="text-blue-400">salvarCliente</span>(<span class="text-yellow-300">Cliente</span>
+                        cliente) {
+                        <span class="text-yellow-300">String</span> sql = <span class="text-green-400">"INSERT INTO
+                            tb_clientes (nome, cpf, senha) VALUES (?, ?, ?)"</span>;
+
+                        <span class="text-purple-400">try</span> (<span class="text-yellow-300">Connection</span> conn =
+                        <span class="text-yellow-300">ConexaoDB</span>.getConexao();
+                        <span class="text-yellow-300">PreparedStatement</span> stmt = conn.prepareStatement(sql)) {
+
+                        stmt.setString(<span class="text-orange-400">1</span>, cliente.getNome());
+                        stmt.setString(<span class="text-orange-400">2</span>, cliente.getCpf());
+                        stmt.setString(<span class="text-orange-400">3</span>, cliente.getSenha());
+
+                        <span class="text-purple-400">return</span> stmt.executeUpdate() > <span
+                            class="text-orange-400">0</span>;
+
+                        } <span class="text-purple-400">catch</span> (<span class="text-yellow-300">SQLException</span>
+                        e) {
+                        <span class="text-slate-500">// Obrigatório tratamento de Checked Exception (Cobrança
+                            FGV)</span>
+                        e.printStackTrace();
+                        <span class="text-purple-400">return false</span>;
+                        }
+                        }
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section id="questoes" class="tab-content space-y-8">
+                <div class="mb-8">
+                    <h1 class="text-4xl font-title font-bold text-white mb-2">Bateria de Questões <span
+                            class="text-neon-green">2024+</span></h1>
+                    <p class="text-slate-400 text-lg">Teste seus conhecimentos com questões reais e adaptadas das provas
+                        mais recentes.</p>
+                </div>
+
+                <div class="space-y-6">
+
+                    <div class="glass p-6 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg text-neon-cyan">Questão 01</h3>
+                            <span
+                                class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-600">Cesgranrio
+                                - Caixa (Adaptada 2024)</span>
+                        </div>
+                        <p class="mb-4 text-white">Na API JDBC do Java, para executar uma instrução SQL que contém
+                            parâmetros de entrada dinâmicos fornecidos pelo usuário, de modo a prevenir ataques de
+                            <em>SQL Injection</em> e otimizar a pré-compilação da consulta no SGBD, o desenvolvedor deve
+                            utilizar a interface:</p>
+                        <ol class="space-y-2 mb-6 text-slate-300 list-[upper-alpha] list-inside ml-2">
+                            <li class="p-2 rounded hover:bg-white/5">Statement</li>
+                            <li class="p-2 rounded hover:bg-white/5">CallableStatement</li>
+                            <li class="p-2 rounded hover:bg-white/5">ResultSet</li>
+                            <li class="p-2 rounded hover:bg-white/5">PreparedStatement</li>
+                            <li class="p-2 rounded hover:bg-white/5">Connection</li>
+                        </ol>
+                        <button onclick="toggleGabarito(1)"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg transition shadow-[0_0_10px_rgba(0,240,255,0.3)]">Resolver
+                            / Ver Gabarito</button>
+
+                        <div id="gab-1"
+                            class="gabarito-box mt-6 p-4 bg-navy-800 border-l-4 border-neon-green rounded-r-lg">
+                            <p class="text-neon-green font-bold mb-2">Gabarito: D</p>
+                            <p class="text-sm text-slate-300 mb-2"><strong class="text-white">Comentário da
+                                    Banca:</strong> A interface <code>PreparedStatement</code> pré-compila a instrução
+                                SQL e parametriza as entradas usando <code>?</code>, neutralizando tentativas de injetar
+                                comandos SQL maliciosos.</p>
+                            <p class="text-sm text-slate-400 italic"><i
+                                    class="ph-fill ph-lightbulb text-yellow-400"></i> <strong>Dica Estratégica:</strong>
+                                Cesgranrio sempre atrela <code>Statement</code> a vulnerabilidade de segurança e
+                                <code>PreparedStatement</code> a performance/segurança.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg text-neon-cyan">Questão 02</h3>
+                            <span
+                                class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-600">FGV
+                                - TSE Unificado (Adaptada 2024)</span>
+                        </div>
+                        <p class="mb-4 text-white">Sobre os conceitos de Orientação a Objetos no Java a partir da versão
+                            8, assinale a alternativa correta em relação ao uso de Interfaces:</p>
+                        <ol class="space-y-2 mb-6 text-slate-300 list-[upper-alpha] list-inside ml-2">
+                            <li class="p-2 rounded hover:bg-white/5">Interfaces não podem conter nenhum método com corpo
+                                implementado.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Uma classe em Java pode implementar múltiplas
+                                interfaces, mitigando a restrição de herança múltipla de classes.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Atributos declarados em uma interface são
+                                nativamente protected.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Interfaces podem ser instanciadas diretamente
+                                utilizando o operador <code>new Interface()</code>.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Métodos em interfaces são implicitamente final,
+                                impedindo a sobrescrita.</li>
+                        </ol>
+                        <button onclick="toggleGabarito(2)"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg transition shadow-[0_0_10px_rgba(0,240,255,0.3)]">Resolver
+                            / Ver Gabarito</button>
+
+                        <div id="gab-2"
+                            class="gabarito-box mt-6 p-4 bg-navy-800 border-l-4 border-neon-green rounded-r-lg">
+                            <p class="text-neon-green font-bold mb-2">Gabarito: B</p>
+                            <p class="text-sm text-slate-300 mb-2"><strong class="text-white">Armadilha
+                                    Semântica:</strong> A alternativa A era verdade no passado, mas desde o Java 8,
+                                interfaces podem ter métodos implementados usando a palavra-chave <code>default</code>.
+                                A banca da FGV adora testar quem estuda por materiais defasados.</p>
+                            <p class="text-sm text-slate-400 italic"><i
+                                    class="ph-fill ph-lightbulb text-yellow-400"></i> <strong>Dica Estratégica:</strong>
+                                Herança múltipla de *estado* (classes) é proibida em Java, mas herança múltipla de
+                                *comportamento* (interfaces) é permitida.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg text-neon-cyan">Questão 03</h3>
+                            <span
+                                class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-600">CEBRASPE
+                                - BACEN (Adaptada 2024)</span>
+                        </div>
+                        <p class="mb-4 text-white">Considere o seguinte trecho de código Java onde
+                            <code>ContaPoupanca</code> herda de <code>Conta</code> e sobrescreve o método
+                            <code>sacar()</code>.</p>
+                        <div class="code-block text-xs mb-4">
+                            Conta c = new ContaPoupanca();
+                            c.sacar(100.0);
+                        </div>
+                        <p class="mb-4 text-white">Durante a execução, devido ao princípio do Polimorfismo e da Ligação
+                            Dinâmica (<em>Dynamic Binding</em>), o método executado será o da classe <code>Conta</code>,
+                            pois o tipo da variável de referência determina a execução em tempo de compilação.</p>
+                        <ol class="space-y-2 mb-6 text-slate-300 list-none ml-2 flex gap-4">
+                            <li class="p-2 rounded hover:bg-white/5 border border-slate-600 px-6 cursor-pointer">Certo
+                            </li>
+                            <li class="p-2 rounded hover:bg-white/5 border border-slate-600 px-6 cursor-pointer">Errado
+                            </li>
+                        </ol>
+                        <button onclick="toggleGabarito(3)"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg transition shadow-[0_0_10px_rgba(0,240,255,0.3)]">Resolver
+                            / Ver Gabarito</button>
+
+                        <div id="gab-3"
+                            class="gabarito-box mt-6 p-4 bg-navy-800 border-l-4 border-red-500 rounded-r-lg">
+                            <p class="text-red-400 font-bold mb-2">Gabarito: Errado</p>
+                            <p class="text-sm text-slate-300 mb-2"><strong class="text-white">Comentário da
+                                    Banca:</strong> O CEBRASPE inverteu o conceito conceitual. Na ligação dinâmica do
+                                Java, o método executado é determinado pelo tipo do <strong>objeto instanciado em
+                                    memória</strong> (<code>new ContaPoupanca()</code>), e não pelo tipo da variável de
+                                referência (<code>Conta c</code>).</p>
+                            <p class="text-sm text-slate-400 italic"><i
+                                    class="ph-fill ph-lightbulb text-yellow-400"></i> <strong>Dica Estratégica:</strong>
+                                Polimorfismo de sobreposição (Overriding) resolve-se em tempo de execução (Runtime).
+                                Lembre-se: O lado direito do sinal de igual (=) dita o comportamento real.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg text-neon-cyan">Questão 04</h3>
+                            <span
+                                class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-600">FCC
+                                - TRT (Adaptada 2024)</span>
+                        </div>
+                        <p class="mb-4 text-white">Na construção de um sistema corporativo utilizando a biblioteca Swing
+                            para a criação de uma interface gráfica, o programador decide utilizar classes abstratas
+                            para modelar a hierarquia de componentes. Assinale a característica primordial de uma classe
+                            <code>abstract</code> em Java:</p>
+                        <ol class="space-y-2 mb-6 text-slate-300 list-[upper-alpha] list-inside ml-2">
+                            <li class="p-2 rounded hover:bg-white/5">Pode ser instanciada livremente, desde que não
+                                contenha métodos abstratos.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Obriga todas as suas subclasses a implementar todos
+                                os seus métodos concretos.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Não pode ser instanciada diretamente através do
+                                operador <code>new</code>, servindo apenas como superclasse.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Impede a declaração de atributos de instância,
+                                permitindo apenas constantes estáticas.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Suporta a palavra-chave <code>final</code> na sua
+                                declaração, protegendo o código de herança acidental.</li>
+                        </ol>
+                        <button onclick="toggleGabarito(4)"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg transition shadow-[0_0_10px_rgba(0,240,255,0.3)]">Resolver
+                            / Ver Gabarito</button>
+
+                        <div id="gab-4"
+                            class="gabarito-box mt-6 p-4 bg-navy-800 border-l-4 border-neon-green rounded-r-lg">
+                            <p class="text-neon-green font-bold mb-2">Gabarito: C</p>
+                            <p class="text-sm text-slate-300 mb-2"><strong class="text-white">Comentário da
+                                    Banca:</strong> O conceito basilar de uma classe abstrata é que ela é "incompleta"
+                                conceitualmente. Logo, a JVM bloqueia sua instanciação direta. A alternativa E é uma
+                                armadilha comum, pois <code>abstract</code> e <code>final</code> são modificadores
+                                mutuamente exclusivos (antagônicos).</p>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg text-neon-cyan">Questão 05</h3>
+                            <span
+                                class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-600">Cesgranrio
+                                - BNB (Adaptada 2024)</span>
+                        </div>
+                        <p class="mb-4 text-white">Ao estabelecer uma conexão JDBC com o SQLite, a captura de exceções é
+                            mandatória. Em Java, <code>SQLException</code> é classificada como uma exceção do tipo
+                            <em>Checked Exception</em>. Isso implica que:</p>
+                        <ol class="space-y-2 mb-6 text-slate-300 list-[upper-alpha] list-inside ml-2">
+                            <li class="p-2 rounded hover:bg-white/5">O compilador não obriga o seu tratamento, cabendo
+                                ao desenvolvedor tratá-la em tempo de execução.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Herda diretamente de <code>RuntimeException</code>.
+                            </li>
+                            <li class="p-2 rounded hover:bg-white/5">O compilador exige obrigatoriamente que ela seja
+                                tratada com um bloco <code>try-catch</code> ou propagada via <code>throws</code>.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Ocorre exclusivamente por erros de sintaxe SQL,
+                                nunca por falha de infraestrutura de rede.</li>
+                            <li class="p-2 rounded hover:bg-white/5">Ignora silenciosamente falhas de integridade
+                                referencial no banco de dados.</li>
+                        </ol>
+                        <button onclick="toggleGabarito(5)"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg transition shadow-[0_0_10px_rgba(0,240,255,0.3)]">Resolver
+                            / Ver Gabarito</button>
+
+                        <div id="gab-5"
+                            class="gabarito-box mt-6 p-4 bg-navy-800 border-l-4 border-neon-green rounded-r-lg">
+                            <p class="text-neon-green font-bold mb-2">Gabarito: C</p>
+                            <p class="text-sm text-slate-300 mb-2"><strong class="text-white">Armadilha
+                                    Semântica:</strong> A banca testa o conhecimento basilar da hierarquia de Exceções
+                                em Java. <em>Checked Exceptions</em> (checadas pelo compilador) exigem tratamento
+                                prévio, caso contrário, o código sequer compila. <em>Unchecked Exceptions</em> (herdam
+                                de RuntimeException) não exigem tratamento obrigatório em tempo de compilação.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // --- SPA Tab Switching ---
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show target content
+            document.getElementById(tabId).classList.add('active');
+
+            // Update nav visual state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                item.style.background = '';
+                item.style.borderRight = '';
+                item.style.color = '';
+            });
+
+            // Set active styles using tailwind arbitrary values won't persist via inline without care, so we use a class
+            const activeBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+            activeBtn.classList.add('active');
+
+            // Scroll to top
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- Theme Toggle (Dark / Light) ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.classList.remove('ph-sun');
+                icon.classList.add('ph-moon');
+            } else {
+                html.classList.add('dark');
+                icon.classList.remove('ph-moon');
+                icon.classList.add('ph-sun');
+            }
+        }
+
+        // --- Timer Logic (35 Minutes) ---
+        let totalSeconds = 35 * 60;
+        let timerRunning = false;
+        let timerInterval = null;
+
+        function updateTimer() {
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            document.getElementById('sprint-timer').textContent =
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            if (totalSeconds > 0 && timerRunning) totalSeconds--;
+        }
+
+        function toggleTimer() {
+            timerRunning = !timerRunning;
+            const btn = document.getElementById('btn-timer');
+            if (timerRunning) {
+                btn.innerHTML = '<i class="ph-fill ph-pause text-xl"></i>';
+                if (!timerInterval) timerInterval = setInterval(updateTimer, 1000);
+            } else {
+                btn.innerHTML = '<i class="ph-fill ph-play text-xl"></i>';
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+        }
+
+        // --- Question Reveal Logic ---
+        function toggleGabarito(id) {
+            const gabarito = document.getElementById(`gab-${id}`);
+            gabarito.classList.toggle('show');
+        }
+
+        // --- Font Size Controls ---
+        let currentFontSize = 16;
+        const minFontSize = 14;
+        const maxFontSize = 22;
+
+        function updateFontSize() {
+            document.documentElement.style.fontSize = `${currentFontSize}px`;
+            const label = document.getElementById('font-size-value');
+            if (label) {
+                label.textContent = `${currentFontSize}px`;
+            }
+        }
+
+        function increaseFont() {
+            if (currentFontSize < maxFontSize) {
+                currentFontSize += 2;
+                updateFontSize();
+            }
+        }
+
+        function decreaseFont() {
+            if (currentFontSize > minFontSize) {
+                currentFontSize -= 2;
+                updateFontSize();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateFontSize);
+
+        // Initialize Timer Display
+        updateTimer();
+    </script>
+</body>
+
+</html>
