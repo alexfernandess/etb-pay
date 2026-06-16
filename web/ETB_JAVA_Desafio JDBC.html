@@ -157,16 +157,17 @@
                         JDBC</span>
                 </div>
                 <h2 class="text-3xl font-bold mb-4">Desafio: Motor de Contas ETB-Pay</h2>
-                <p class="text-slate-300 mb-6 leading-relaxed">
-                    Bem-vindos à fase técnica do processo seletivo do ETB-Pay. O objetivo central é criar, do zero, o
-                    projeto Java chamado <strong>desafioJDBC</strong> para servir como motor de persistência de clientes
-                    e contas da nossa Fintech utilizando <strong>Java Puro e JDBC</strong>. O projeto deve ser
-                    estruturado obrigatoriamente seguindo o padrão arquitetural <strong>DAO (Data Access
-                        Object)</strong> e conter uma classe dedicada chamada <strong>ConexaoDB</strong> para gerenciar
-                    o driver de conexão. O desafio elimina a complexidade de frameworks web (como Spring Boot) para
-                    focar estritamente no domínio de Orientação a Objetos (Associação) e persistência no banco
-                    <strong>SQLite</strong>.
+                <p class="text-slate-300 leading-relaxed">
+                    Bem-vindos à fase técnica do processo seletivo. Para otimizar o tempo, será disponibilizado um
+                    projeto base (Boilerplate) do motor de contas com a estrutura inicial pré-montada. Porém, este
+                    código legado contém falhas intencionais de arquitetura e lógica. Sua missão é baixar o projeto,
+                    configurar o ambiente e atuar como um engenheiro de software para investigar, debugar e fazer a
+                    aplicação rodar perfeitamente.
                 </p>
+
+                <a href="https://raw.githubusercontent.com/alexfernandess/etb-pay/main/utils/desafioJDBC.zip"
+                    class="inline-flex items-center gap-2 bg-emerald-500 text-slate-900 font-bold px-6 py-3 rounded-lg hover:bg-emerald-400 transition-colors mt-4 mb-6"><i
+                        class="fa-solid fa-download"></i> Baixar Projeto desafioJDBC</a>
 
                 <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 flex gap-4">
                     <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xl mt-1"></i>
@@ -185,12 +186,10 @@
                     <i class="fa-solid fa-database text-emerald-400"></i> 1. Modelagem do Banco (SQLite)
                 </h3>
                 <p class="text-slate-300 mb-4 text-sm leading-relaxed">
-                    Utilizaremos o <strong>SQLite</strong> para evitar problemas de rede no laboratório. O
-                    desenvolvimento do projeto será realizado de forma <strong>FASEADA</strong>. Nesta <strong>PRIMEIRA
-                        ETAPA</strong>, o foco exclusivo da squad é criar a base de dados SQLite diretamente pelo
-                    <strong>VS Code</strong> (utilizando suas extensões de banco de dados) e codificar as classes de
-                    negócio (entidades): <code>Cliente.java</code> e <code>Conta.java</code>. Execute o script SQL
-                    abaixo na sua IDE para criar a estrutura inicial.
+                    O banco de dados do nosso motor de contas já está estruturado previamente seguindo as regras da
+                    Terceira Forma Normal (3FN). O script SQL (<code>clientes.sql</code>) já está incluso dentro do
+                    Boilerplate. Basta executá-lo diretamente no VS Code utilizando a sua extensão de banco de dados
+                    para gerar automaticamente o arquivo <code>etbpay.db</code>.
                 </p>
                 <div class="code-block rounded-lg p-4 overflow-x-auto">
                     <pre><code class="text-sm font-mono text-slate-300"><span class="text-slate-500">-- Tabela Pai: Clientes</span>
@@ -214,80 +213,58 @@
                 </div>
             </section>
 
-            <!-- The Mission (Console Menu) -->
+            <!-- The Mission (Troubleshooting) -->
             <section class="glass-card rounded-2xl p-8">
                 <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-terminal text-emerald-400"></i> 2. Requisitos do Sistema (Menu Console)
+                    <i class="fa-solid fa-bug text-emerald-400"></i> 2. Pontos de Investigação (Missão de
+                    Troubleshooting)
                 </h3>
-                <p class="text-slate-400 mb-6 text-sm">
-                    Sua aplicação Java deve ter um loop <code>while</code> com um <code>switch-case</code> contendo as 4
-                    opções abaixo. Use a classe <code>Scanner</code> para capturar os dados.
-                </p>
 
                 <div class="space-y-4">
-                    <!-- Task 1 -->
+                    <!-- Bug 1 -->
                     <div
                         class="bg-slate-800/50 border border-slate-700 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
                         <div class="flex items-center gap-3 mb-2">
                             <span
-                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
-                            <h4 class="font-bold text-lg text-white">Cadastrar Novo Cliente</h4>
+                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm"><i
+                                    class="fa-solid fa-link"></i></span>
+                            <h4 class="font-bold text-lg text-white">Bug 1: Falha na String de Conexão</h4>
                         </div>
                         <p class="text-sm text-slate-400 ml-9">
-                            Solicite CPF, Nome, Email e Telefone. Realize um <code>INSERT</code> na tabela <code
-                                class="text-emerald-400">clientes</code>. Não insira nenhuma conta neste momento.
+                            O arquivo <code>ConexaoDB.java</code> está apontando para o banco errado ou com a sintaxe
+                            JDBC incorreta. Encontre a string e corrija para <code
+                                class="text-emerald-400">jdbc:sqlite:etbpay.db</code>.
                         </p>
                     </div>
 
-                    <!-- Task 2 -->
+                    <!-- Bug 2 -->
                     <div
                         class="bg-slate-800/50 border border-slate-700 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
                         <div class="flex items-center gap-3 mb-2">
                             <span
-                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
-                            <h4 class="font-bold text-lg text-white">Listar Base de Clientes</h4>
+                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm"><i
+                                    class="fa-solid fa-lock"></i></span>
+                            <h4 class="font-bold text-lg text-white">Bug 2: Violação de Encapsulamento</h4>
                         </div>
                         <p class="text-sm text-slate-400 ml-9">
-                            Execute um <code>SELECT * FROM clientes</code> e imprima os dados no console de forma
-                            formatada.
+                            A entidade <code>Conta.java</code> está com vulnerabilidades de segurança (atributos
+                            públicos ou falta de Getters/Setters). Refatore aplicando o encapsulamento correto.
                         </p>
                     </div>
 
-                    <!-- Task 3 -->
+                    <!-- Bug 3 -->
                     <div
                         class="bg-slate-800/50 border border-slate-700 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
                         <div class="flex items-center gap-3 mb-2">
                             <span
-                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm">3</span>
-                            <h4 class="font-bold text-lg text-white">Vincular Conta a um Cliente</h4>
-                        </div>
-                        <p class="text-sm text-slate-400 ml-9 mb-3">
-                            <strong class="text-amber-400">Core Business do Desafio:</strong> Solicite o
-                            <code>ID do Cliente</code>. Valide se ele existe no banco. Se existir, peça o Número da
-                            Conta e o Tipo (Corrente/Poupança). Insira na tabela <code
-                                class="text-emerald-400">contas</code> vinculando ao ID informado.
-                        </p>
-                        <div
-                            class="ml-9 bg-slate-900 border border-slate-700 rounded p-3 text-xs font-mono text-slate-300">
-                            > Informe o ID do Cliente: 1 <br>
-                            > [Sucesso] Cliente 'Alex' encontrado.<br>
-                            > Informe o número da nova conta: 10234-5<br>
-                            > Conta vinculada com sucesso!
-                        </div>
-                    </div>
-
-                    <!-- Task 4 -->
-                    <div
-                        class="bg-slate-800/50 border border-slate-700 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span
-                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm">4</span>
-                            <h4 class="font-bold text-lg text-white">Buscar Contas por Cliente</h4>
+                                class="bg-emerald-500 text-slate-900 font-bold w-6 h-6 rounded-full flex items-center justify-center text-sm"><i
+                                    class="fa-solid fa-bug"></i></span>
+                            <h4 class="font-bold text-lg text-white">Bug 3: O Mistério do INSERT fantasma</h4>
                         </div>
                         <p class="text-sm text-slate-400 ml-9">
-                            Solicite o <code>ID do Cliente</code> e execute um
-                            <code>SELECT * FROM contas WHERE id_cliente = ?</code> para exibir o extrato de contas
-                            atreladas a ele.
+                            O método de salvar no <code>ClienteDAO.java</code> roda sem dar erro, mas o dado não vai
+                            para o banco. Verifique se o comando <code>stmt.executeUpdate()</code> foi chamado ou se as
+                            variáveis estão trocadas.
                         </p>
                     </div>
                 </div>
@@ -296,37 +273,6 @@
 
         <!-- Right Column: Setup & Checklist -->
         <div class="space-y-6">
-
-            <!-- Evaluation Criteria -->
-            <div class="glass-card rounded-2xl p-6 border border-slate-700">
-                <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-white">
-                    <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Critérios de Avaliação
-                </h3>
-                <div
-                    class="text-xs text-amber-400 bg-amber-500/10 p-3 rounded-lg border border-amber-500/25 mb-4 leading-relaxed">
-                    🚀 <strong>Atenção Squad 3G - Entrega Faseada:</strong> Apenas o item <strong>Nº 1 (Modelagem de
-                        Classes)</strong> faz parte do entregável obrigatório desta primeira etapa (Criação do banco de
-                    dados SQLite e das classes de negócio Cliente e Conta). Os itens <strong>Nº 2</strong> e <strong>Nº
-                        3</strong> serão integralmente desenvolvidos e codificados, de forma coletiva em sala de aula.
-                </div>
-                <div class="space-y-4">
-                    <div class="border-l-2 border-emerald-500 pl-3">
-                        <h4 class="font-semibos-slate-400 mt-1">Criação correta das classes <code>Cliente</code> e
-                            <code>Conta</code>, aplicando os conceitos de associação.
-                            </p>
-                    </div>
-                    <div class="border-l-2 border-emerald-500 pl-3">
-                        <h4 class="font-semibold text-sm text-white">2. Persistência (Unidades 9 e 10)</h4>
-                        <p class="text-xs text-slate-400 mt-1">Uso correto de <code>PreparedStatement</code> para evitar
-                            SQL Injection nas rotinas de banco.</p>
-                    </div>
-                    <div class="border-l-2 border-emerald-500 pl-3">
-                        <h4 class="font-semibold text-sm text-white">3. Tratamento de Exceções</h4>
-                        <p class="text-xs text-slate-400 mt-1">Uso de blocos <code>try-catch</code> para lidar com
-                            falhas de conexão no <code>DriverManager</code>.</p>
-                    </div>
-                </div>
-            </div>
 
             <!-- Setup Box -->
             <div class="glass-card rounded-2xl p-6 border border-slate-700">
