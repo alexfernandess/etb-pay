@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desafio Técnico ETB-Pay | Dev Júnior</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap"
         rel="stylesheet">
@@ -272,7 +272,7 @@
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white theme-text">ETB-PAY: Java</h1>
                     <p class="text-xs text-emerald-400 font-semibold uppercase tracking-widest font-mono">Tratamento de
-                        Exceções (Blocos Try Catch)</p>
+                        Exceções</p>
                 </div>
             </div>
 
@@ -322,7 +322,7 @@
                 <button onclick="goToSlide(1)"
                     class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
                     id="sb-item-1" title="Check-in: O Projeto Final (Gabarito)">
-                    <i class="fa-solid fa-file-shield text-emerald-400 text-sm min-w-[20px] text-center"></i>
+                    <i class="fa-solid fa-flag-checkered text-blue-400 text-sm min-w-[20px] text-center"></i>
                     <span class="truncate sidebar-text">Check-in: O Projeto Final (Gabarito)</span>
                 </button>
 
@@ -336,14 +336,14 @@
                 <button onclick="goToSlide(3)"
                     class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
                     id="sb-item-3" title="Arquitetura Resiliente (Código de Estudo)">
-                    <i class="fa-solid fa-magnifying-glass-bug text-emerald-400 text-sm min-w-[20px] text-center"></i>
+                    <i class="fa-solid fa-shield-halved text-rose-400 text-sm min-w-[20px] text-center"></i>
                     <span class="truncate sidebar-text">Arquitetura Resiliente (Código de Estudo)</span>
                 </button>
 
                 <button onclick="goToSlide(4)"
                     class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
                     id="sb-item-4" title="Setup do Ambiente & Diagnóstico">
-                    <i class="fa-solid fa-laptop-code text-blue-400 text-sm min-w-[20px] text-center"></i>
+                    <i class="fa-solid fa-laptop-code text-cyan-400 text-sm min-w-[20px] text-center"></i>
                     <span class="truncate sidebar-text">Setup do Ambiente & Diagnóstico</span>
                 </button>
 
@@ -356,9 +356,9 @@
 
                 <button onclick="goToSlide(6)"
                     class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
-                    id="sb-item-6" title="Edital da Prova (30/06)">
-                    <i class="fa-solid fa-map-location-dot text-indigo-400 text-sm min-w-[20px] text-center"></i>
-                    <span class="truncate sidebar-text">Edital da Prova (30/06)</span>
+                    id="sb-item-6" title="Edital ETB-PAY (Java - 3G)">
+                    <i class="fa-solid fa-map-location-dot text-emerald-400 text-sm min-w-[20px] text-center"></i>
+                    <span class="truncate sidebar-text">Edital ETB-PAY (Java - 3G)</span>
                 </button>
             </div>
 
@@ -401,7 +401,7 @@
                                     <i class="fa-solid fa-box-archive text-emerald-400 mr-2"></i> Pronto para extração
                                     no laboratório.
                                 </div>
-                                <a href="https://raw.githubusercontent.com/alexfernandess/etb-pay/main/utils/desafioJDBC.zip"
+                                <a href="../utils/desafioJDBC.zip"
                                     class="inline-flex items-center gap-2 bg-emerald-500 text-slate-900 font-bold px-5 py-2.5 rounded-lg hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/10 text-sm">
                                     <i class="fa-solid fa-download"></i> Baixar Projeto Completo (Gabarito)
                                 </a>
@@ -953,64 +953,70 @@
                     <div id="slide-6" class="hidden space-y-6">
                         <section class="glass-card rounded-2xl p-8 border border-slate-700/50 space-y-6">
                             <h3 class="text-xl font-bold flex items-center gap-2 text-emerald-400">
-                                <i class="fa-solid fa-calendar-check"></i> Edital da Prova Final - 30 de Junho
+                                <i class="fa-solid fa-map-location-dot"></i> Edital ETB-PAY (Java - 3G)
                             </h3>
                             <p class="text-slate-300 text-sm leading-relaxed">
-                                Squad 3G, chegou o momento de consolidarmos nossa jornada técnica. A avaliação será
-                                baseada na Tríade do Back-End Júnior. Utilize o checklist abaixo para guiar sua reta
-                                final de estudos:
+                                Squad 3G, chegou o momento de consolidarmos a nossa evolução. A avaliação cobrará a construção completa de um software, desde a alocação em memória até a gravação no banco de dados. Utilize o mapa de estudos abaixo:
                             </p>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
                                     <div class="flex items-center gap-3 mb-2">
-                                        <i class="fa-solid fa-shield-halved text-emerald-400 text-lg"></i>
-                                        <h4 class="font-bold text-base text-white theme-text">Bloco 1: POO &
-                                            Encapsulamento</h4>
+                                        <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center border border-blue-500/30"><i class="fa-solid fa-cubes-stacked text-blue-400"></i></div>
+                                        <h4 class="font-bold text-base text-white theme-text">1. Fundamentos & Tipos Primitivos</h4>
                                     </div>
                                     <p class="text-sm text-slate-300 ml-1 leading-relaxed">
-                                        Foco em <code>private</code>, métodos acessores (Getters/Setters), Construtores
-                                        e Proteção de Regras de Negócio (ex: evitar saldo negativo).
+                                        Tipos primitivos (<code>int</code>, <code>double</code>, <code>boolean</code>), declaração de variáveis, casting, operadores lógicos/aritméticos e formatação de saída.
                                     </p>
                                 </div>
 
                                 <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
                                     <div class="flex items-center gap-3 mb-2">
-                                        <i class="fa-solid fa-database text-emerald-400 text-lg"></i>
-                                        <h4 class="font-bold text-base text-white theme-text">Bloco 2: Persistência &
-                                            JDBC</h4>
+                                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center border border-amber-500/30"><i class="fa-solid fa-code-branch text-amber-400"></i></div>
+                                        <h4 class="font-bold text-base text-white theme-text">2. Estruturas de Controle</h4>
                                     </div>
                                     <p class="text-sm text-slate-300 ml-1 leading-relaxed">
-                                        Entendimento do padrão DAO, <code>DriverManager</code>, <code>Connection</code>,
-                                        <code>PreparedStatement</code> (prevenção contra SQL Injection) e a diferença
-                                        entre <code>executeQuery()</code> e <code>executeUpdate()</code>.
+                                        Condicionais (<code>if/else</code>, <code>switch-case</code>), laços de repetição (<code>while</code>, <code>for</code>) e a leitura de dados do usuário via classe <code>Scanner</code> para criação de menus interativos.
                                     </p>
                                 </div>
 
                                 <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
                                     <div class="flex items-center gap-3 mb-2">
-                                        <i class="fa-solid fa-triangle-exclamation text-emerald-400 text-lg"></i>
-                                        <h4 class="font-bold text-base text-white theme-text">Bloco 3: Tratamento de
-                                            Exceções</h4>
+                                        <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center border border-purple-500/30"><i class="fa-solid fa-object-group text-purple-400"></i></div>
+                                        <h4 class="font-bold text-base text-white theme-text">3. Orientação a Objetos (POO)</h4>
                                     </div>
                                     <p class="text-sm text-slate-300 ml-1 leading-relaxed">
-                                        O pilar principal. Compreender <code>try</code>, <code>catch</code>,
-                                        <code>finally</code> (para fechar conexões), a diferença entre Exceções Checadas
-                                        (ex: <code>SQLException</code>) e Não-Checadas (ex:
-                                        <code>InputMismatchException</code>), e a diferença prática entre
-                                        <code>throw</code> e <code>throws</code>.
+                                        A base do back-end. Modelagem de Entidades, criação de atributos, Construtores (padrão e com sobrecarga) e a instanciação de objetos na memória usando o operador <code>new</code>.
                                     </p>
                                 </div>
 
                                 <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
                                     <div class="flex items-center gap-3 mb-2">
-                                        <i class="fa-solid fa-terminal text-emerald-400 text-lg"></i>
-                                        <h4 class="font-bold text-base text-white theme-text">Bloco 4: Lógica & Menus de
-                                            Console</h4>
+                                        <div class="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center border border-rose-500/30"><i class="fa-solid fa-shield-halved text-rose-400"></i></div>
+                                        <h4 class="font-bold text-base text-white theme-text">4. Encapsulamento de Dados</h4>
                                     </div>
                                     <p class="text-sm text-slate-300 ml-1 leading-relaxed">
-                                        Estruturas de controle (<code>while</code>, <code>switch-case</code>) combinadas
-                                        com a classe <code>Scanner</code> para criar interfaces de texto resilientes.
+                                        Restrição de escopo com o modificador <code>private</code>, criação de métodos acessores (Getters e Setters) e a proteção das regras de negócio (ex: não permitir saque negativo).
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center border border-orange-500/30"><i class="fa-solid fa-triangle-exclamation text-orange-400"></i></div>
+                                        <h4 class="font-bold text-base text-white theme-text">5. Tratamento de Exceções</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        A armadura do código. Domínio sobre <code>try</code>, <code>catch</code> e <code>finally</code>. Entendimento de Checked vs Unchecked e a aplicação prática de <code>throw</code> e <code>throws</code>.
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30"><i class="fa-solid fa-database text-emerald-400"></i></div>
+                                        <h4 class="font-bold text-base text-white theme-text">6. Persistência de Dados (JDBC)</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        Integração Java-SQLite usando o Padrão DAO. Gerenciamento de <code>Connection</code>, uso seguro do <code>PreparedStatement</code> e execução de querys (<code>executeUpdate</code> e <code>executeQuery</code>).
                                     </p>
                                 </div>
                             </div>

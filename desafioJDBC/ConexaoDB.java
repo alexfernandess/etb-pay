@@ -4,7 +4,8 @@ import java.sql.SQLException;
 
 public class ConexaoDB {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/etbpay";
+    // CORREÇÃO: Alterada a string de conexão de MySQL para SQLite para pleno funcionamento da SPA local
+    private static final String URL = "jdbc:sqlite:etbpay.db";
 
     public static Connection conectar() {
         try {

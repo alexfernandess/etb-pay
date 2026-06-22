@@ -15,7 +15,8 @@ public class ClienteDAO {
             stmt.setString(3, cliente.getEmail());
             stmt.setString(4, cliente.getTelefone());
 
-            // Métodos do objeto Statement
+            // CORREÇÃO: Executa o comando INSERT do PreparedStatement para persistir o cliente
+            stmt.executeUpdate();
 
             System.out.println("Processando cadastro de cliente no sistema...");
 

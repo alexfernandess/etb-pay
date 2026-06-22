@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Banco de Dados</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 20px; }
+        .dark ::-webkit-scrollbar-thumb { background-color: #334155; }
+        body { transition: background-color 0.3s ease, color 0.3s ease; }
+        .slide-transition { animation: fadeInUp 0.4s ease-out forwards; }
+        pre { border-radius: 0.5rem; overflow-x: auto; }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:bg-[#0f172a] dark:text-slate-100 overflow-hidden font-sans">
+
+    <header class="px-6 py-4 flex justify-between items-center shadow-sm z-20 bg-white border-b border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 transition-colors shrink-0">
+        <div class="flex items-center gap-3">
+            <button id="sidebar-toggle" class="bg-cyan-500 p-2 rounded-lg hover:bg-cyan-400 transition-colors focus:ring-2 focus:ring-cyan-300 shadow-md shadow-cyan-500/20" title="Recolher/Expandir Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-slate-900">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+            </button>
+            <div>
+                <h1 class="font-black text-sm md:text-base uppercase tracking-tight leading-tight">ETB-PAY: Banco de Dados</h1>
+                <p class="text-[10px] font-bold tracking-widest uppercase opacity-60 text-cyan-500">ETL & Saneamento de Dados</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <span id="slide-counter" class="text-sm font-bold opacity-50 hidden md:block">SLIDE 1 / X</span>
+            
+            <!-- Controle de tamanho de fontes -->
+            <div class="flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg p-0.5 border border-slate-300 dark:border-slate-600 transition-colors">
+                <button onclick="changeFontSize(-1)" id="font-btn-dec"
+                    class="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors"
+                    title="Diminuir Fonte">A-</button>
+                <button onclick="changeFontSize(0)" id="font-btn-norm"
+                    class="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white border-l border-r border-slate-300 dark:border-slate-600 transition-colors"
+                    title="Fonte Padrão">A</button>
+                <button onclick="changeFontSize(1)" id="font-btn-inc"
+                    class="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors"
+                    title="Aumentar Fonte">A+</button>
+            </div>
+
+            <button id="theme-toggle"
+                class="p-2 rounded-full transition-all hover:scale-110 bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-cyan-400"
+                title="Alternar Tema">
+                <span id="theme-icon"></span>
+            </button>
+        </div>
+    </header>
+
+    <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 relative shrink-0 z-20">
+        <div id="progress-bar" class="h-full bg-cyan-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden relative w-full">
+        
+        <aside id="sidebar" class="w-72 shrink-0 bg-white dark:bg-[#1e293b] border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300 absolute md:relative z-30 md:z-10 h-full transform translate-x-0">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Navegação da Sprint</h3>
+            </div>
+            <ul id="sidebar-nav" class="flex-1 overflow-y-auto p-2 space-y-1">
+                </ul>
+        </aside>
+
+        <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden relative transition-all duration-300 w-full">
+            <div class="w-full max-w-5xl h-[75vh] rounded-3xl shadow-xl overflow-hidden border flex flex-col transition-all duration-500 bg-white border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 dark:shadow-cyan-900/10">
+
+                <div class="p-6 md:p-8 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4 shrink-0">
+                    <span id="slide-icon-container"></span>
+                    <h2 id="slide-title" class="text-2xl md:text-3xl font-black tracking-tight text-cyan-600 dark:text-cyan-400"></h2>
+                </div>
+
+                <div id="slide-content-container" class="p-6 md:p-8 flex-1 overflow-y-auto slide-transition flex flex-col">
+                    </div>
+
+                <div id="answer-section" class="hidden p-6 border-t border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 shrink-0">
+                    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <button id="btn-reveal" class="w-full md:w-auto px-6 py-4 border-2 border-dashed border-cyan-500 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white dark:hover:text-slate-900 font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-sm uppercase tracking-wider shrink-0">
+                            Revelar Solução
+                        </button>
+                        <div id="answer-feedback" class="hidden w-full slide-transition bg-cyan-500/10 border border-cyan-500/30 p-5 rounded-xl flex items-start gap-4">
+                            <div id="answer-text" class="text-sm md:text-base font-medium text-slate-700 dark:text-slate-200 leading-relaxed w-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-4 flex justify-between items-center z-10 w-full max-w-5xl mx-auto shrink-0">
+                <button id="btn-prev" class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Anterior
+                </button>
+
+                <div id="dots-container" class="hidden sm:flex gap-2"></div>
+
+                <button id="btn-next" class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-900/50 active:scale-95">
+                    Próximo
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </footer>
+        </main>
+
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden"></div>
+    </div>
+
+    <script>
+        // Ícones SVG embutidos
+        const icons = {
+            strategy: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+            code: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+            exam: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>`,
+            sun: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+            moon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`
+        };
+
+        const slidesData = [
+            {
+                title: "Fundamentos: Arquitetura SGBD",
+                icon: icons.strategy,
+                isQuestion: false,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="p-6 rounded-2xl border-l-4 border-cyan-500 bg-cyan-50 dark:bg-cyan-500/10">
+                            <h3 class="text-2xl font-bold mb-2 text-cyan-700 dark:text-cyan-400">Client-Server vs. Embedded</h3>
+                            <p class="text-lg text-slate-700 dark:text-slate-300">
+                                SGBDs Client-Server (PostgreSQL, Oracle) operam como serviços independentes (processos em background) respondendo a requisições de rede. Já SGBDs Embedded/Serverless (SQLite) leem e escrevem diretamente no arquivo do banco de dados em disco, sem um processo intermediário.
+                            </p>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                                <strong>Por que escolhemos o SQLite para o ETB-PAY?</strong>
+                            </p>
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                                Para reduzir a complexidade de configuração de ambiente de desenvolvimento e garantir portabilidade total. Com a arquitetura embedded, o banco viaja junto com a aplicação, facilitando a aprendizagem focada nos fundamentos da linguagem SQL e persistência em Java sem o overhead de infraestrutura.
+                            </p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Teoria: Níveis de Abstração",
+                icon: icons.strategy,
+                isQuestion: false,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <h3 class="text-2xl font-bold text-cyan-600 dark:text-cyan-400">Os 3 Níveis de Projeto de Banco de Dados</h3>
+                        <div class="space-y-4">
+                            <div class="bg-slate-100 dark:bg-slate-800/50 p-5 rounded-xl border-l-4 border-emerald-500">
+                                <h4 class="font-bold text-lg text-emerald-600 dark:text-emerald-400 mb-1">1) Nível Conceitual (Negócio/MER)</h4>
+                                <p class="text-slate-700 dark:text-slate-300 text-sm">Focado nas regras de negócio e no entendimento humano. Utilizamos o Modelo Entidade-Relacionamento (MER) para identificar entidades e seus relacionamentos sem nos preocuparmos com a tecnologia de banco de dados.</p>
+                            </div>
+                            <div class="bg-slate-100 dark:bg-slate-800/50 p-5 rounded-xl border-l-4 border-blue-500">
+                                <h4 class="font-bold text-lg text-blue-600 dark:text-blue-400 mb-1">2) Nível Lógico (Estrutura relacional)</h4>
+                                <p class="text-slate-700 dark:text-slate-300 text-sm">Tradução do modelo conceitual para as estruturas do SGBD escolhido (Relacional). Aqui definimos Tabelas, Tipos de Dados, Chaves Primárias (PK) e Chaves Estrangeiras (FK), mas ainda sem scripts.</p>
+                            </div>
+                            <div class="bg-slate-100 dark:bg-slate-800/50 p-5 rounded-xl border-l-4 border-purple-500">
+                                <h4 class="font-bold text-lg text-purple-600 dark:text-purple-400 mb-1">3) Nível Físico (Máquina/Scripts SQL)</h4>
+                                <p class="text-slate-700 dark:text-slate-300 text-sm">A implementação real na máquina. Trata-se da escrita dos comandos DDL (CREATE TABLE) e alocação física no disco pelo motor do banco de dados.</p>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Desafio: Do Caos ao Físico",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Abstração na Prática</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            "Quando desenhamos caixinhas no quadro para entender a relação Cliente x Conta, e depois quando o DBA digita 'CREATE TABLE', em quais níveis de abstração estamos operando respectivamente?"
+                        </p>
+                        <p class="text-sm italic text-slate-500">Pense nos 3 níveis vistos anteriormente antes de revelar a solução.</p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300"><strong>Gabarito:</strong> Nível Conceitual e Nível Físico, respectivamente.</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Desenhar caixinhas e relacionamentos lógicos faz parte do <strong>Nível Conceitual</strong>. Digitar instruções SQL reais como <code>CREATE TABLE</code> é interagir com o <strong>Nível Físico</strong> da solução.</p>
+                    </div>`
+            },
+            {
+                title: "Revisão: Normalização",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-green-600 dark:text-green-400">O Resgate da "Planilha Universal"</h3>
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            Lembre-se da "Planilha Universal" (tudo junto e misturado), cheia de anomalias de atualização, exclusão e redundâncias.
+                        </p>
+                        <p class="text-lg font-medium text-slate-800 dark:text-slate-200">
+                            Resuma a regra principal de cada uma das 3 Formas Normais (1FN, 2FN e 3FN) que aplicamos para quebrar essa tabela.
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-4">
+                        <div class="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-lg">
+                            <h4 class="font-bold text-cyan-600 dark:text-cyan-400">1FN (Atomicidade)</h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">Os valores dos atributos devem ser atômicos e indivisíveis. Sem atributos multivalorados (ex: campo telefones com vários números) e sem grupos repetidos.</p>
+                        </div>
+                        <div class="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-lg">
+                            <h4 class="font-bold text-cyan-600 dark:text-cyan-400">2FN (Dependência Funcional Total)</h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">A tabela deve estar na 1FN e todo atributo não-chave deve depender da Chave Primária INTEIRA (fim da dependência parcial em PK composta).</p>
+                        </div>
+                        <div class="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-lg">
+                            <h4 class="font-bold text-cyan-600 dark:text-cyan-400">3FN (Independência Transitiva)</h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">A tabela deve estar na 2FN e não pode haver dependência transitiva (um atributo não-chave dependendo de outro atributo não-chave - o fim do dado "caroneiro").</p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Revisão: DDL e DML",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Categorias de Comandos SQL</h3>
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            A linguagem SQL é dividida em subconjuntos para diferentes responsabilidades.
+                        </p>
+                        <div class="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <p class="text-lg font-medium text-slate-800 dark:text-slate-200">
+                                Diferencie comandos estruturais e de manipulação, citando os principais comandos de cada grupo.
+                            </p>
+                        </div>
+                    </div>`,
+                answer: `
+                    <div class="space-y-4">
+                        <div class="flex flex-col gap-2">
+                            <h4 class="font-bold text-lg text-cyan-600 dark:text-cyan-400">DDL (Data Definition Language)</h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">Comandos estruturais, responsáveis pela definição, alteração e exclusão de objetos do banco (tabelas, views, index).</p>
+                            <div class="flex gap-2 font-mono text-xs">
+                                <span class="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-cyan-700 dark:text-cyan-300">CREATE</span>
+                                <span class="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-cyan-700 dark:text-cyan-300">ALTER</span>
+                                <span class="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-cyan-700 dark:text-cyan-300">DROP</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <h4 class="font-bold text-lg text-emerald-600 dark:text-emerald-400 mt-2">DML (Data Manipulation Language)</h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">Comandos de manipulação, que inserem, atualizam e excluem os dados (registros/linhas) contidos dentro das estruturas.</p>
+                            <div class="flex gap-2 font-mono text-xs">
+                                <span class="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-emerald-700 dark:text-emerald-300">INSERT</span>
+                                <span class="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-emerald-700 dark:text-emerald-300">UPDATE</span>
+                                <span class="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-emerald-700 dark:text-emerald-300">DELETE</span>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Teoria: O Poder do JOIN",
+                icon: icons.strategy,
+                isQuestion: false,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="p-6 rounded-2xl border-l-4 border-cyan-500 bg-cyan-50 dark:bg-cyan-500/10">
+                            <h3 class="text-2xl font-bold mb-2 text-cyan-700 dark:text-cyan-400">Álgebra Relacional</h3>
+                            <p class="text-lg text-slate-700 dark:text-slate-300">
+                                Como vimos na Normalização, bancos relacionais evitam redundância quebrando informações em tabelas menores e coesas. Mas e quando precisamos ver os dados consolidados novamente na tela?
+                            </p>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                                Para isso utilizamos as operações de junção. Juntamos as tabelas com o comando <strong>INNER JOIN</strong>, cruzando a Chave Estrangeira (FK) de uma tabela com a Chave Primária (PK) da outra.
+                            </p>
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                                O resultado é uma visualização consolidada e virtual, processada em tempo de execução, garantindo que o armazenamento físico continue eficiente e sem repetições de dados.
+                            </p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Desafio: DQL e JOINs",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Construindo um INNER JOIN</h3>
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            Precisamos exibir para o gerente o <strong>nome</strong> do cliente (que está em <code>tb_clientes</code>) juntamente com a sua <strong>agencia</strong> bancária (que está em <code>tb_contas</code>).
+                        </p>
+                        <div class="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <p class="text-lg font-medium text-slate-800 dark:text-slate-200 text-center">
+                                Qual comando SQL une e extrai dados dessas duas tabelas relacionadas?
+                            </p>
+                        </div>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-slate-700 dark:text-slate-300">Utilizamos um <code>SELECT</code> (da categoria DQL) associado ao <code>INNER JOIN</code> para cruzar os dados da FK <code>id_cliente</code> com a PK <code>id</code> do cliente.</p>
+                        <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto text-sm text-cyan-400 font-mono shadow-inner border border-slate-700 mt-2">
+<pre>SELECT 
+    tb_clientes.nome, 
+    tb_contas.agencia
+FROM tb_clientes
+INNER JOIN tb_contas 
+    ON tb_clientes.id = tb_contas.id_cliente;</pre>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Teoria: A Regra CASCADE",
+                icon: icons.strategy,
+                isQuestion: false,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="p-6 rounded-2xl border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10">
+                            <h3 class="text-2xl font-bold mb-2 text-emerald-700 dark:text-emerald-400">Integridade Referencial e CASCADE</h3>
+                            <p class="text-lg text-slate-700 dark:text-slate-300">
+                                A <strong>Integridade Referencial</strong> é a regra que garante que um registro filho (ex: uma conta) não possa apontar para um pai inexistente (ex: um cliente deletado).
+                            </p>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                                O comportamento padrão de muitos bancos ao tentar deletar um registro "pai" que possui registros "filhos" é bloquear a exclusão (RESTRICT).
+                            </p>
+                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                                No entanto, se configurarmos a Chave Estrangeira (FK) com <strong>ON DELETE CASCADE</strong>, o banco de dados deletará automaticamente todos os registros filhos dependentes caso o pai seja deletado. Isso evita a permanência de registros órfãos no banco de dados.
+                            </p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Double Gain: Auditoria Cebraspe",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            <span class="bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded text-cyan-600 dark:text-cyan-400">CEBRASPE</span>
+                            <span>Integridade Relacional</span>
+                        </div>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 italic p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-l-4 border-cyan-500">
+                            "A exclusão de um registro na tabela principal sem a configuração de CASCADE ou RESTRICT pode gerar registros órfãos na tabela dependente."
+                        </p>
+                        <p class="text-lg font-bold text-center text-slate-700 dark:text-slate-300 uppercase mt-4">
+                            Certo ou Errado?
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 text-lg"><strong class="text-emerald-600 dark:text-emerald-400">Gabarito: CERTO</strong></div>
+                        <p class="text-slate-700 dark:text-slate-300"><strong>Gabarito Técnico:</strong> Um registro órfão é aquele que aponta (via Chave Estrangeira) para uma Chave Primária que não existe mais. Se o banco permitir a exclusão do registro pai sem uma política de <code>CASCADE</code> (que deletaria os filhos em cascata) ou <code>RESTRICT</code> (que bloquearia a exclusão do pai), a integridade referencial seria quebrada e os filhos se tornariam órfãos.</p>
+                    </div>`
+            },
+            {
+                title: "Edital - ETB-PAY (Banco de Dados - 2G)",
+                icon: icons.exam,
+                isQuestion: false,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-cyan-600 dark:text-cyan-400">Checklist de Avaliação</h3>
+                        <p class="text-slate-700 dark:text-slate-300 text-lg">
+                            Todo o conteúdo da avaliação final de Banco de Dados está mapeado abaixo:
+                        </p>
+                        
+                        <div class="bg-slate-100 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <span class="text-slate-700 dark:text-slate-200 font-medium">Fundamentos de SGBD (Client-Server vs. Embedded)</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <span class="text-slate-700 dark:text-slate-200 font-medium">Os 3 Níveis de Abstração de Dados</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <span class="text-slate-700 dark:text-slate-200 font-medium">Regras de Normalização Relacional (1FN, 2FN, 3FN)</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <span class="text-slate-700 dark:text-slate-200 font-medium">Comandos SQL: DDL, DML e DQL</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <span class="text-slate-700 dark:text-slate-200 font-medium">Álgebra Relacional: INNER JOIN</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <span class="text-slate-700 dark:text-slate-200 font-medium">Integridade Referencial e Comportamento CASCADE</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-4 bg-slate-800 border-l-4 border-cyan-500 p-5 rounded-r-xl shadow-sm text-center">
+                            <p class="text-slate-100 font-medium">O material completo de consulta com toda a teoria e o Cheat Sheet de SQL está disponível para download em PDF na pasta <code class="bg-slate-700 px-1.5 py-0.5 rounded text-cyan-400">/docs</code> do repositório ETB-PAY.</p>
+                        </div>
+                    </div>`
+            }
+        ];
+
+        let currentSlide = 0;
+        let isDarkMode = true;
+        let currentFontSizeLevel = 0; // -1, 0, 1
+
+        function changeFontSize(level) {
+            currentFontSizeLevel = level;
+            localStorage.setItem('fontSizeLevel', level);
+
+            const root = document.documentElement;
+            const btnDec = document.getElementById('font-btn-dec');
+            const btnNorm = document.getElementById('font-btn-norm');
+            const btnInc = document.getElementById('font-btn-inc');
+
+            if (!btnDec || !btnNorm || !btnInc) return;
+
+            // Reset classes
+            btnDec.className = "px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-805 dark:text-slate-400 dark:hover:text-white transition-colors";
+            btnNorm.className = "px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-805 dark:text-slate-400 dark:hover:text-white border-l border-r border-slate-305 dark:border-slate-600 transition-colors";
+            btnInc.className = "px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-805 dark:text-slate-400 dark:hover:text-white transition-colors";
+
+            if (level === -1) {
+                root.style.fontSize = '14px';
+                btnDec.className = "px-2.5 py-1 text-xs font-bold text-cyan-600 dark:text-cyan-400 transition-colors";
+            } else if (level === 1) {
+                root.style.fontSize = '18px';
+                btnInc.className = "px-2.5 py-1 text-xs font-bold text-cyan-600 dark:text-cyan-400 transition-colors";
+            } else {
+                root.style.fontSize = '16px';
+                btnNorm.className = "px-2.5 py-1 text-xs font-bold text-cyan-600 dark:text-cyan-400 border-l border-r border-slate-300 dark:border-slate-600 transition-colors";
+            }
+        }
+
+        const DOM = {
+            html: document.documentElement,
+            themeToggle: document.getElementById('theme-toggle'),
+            themeIcon: document.getElementById('theme-icon'),
+            slideCounter: document.getElementById('slide-counter'),
+            progressBar: document.getElementById('progress-bar'),
+            iconContainer: document.getElementById('slide-icon-container'),
+            title: document.getElementById('slide-title'),
+            contentContainer: document.getElementById('slide-content-container'),
+            answerSection: document.getElementById('answer-section'),
+            btnReveal: document.getElementById('btn-reveal'),
+            answerFeedback: document.getElementById('answer-feedback'),
+            answerText: document.getElementById('answer-text'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next'),
+            dotsContainer: document.getElementById('dots-container'),
+            sidebarNav: document.getElementById('sidebar-nav')
+        };
+
+        function updateTheme() {
+            if (isDarkMode) {
+                DOM.html.classList.add('dark');
+                DOM.themeIcon.innerHTML = icons.sun;
+            } else {
+                DOM.html.classList.remove('dark');
+                DOM.themeIcon.innerHTML = icons.moon;
+            }
+        }
+
+        DOM.themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            updateTheme();
+        });
+
+        // --- CONTROLE DA SIDEBAR E MARGEM NEGATIVA ---
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        let isSidebarOpen = window.innerWidth >= 768; 
+
+        function updateSidebarState() {
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full', 'md:-ml-72');
+                sidebarOverlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full', 'md:-ml-72');
+                sidebarOverlay.classList.add('hidden');
+            }
+        }
+
+        sidebarToggle.addEventListener('click', () => {
+            isSidebarOpen = !isSidebarOpen;
+            updateSidebarState();
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            if(window.innerWidth < 768) {
+                isSidebarOpen = false;
+                updateSidebarState();
+            }
+        });
+
+        function populateSidebar() {
+            DOM.sidebarNav.innerHTML = '';
+            slidesData.forEach((slide, index) => {
+                const li = document.createElement('li');
+                li.className = `p-3 rounded-lg cursor-pointer transition-all border-l-4 text-sm font-medium ${
+                    index === currentSlide 
+                    ? 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-500 text-cyan-700 dark:text-cyan-400' 
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`;
+                li.innerHTML = `<div class="flex items-center gap-3">
+                                   <div class="scale-75 opacity-70">${slide.icon}</div>
+                                   <span class="truncate">${slide.title}</span>
+                                </div>`;
+                li.addEventListener('click', () => {
+                    currentSlide = index;
+                    renderSlide();
+                    if(window.innerWidth < 768) {
+                        isSidebarOpen = false;
+                        updateSidebarState();
+                    }
+                });
+                DOM.sidebarNav.appendChild(li);
+            });
+        }
+
+        function renderSlide() {
+            const slide = slidesData[currentSlide];
+
+            DOM.contentContainer.classList.remove('slide-transition');
+            void DOM.contentContainer.offsetWidth; 
+            DOM.contentContainer.classList.add('slide-transition');
+
+            DOM.iconContainer.innerHTML = slide.icon;
+            DOM.title.textContent = slide.title;
+            DOM.contentContainer.innerHTML = slide.content;
+
+            const progress = ((currentSlide + 1) / slidesData.length) * 100;
+            DOM.progressBar.style.width = `${progress}%`;
+            DOM.slideCounter.textContent = `SLIDE ${currentSlide + 1} / ${slidesData.length}`;
+
+            if (slide.isQuestion) {
+                DOM.answerSection.classList.remove('hidden');
+                DOM.btnReveal.classList.remove('hidden');
+                DOM.answerFeedback.classList.add('hidden');
+                
+                DOM.answerText.innerHTML = slide.answer;
+                
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg> Revelar Solução`;
+            } else {
+                DOM.answerSection.classList.add('hidden');
+            }
+
+            DOM.btnPrev.disabled = currentSlide === 0;
+            DOM.btnPrev.style.opacity = currentSlide === 0 ? '0.3' : '1';
+            DOM.btnNext.disabled = currentSlide === slidesData.length - 1;
+            DOM.btnNext.style.opacity = currentSlide === slidesData.length - 1 ? '0.3' : '1';
+
+            updateDots();
+            populateSidebar();
+        }
+
+        DOM.btnReveal.addEventListener('click', () => {
+            if (DOM.answerFeedback.classList.contains('hidden')) {
+                DOM.answerFeedback.classList.remove('hidden');
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg> Ocultar Solução`;
+            } else {
+                DOM.answerFeedback.classList.add('hidden');
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg> Revelar Solução`;
+            }
+        });
+
+        function nextSlide() {
+            if (currentSlide < slidesData.length - 1) {
+                currentSlide++;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        }
+
+        DOM.btnNext.addEventListener('click', nextSlide);
+        DOM.btnPrev.addEventListener('click', prevSlide);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        function createDots() {
+            DOM.dotsContainer.innerHTML = '';
+            slidesData.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `h-2 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-cyan-500 w-8' : 'bg-slate-300 dark:bg-slate-700 w-2'}`;
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    renderSlide();
+                });
+                DOM.dotsContainer.appendChild(dot);
+            });
+        }
+
+        function updateDots() {
+            const dots = DOM.dotsContainer.children;
+            Array.from(dots).forEach((dot, index) => {
+                dot.className = `h-2 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-cyan-500 w-8' : 'bg-slate-300 dark:bg-slate-700 w-2'}`;
+            });
+        }
+
+        // Inicialização
+        if (localStorage.getItem('fontSizeLevel')) {
+            currentFontSizeLevel = parseInt(localStorage.getItem('fontSizeLevel'));
+        }
+        changeFontSize(currentFontSizeLevel);
+
+        updateTheme();
+        updateSidebarState();
+        createDots();
+        renderSlide();
+    </script>
+</body>
+</html>
