@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio Técnico ETB-Pay | Dev Júnior</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        etb: {
+                            dark: '#0f172a',    // slate-900
+                            card: '#1e293b',    // slate-800
+                            accent: '#10b981',  // emerald-500
+                            alert: '#f59e0b',   // amber-500
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base styles with transitions */
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.light-theme {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        /* Sidebar transition and styles */
+        aside {
+            transition: width 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        aside.collapsed {
+            width: 4.5rem !important;
+        }
+
+        aside.collapsed .sidebar-text,
+        aside.collapsed .sidebar-header-text {
+            display: none;
+        }
+
+        aside.collapsed .sidebar-item {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        aside.collapsed .sidebar-item i {
+            margin-right: 0;
+        }
+
+        /* Glassmorphism theme adaptive */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        body.light-theme .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            color: #1e293b;
+        }
+
+        body.light-theme .theme-text {
+            color: #0f172a !important;
+        }
+
+        body.light-theme .text-slate-300 {
+            color: #334155 !important;
+        }
+
+        body.light-theme .text-slate-400 {
+            color: #475569 !important;
+        }
+
+        body.light-theme .bg-slate-900\/80 {
+            background-color: rgba(241, 245, 249, 0.9);
+            border-color: #cbd5e1;
+        }
+
+        body.light-theme .bg-slate-800\/40 {
+            background-color: rgba(226, 232, 240, 0.5);
+            border-color: #cbd5e1;
+        }
+
+        body.light-theme .bg-black {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        body.light-theme .text-white {
+            color: #0f172a !important;
+        }
+
+        body.light-theme pre {
+            color: #1e293b !important;
+        }
+
+        body.light-theme code {
+            background-color: #e2e8f0 !important;
+            color: #b45309 !important;
+        }
+
+        /* Sidebar items icon brightness patch */
+        .sidebar-item i {
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.1));
+        }
+
+        body.light-theme .sidebar-item i {
+            filter: none;
+        }
+
+        /* Custom labels */
+        .opcao-label {
+            transition: all 0.2s;
+        }
+
+        body.light-theme .opcao-label {
+            background-color: #ffffff;
+            border-color: #cbd5e1;
+        }
+
+        body.light-theme .opcao-label:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Sidebar items light theme */
+        body.light-theme aside {
+            background-color: #ffffff;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        body.light-theme .theme-border {
+            border-color: #e2e8f0 !important;
+        }
+
+        body.light-theme .dot:not(.bg-emerald-500) {
+            background-color: #cbd5e1;
+        }
+
+        body.light-theme .dot:not(.bg-emerald-500):hover {
+            background-color: #94a3b8;
+        }
+
+        body.light-theme #toggle-sidebar {
+            background-color: #e2e8f0;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+
+        body.light-theme #toggle-sidebar:hover {
+            background-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .code-block {
+            background: #000000;
+            border-left: 4px solid #10b981;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        body.light-theme ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        body.light-theme ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+        }
+
+        body.light-theme ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @media print {
+
+            aside,
+            button,
+            .no-print,
+            header,
+            #toggle-sidebar {
+                display: none !important;
+            }
+
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            .glass-card {
+                background: none !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #000000 !important;
+            }
+
+            pre,
+            code {
+                background-color: #f1f5f9 !important;
+                color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            .text-white {
+                color: #000000 !important;
+            }
+
+            span,
+            p,
+            li {
+                color: #334155 !important;
+            }
+
+            [id^="slide-"] {
+                display: block !important;
+                margin-bottom: 2rem !important;
+                page-break-after: always !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased selection:bg-emerald-500 selection:text-white flex flex-col min-h-screen">
+
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-800 w-full">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()"
+                    class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500 flex items-center justify-center hover:bg-emerald-500/40 transition-colors cursor-pointer group"
+                    title="Alternar Barra Lateral">
+                    <i class="fa-solid fa-bars text-emerald-400 text-xl group-hover:scale-110 transition-transform"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white theme-text">ETB-PAY: Java</h1>
+                    <p class="text-xs text-emerald-400 font-semibold uppercase tracking-widest font-mono">Tratamento de
+                        Exceções (Blocos Try Catch)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <span id="slide-indicator"
+                    class="font-mono text-xs uppercase tracking-wider text-slate-400 bg-slate-800/40 border border-slate-700/60 px-3 py-1.5 rounded-lg theme-border">SLIDE
+                    1/5</span>
+
+                <div
+                    class="flex items-center bg-slate-800/40 rounded-lg border border-slate-700/60 p-0.5 no-print theme-border">
+                    <button onclick="changeFontSize(-1)" id="font-btn-dec"
+                        class="px-2.5 py-1 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                        title="Diminuir Fonte">A-</button>
+                    <button onclick="changeFontSize(0)" id="font-btn-norm"
+                        class="px-2.5 py-1 text-xs font-bold text-emerald-400 hover:text-white border-l border-r border-slate-700/60 transition-colors theme-border"
+                        title="Fonte Padrão">A</button>
+                    <button onclick="changeFontSize(1)" id="font-btn-inc"
+                        class="px-2.5 py-1 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                        title="Aumentar Fonte">A+</button>
+                </div>
+
+                <button onclick="toggleTheme()"
+                    class="w-9 h-9 rounded-lg bg-slate-800/40 border border-slate-700/60 flex items-center justify-center text-slate-300 hover:text-white no-print theme-border"
+                    title="Alternar Tema">
+                    <i id="theme-icon" class="fa-solid fa-sun text-amber-400 hover:text-amber-300"></i>
+                </button>
+
+                <button onclick="window.print()"
+                    class="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-slate-900 border border-emerald-500/30 font-mono text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all duration-200 cursor-pointer no-print">
+                    <i class="fa-solid fa-file-pdf mr-1.5"></i>Salvar em PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 relative overflow-hidden w-full">
+
+        <aside id="sidebar"
+            class="w-80 flex-shrink-0 border-r border-slate-800 bg-slate-900/40 backdrop-blur-md transition-all duration-300 flex flex-col no-print z-40 transform translate-x-0 overflow-y-auto">
+            <div class="px-6 py-4 border-b border-slate-800/60 theme-border h-[68px] flex items-center">
+                <p
+                    class="text-xs font-semibold text-slate-400 uppercase tracking-widest font-mono sidebar-header-text whitespace-nowrap overflow-hidden">
+                    NAVEGAÇÃO DA SPRINT</p>
+            </div>
+
+            <div class="flex-1 py-4 space-y-1 overflow-y-auto px-3">
+                <button onclick="goToSlide(1)"
+                    class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                    id="sb-item-1" title="Check-in: O Projeto Final (Gabarito)">
+                    <i class="fa-solid fa-file-shield text-emerald-400 text-sm min-w-[20px] text-center"></i>
+                    <span class="truncate sidebar-text">Check-in: O Projeto Final (Gabarito)</span>
+                </button>
+
+                <button onclick="goToSlide(2)"
+                    class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
+                    id="sb-item-2" title="Aquecimento: Simulado Técnico">
+                    <i class="fa-solid fa-graduation-cap text-amber-400 text-sm min-w-[20px] text-center"></i>
+                    <span class="truncate sidebar-text">Aquecimento: Simulado Técnico</span>
+                </button>
+
+                <button onclick="goToSlide(3)"
+                    class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
+                    id="sb-item-3" title="Arquitetura Resiliente (Código de Estudo)">
+                    <i class="fa-solid fa-magnifying-glass-bug text-emerald-400 text-sm min-w-[20px] text-center"></i>
+                    <span class="truncate sidebar-text">Arquitetura Resiliente (Código de Estudo)</span>
+                </button>
+
+                <button onclick="goToSlide(4)"
+                    class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
+                    id="sb-item-4" title="Setup do Ambiente & Diagnóstico">
+                    <i class="fa-solid fa-laptop-code text-blue-400 text-sm min-w-[20px] text-center"></i>
+                    <span class="truncate sidebar-text">Setup do Ambiente & Diagnóstico</span>
+                </button>
+
+                <button onclick="goToSlide(5)"
+                    class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
+                    id="sb-item-5" title="Esquema de Dados (3FN)">
+                    <i class="fa-solid fa-database text-purple-400 text-sm min-w-[20px] text-center"></i>
+                    <span class="truncate sidebar-text">Esquema de Dados (3FN)</span>
+                </button>
+            </div>
+
+            <div
+                class="p-4 border-t border-slate-800/60 theme-border font-mono text-[11px] text-slate-500 sidebar-text whitespace-nowrap overflow-hidden">
+                <p><i class="fa-solid fa-code-branch mr-1"></i> Squad 3G</p>
+                <p class="mt-1"><i class="fa-solid fa-flag-checkered mr-1"></i> Modo: Revisão Final</p>
+            </div>
+        </aside>
+
+        <main id="content-area"
+            class="flex-1 overflow-y-auto px-4 py-8 md:px-8 transition-all duration-300 flex flex-col items-center justify-start min-h-0">
+
+            <div class="max-w-4xl w-full flex-1 flex flex-col justify-between space-y-8">
+                <div class="flex-1">
+
+                    <div id="slide-1" class="space-y-6">
+                        <section class="glass-card rounded-2xl p-8 border-t-4 border-t-emerald-500">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span
+                                    class="bg-blue-500/20 text-blue-400 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Back-End
+                                    Júnior</span>
+                                <span
+                                    class="bg-slate-700 text-slate-300 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Java
+                                    JDBC</span>
+                            </div>
+                            <h2 class="text-3xl font-bold mb-4 theme-text">Desafio: Motor de Contas ETB-Pay</h2>
+                            <p class="text-slate-300 mb-6 leading-relaxed">
+                                Bem-vindos à semana de revisão final da Squad 3G. O foco agora é consolidar a Tríade do Back-End: POO, Arquitetura e Persistência. Para otimizar seus estudos para a prova, o Tech Lead está disponibilizando a versão FINAL e totalmente corrigida do Motor de Contas do ETB-Pay. O código já contempla o encapsulamento correto, a conexão com o SQLite e as blindagens com blocos Try-Catch. Baixe o projeto e utilize-o como seu material oficial de estudos.
+                            </p>
+
+                            <div
+                                class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-slate-800/40 p-4 rounded-xl border border-slate-700/60 no-print">
+                                <div class="text-sm text-slate-300">
+                                    <i class="fa-solid fa-box-archive text-emerald-400 mr-2"></i> Pronto para extração
+                                    no laboratório.
+                                </div>
+                                <a href="https://raw.githubusercontent.com/alexfernandess/etb-pay/main/utils/desafioJDBC.zip"
+                                    class="inline-flex items-center gap-2 bg-emerald-500 text-slate-900 font-bold px-5 py-2.5 rounded-lg hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/10 text-sm">
+                                    <i class="fa-solid fa-download"></i> Baixar Projeto Completo (Gabarito)
+                                </a>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div id="slide-2" class="hidden space-y-6">
+                        <section class="glass-card rounded-2xl p-8 border border-slate-700/50 space-y-6">
+                            <h3 class="text-xl font-bold flex items-center gap-2 text-amber-400">
+                                <i class="fa-solid fa-graduation-cap"></i> Aquecimento: Simulado Técnico (Estilo
+                                Concursos)
+                            </h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Antes de abrirmos a IDE, analise o cenário teórico abaixo. Ele dita as regras de como a
+                                JVM e a arquitetura do Java lidam com imprevistos em tempo de execução e persistência
+                                JDBC.
+                            </p>
+
+                            <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-800 font-sans text-sm text-slate-300 space-y-4"
+                                data-questao="1">
+                                <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+                                    <span class="text-xs font-bold text-amber-400 uppercase font-mono"><i
+                                            class="fa-solid fa-circle-question mr-1"></i> Questão 01</span>
+                                    <span
+                                        class="text-[10px] bg-slate-800 border border-slate-700/50 text-slate-400 px-2 py-0.5 rounded font-mono">Conceitual
+                                        / Arquitetura</span>
+                                </div>
+                                <p class="font-semibold text-white">Questão Adaptada — Analista de TI:</p>
+                                <p class="italic text-slate-400">"No ecossistema Java, falhas como a ausência de um
+                                    ponto e vírgula ou uma classe nomeada incorretamente impedem a geração do bytecode.
+                                    Por outro lado, imprevistos como a indisponibilidade de um Driver de Banco de Dados
+                                    ou a ausência de um arquivo ocorrem com o system já em execução. Para evitar o
+                                    colapso do software nesses cenários dinâmicos, a arquitetura do Java nos obriga a
+                                    gerenciar esses riscos."</p>
+                                <p class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Considerando
+                                    o mecanismo de controle de erros do Java, assinale a alternativa correta:</p>
+
+                                <div class="space-y-2 pt-2 text-xs font-mono">
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q1" value="A" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">A)</span>
+                                        <span class="text-slate-300 font-sans">Falhas de digitação e a falta de arquivos
+                                            pertencem à mesma categoria de Erros de Compilação.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q1" value="B" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">B)</span>
+                                        <span class="text-slate-300 font-sans">O bloco Try-Catch é um recurso opcional
+                                            para qualquer tipo de tratamento de Banco de Dados (JDBC).</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q1" value="C" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">C)</span>
+                                        <span class="text-slate-300 font-sans">A JVM exige o tratamento obrigatório
+                                            (Exceções Checadas) para operações com agentes externos incertos, como
+                                            conexões de rede e banco de dados, protegendo a integridade do sistema
+                                            através de um plano de contingência.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q1" value="D" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">D)</span>
+                                        <span class="text-slate-300 font-sans">Erros em tempo de execução (Runtime)
+                                            suspendem o processo de compilação imediatamente.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q1" value="E" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">E)</span>
+                                        <span class="text-slate-300 font-sans">Falhas de sintaxe, como falta de ponto e
+                                            vírgula, são tratadas em tempo de execução pela própria JVM.</span>
+                                    </label>
+                                </div>
+
+                                <div class="flex flex-col gap-3 pt-2 border-t border-slate-800/60 no-print">
+                                    <div class="flex items-center">
+                                        <button onclick="validarQuestao(1)"
+                                            class="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm px-5 py-2 rounded transition-colors duration-200 shadow-md shadow-orange-500/10">
+                                            Responder
+                                        </button>
+                                    </div>
+                                    <div id="feedback-q1" class="hidden w-full text-xs transition-all duration-300">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-800 font-sans text-sm text-slate-300 space-y-4"
+                                data-questao="2">
+                                <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+                                    <span class="text-xs font-bold text-amber-400 uppercase font-mono"><i
+                                            class="fa-solid fa-circle-question mr-1"></i> Questão 02</span>
+                                    <span
+                                        class="text-[10px] bg-slate-800 border border-slate-700/50 text-slate-400 px-2 py-0.5 rounded font-mono">O
+                                        Bloco Finally</span>
+                                </div>
+                                <p class="font-semibold text-white">Análise de Fluxo de Execução:</p>
+                                <p class="text-slate-400">O fechamento correto de recursos de rede e de persistência é
+                                    um dos tópicos mais críticos no desenvolvimento de aplicações corporativas. Analise
+                                    o seguinte trecho de código em Java:</p>
+
+                                <div class="p-3 bg-black rounded-lg font-mono text-xs text-emerald-400 overflow-x-auto">
+                                    <pre class="text-slate-300"><span class="text-purple-400">public void</span> <span class="text-blue-400">executarConsulta</span>() {
+    <span class="text-purple-400">try</span> {
+        System.out.println(<span class="text-emerald-300">"A): Abrindo conexão com o banco de dados..."</span>);
+        <span class="text-purple-400">throw new</span> SQLException(<span class="text-emerald-300">"Erro: Timeout de Rede!"</span>);
+    } <span class="text-purple-400">catch</span> (SQLException e) {
+        System.out.println(<span class="text-emerald-300">"B): Exceção capturada no bloco catch."</span>);
+    } <span class="text-purple-400">finally</span> {
+        System.out.println(<span class="text-emerald-300">"C): Executando encerramento de conexões."</span>);
+    }
+}</pre>
+                                </div>
+
+                                <p class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Assinale a
+                                    alternativa correta sobre o fluxo de execução deste código:</p>
+
+                                <div class="space-y-2 pt-2 text-xs font-mono">
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q2" value="A" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">A)</span>
+                                        <span class="text-slate-300 font-sans">O bloco finally não será executado, pois
+                                            a exceção foi interceptada e tratada no bloco catch.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q2" value="B" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">B)</span>
+                                        <span class="text-slate-300 font-sans">O bloco finally será executado apenas se
+                                            nenhuma exceção for lançada dentro do bloco try.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q2" value="C" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">C)</span>
+                                        <span class="text-slate-300 font-sans">O bloco finally é garantido para rodar
+                                            (imprimindo o texto "C"), o que o torna o local ideal para fechar conexões
+                                            de banco de dados e liberar recursos escassos, mesmo que ocorra uma
+                                            falha.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q2" value="D" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">D)</span>
+                                        <span class="text-slate-300 font-sans">A JVM interromperá a compilação porque
+                                            não se pode declarar um bloco finally imediatamente após um bloco
+                                            catch.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q2" value="E" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">E)</span>
+                                        <span class="text-slate-300 font-sans">O método executará novamente em loop
+                                            recursivo se a instrução do bloco finally for executada com sucesso.</span>
+                                    </label>
+                                </div>
+
+                                <div class="flex flex-col gap-3 pt-2 border-t border-slate-800/60 no-print">
+                                    <div class="flex items-center">
+                                        <button onclick="validarQuestao(2)"
+                                            class="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm px-5 py-2 rounded transition-colors duration-200 shadow-md shadow-orange-500/10">
+                                            Responder
+                                        </button>
+                                    </div>
+                                    <div id="feedback-q2" class="hidden w-full text-xs transition-all duration-300">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-800 font-sans text-sm text-slate-300 space-y-4"
+                                data-questao="3">
+                                <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+                                    <span class="text-xs font-bold text-amber-400 uppercase font-mono"><i
+                                            class="fa-solid fa-circle-question mr-1"></i> Questão 03</span>
+                                    <span
+                                        class="text-[10px] bg-slate-800 border border-slate-700/50 text-slate-400 px-2 py-0.5 rounded font-mono">Hierarquia
+                                        e Ordem dos Catchs</span>
+                                </div>
+                                <p class="font-semibold text-white">Análise de Código JDBC:</p>
+                                <p class="text-slate-400">Durante a implementação de um método de persistência em um DAO
+                                    (Data Access Object) do ETB-Pay, um desenvolvedor júnior escreveu a seguinte
+                                    estrutura de tratamento de exceções:</p>
+
+                                <div class="p-3 bg-black rounded-lg font-mono text-xs text-emerald-400 overflow-x-auto">
+                                    <pre class="text-slate-300"><span class="text-purple-400">try</span> {
+    <span class="text-slate-400">// Código de inserção JDBC</span>
+    stmt.executeUpdate();
+} <span class="text-purple-400">catch</span> (Exception e) {
+    System.out.println(<span class="text-emerald-300">"Capturando erro genérico..."</span>);
+} <span class="text-purple-400">catch</span> (SQLException e) {
+    System.out.println(<span class="text-emerald-300">"Capturando erro de banco de dados..."</span>);
+}</pre>
+                                </div>
+
+                                <p class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Ao tentar
+                                    compilar este código, o compilador do Java irá:</p>
+
+                                <div class="space-y-2 pt-2 text-xs font-mono">
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q3" value="A" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">A)</span>
+                                        <span class="text-slate-300 font-sans">Compilar com sucesso e executar o bloco
+                                            SQLException primeiro, por ser mais específico.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q3" value="B" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">B)</span>
+                                        <span class="text-slate-300 font-sans">Apresentar um erro de compilação
+                                            (unreachable catch block), pois a classe genérica Exception (mãe) captura
+                                            qualquer tipo de exceção, deixando o bloco da SQLException (filha)
+                                            inalcançável.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q3" value="C" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">C)</span>
+                                        <span class="text-slate-300 font-sans">Compilar com sucesso, mas a JVM ignorará
+                                            o bloco Exception durante o tempo de execução caso ocorra um erro de conexão
+                                            JDBC.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q3" value="D" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">D)</span>
+                                        <span class="text-slate-300 font-sans">Compilar normalmente, mas lançar uma
+                                            exceção do tipo NullPointerException na JVM durante a execução do
+                                            Statement.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q3" value="E" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">E)</span>
+                                        <span class="text-slate-300 font-sans">Exigir que o desenvolvedor crie um bloco
+                                            finally obrigatório contendo a liberação dos objetos Connection e
+                                            PreparedStatement.</span>
+                                    </label>
+                                </div>
+
+                                <div class="flex flex-col gap-3 pt-2 border-t border-slate-800/60 no-print">
+                                    <div class="flex items-center">
+                                        <button onclick="validarQuestao(3)"
+                                            class="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm px-5 py-2 rounded transition-colors duration-200 shadow-md shadow-orange-500/10">
+                                            Responder
+                                        </button>
+                                    </div>
+                                    <div id="feedback-q3" class="hidden w-full text-xs transition-all duration-300">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-800 font-sans text-sm text-slate-300 space-y-4"
+                                data-questao="4">
+                                <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+                                    <span class="text-xs font-bold text-amber-400 uppercase font-mono"><i
+                                            class="fa-solid fa-circle-question mr-1"></i> Questão 04</span>
+                                    <span
+                                        class="text-[10px] bg-slate-800 border border-slate-700/50 text-slate-400 px-2 py-0.5 rounded font-mono">Checked
+                                        vs Unchecked</span>
+                                </div>
+                                <p class="font-semibold text-white">Consolidação das Categorias:</p>
+                                <p class="text-slate-400">No tratamento de exceções em Java, as classes filhas de <code
+                                        class="bg-slate-950 px-1.5 py-0.5 rounded text-amber-400 font-mono text-xs">java.lang.Throwable</code>
+                                    se dividem principalmente em exceções checadas (checked) e exceções em tempo de
+                                    execução (unchecked/runtime). A correta classificação determina a obrigatoriedade do
+                                    tratamento sintático.</p>
+                                <p class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Assinale a
+                                    opção que mapeia corretamente as categorias:</p>
+
+                                <div class="space-y-2 pt-2 text-xs font-mono">
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q4" value="A" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">A)</span>
+                                        <span class="text-slate-300 font-sans">Todas as exceções em Java pertencem à
+                                            categoria de unchecked exceptions, não necessitando de try-catch.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q4" value="B" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">B)</span>
+                                        <span class="text-slate-300 font-sans">SQLException e IOException são exceções
+                                            checadas (checked) e exigem tratamento obrigatório no código;
+                                            NullPointerException e ArithmeticException são não-checadas
+                                            (unchecked/runtime) e representam falhas de lógica.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q4" value="C" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">C)</span>
+                                        <span class="text-slate-300 font-sans">NullPointerException é uma exceção
+                                            checada, o que obriga o desenvolvedor a envolver todo trecho de leitura de
+                                            variáveis em blocos try-catch.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q4" value="D" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">D)</span>
+                                        <span class="text-slate-300 font-sans">ArithmeticException é uma exceção
+                                            checada, pois erros de divisão por zero impedem a geração do bytecode em
+                                            tempo de compilação.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q4" value="E" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">E)</span>
+                                        <span class="text-slate-300 font-sans">Exceções checadas e erros de sintaxe
+                                            (como ausência de parênteses) pertencem à mesma árvore hierárquica e derivam
+                                            de Error.</span>
+                                    </label>
+                                </div>
+
+                                <div class="flex flex-col gap-3 pt-2 border-t border-slate-800/60 no-print">
+                                    <div class="flex items-center">
+                                        <button onclick="validarQuestao(4)"
+                                            class="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm px-5 py-2 rounded transition-colors duration-200 shadow-md shadow-orange-500/10">
+                                            Responder
+                                        </button>
+                                    </div>
+                                    <div id="feedback-q4" class="hidden w-full text-xs transition-all duration-300">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-800 font-sans text-sm text-slate-300 space-y-4"
+                                data-questao="5">
+                                <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+                                    <span class="text-xs font-bold text-amber-400 uppercase font-mono"><i
+                                            class="fa-solid fa-circle-question mr-1"></i> Questão 05</span>
+                                    <span
+                                        class="text-[10px] bg-slate-800 border border-slate-700/50 text-slate-400 px-2 py-0.5 rounded font-mono">Palavras-chave
+                                        throw vs throws</span>
+                                </div>
+                                <p class="font-semibold text-white">Escopo e Lançamento de Erros:</p>
+                                <p class="text-slate-400">No ecossistema Java, as palavras-chave <code
+                                        class="bg-slate-950 px-1.5 py-0.5 rounded text-amber-400 font-mono text-xs">throw</code>
+                                    e <code
+                                        class="bg-slate-950 px-1.5 py-0.5 rounded text-amber-400 font-mono text-xs">throws</code>
+                                    possuem papéis bem distintos no fluxo de tratamento de erros.</p>
+                                <p class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Sobre a
+                                    diferença prática de escopo na assinatura e no lançamento, assinale a alternativa
+                                    correta:</p>
+
+                                <div class="space-y-2 pt-2 text-xs font-mono">
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q5" value="A" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">A)</span>
+                                        <span class="text-slate-300 font-sans">throw é usado na assinatura de um método
+                                            para alertar quem o chama, enquanto throws lança a instância da exceção de
+                                            forma ativa.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q5" value="B" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">B)</span>
+                                        <span class="text-slate-300 font-sans">Ambas as instruções possuem o mesmo
+                                            escopo e são equivalentes na sintaxe de compilação da JVM.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q5" value="C" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">C)</span>
+                                        <span class="text-slate-300 font-sans">throws é usado na assinatura do método
+                                            para alertar o chamador sobre possíveis exceções checadas disparadas ali;
+                                            throw é usado no corpo do método para instanciar e lançar ativamente uma
+                                            exceção.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q5" value="D" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">D)</span>
+                                        <span class="text-slate-300 font-sans">O uso de throws encerra a conexão com o
+                                            banco de dados e throw reinicia a instância da classe Main de forma
+                                            silenciosa.</span>
+                                    </label>
+                                    <label
+                                        class="opcao-label flex items-start gap-3 p-3 bg-slate-850 hover:bg-slate-800/40 rounded border border-slate-700/40 cursor-pointer transition-all duration-200">
+                                        <input type="radio" name="q5" value="E" class="hidden">
+                                        <span class="opcao-letra font-bold text-slate-400">E)</span>
+                                        <span class="text-slate-300 font-sans">A cláusula throw exige que a exceção seja
+                                            do tipo Error, enquanto throws exige que seja do tipo
+                                            RuntimeException.</span>
+                                    </label>
+                                </div>
+
+                                <div class="flex flex-col gap-3 pt-2 border-t border-slate-800/60 no-print">
+                                    <div class="flex items-center">
+                                        <button onclick="validarQuestao(5)"
+                                            class="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm px-5 py-2 rounded transition-colors duration-200 shadow-md shadow-orange-500/10">
+                                            Responder
+                                        </button>
+                                    </div>
+                                    <div id="feedback-q5" class="hidden w-full text-xs transition-all duration-300">
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div id="slide-3" class="hidden space-y-6">
+                        <section class="glass-card rounded-2xl p-8 border border-slate-700/50">
+                            <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-400">
+                                <i class="fa-solid fa-magnifying-glass-bug"></i> Arquitetura Resiliente (Código de Estudo)
+                            </h3>
+                            <p class="text-slate-300 mb-6 text-sm">
+                                Ao abrir o projeto no seu ambiente local, analise como aplicamos os conceitos de resiliência na prática. O código entregue possui três pilares de defesa implementados:
+                            </p>
+
+                            <div class="space-y-4">
+                                <div
+                                    class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <span
+                                            class="bg-amber-500/20 text-amber-400 font-bold p-1.5 rounded-lg text-xs"><i
+                                                class="fa-solid fa-link"></i> PILAR 01</span>
+                                        <h4 class="font-bold text-base text-white theme-text">A Conexão Segura (ConexaoDB.java)</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        Observe como a classe de conexão isola o bloco try-catch para o DriverManager. Se o driver do SQLite não for encontrado, a JVM não encerra o aplicativo abruptamente, mas retorna um erro elegante e controlado no console.
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <span
+                                            class="bg-amber-500/20 text-amber-400 font-bold p-1.5 rounded-lg text-xs"><i
+                                                class="fa-solid fa-shield-halved"></i> PILAR 02</span>
+                                        <h4 class="font-bold text-base text-white theme-text">O Escudo da POO (Conta.java)</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        Analise a classe Conta. Nenhuma variável de dinheiro (saldo) está pública. O encapsulamento força o uso de Getters e Setters, garantindo que regras de negócio futuras (como impedir saque negativo) possam ser injetadas sem quebrar o sistema.
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5 hover:border-emerald-500/50 transition-colors">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <span
+                                            class="bg-amber-500/20 text-amber-400 font-bold p-1.5 rounded-lg text-xs"><i
+                                                class="fa-solid fa-database"></i> PILAR 03</span>
+                                        <h4 class="font-bold text-base text-white theme-text">Persistência Blindada (ClienteDAO.java)</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        Navegue até o método de cadastro. O uso do PreparedStatement bloqueia ataques de SQL Injection, enquanto o bloco de exceção captura especificamente a SQLException, avisando o usuário caso a tabela de clientes ainda não tenha sido criada no banco.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div id="slide-4" class="hidden space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="glass-card rounded-2xl p-6 border border-slate-700">
+                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2 theme-text">
+                                    <i class="fa-solid fa-gears text-slate-400"></i> Setup do Ambiente
+                                </h3>
+                                <ul class="space-y-3 text-sm text-slate-300">
+                                    <li class="flex items-start gap-2">
+                                        <i class="fa-brands fa-java text-amber-500 mt-0.5 text-lg w-5 text-center"></i>
+                                        <span>JDK 17 ou superior ativo na estação.</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i
+                                            class="fa-solid fa-puzzle-piece text-blue-400 mt-0.5 text-lg w-5 text-center"></i>
+                                        <span>Extensão **Extension Pack for Java** ativada no VS Code para automação da
+                                            pasta `bin`.</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i class="fa-solid fa-cube text-blue-500 mt-0.5 text-lg w-5 text-center"></i>
+                                        <span>Driver de comunicação `sqlite-jdbc.jar` embutido na estrutura física do
+                                            projeto.</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div
+                                class="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-6 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="font-bold text-blue-400 text-sm mb-2 uppercase tracking-wider">
+                                        <i class="fa-solid fa-lightbulb mr-1"></i> Diagnóstico de Falha
+                                    </h3>
+                                    <p class="text-xs text-blue-200/80 leading-relaxed">
+                                        Se a string de conexão estiver correta e as tabelas do banco de dados ainda não
+                                        tiverem sido geradas pelo script SQL, a aplicação Java lançará uma exceção do
+                                        tipo <code
+                                            class="bg-slate-900 px-1 rounded text-amber-400 font-mono">SQLException</code>
+                                        informando a ausência da tabela alvo ao tentar disparar o comando de
+                                        persistência.
+                                    </p>
+                                </div>
+                                <div
+                                    class="mt-4 p-3 bg-slate-900/50 rounded-lg border border-blue-500/20 text-slate-300 text-[11px] leading-relaxed theme-border">
+                                    <span class="font-bold text-white"><i
+                                            class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> Dica do
+                                        Tech Lead:</span>
+                                    Lembre-se de verificar se as tabelas do banco foram populadas executando o script
+                                    `clientes.sql` localmente antes de iniciar a depuração.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="slide-5" class="hidden space-y-6">
+                        <div class="glass-card rounded-2xl p-6 border border-slate-700/60">
+                            <h3 class="font-bold text-md mb-3 flex items-center gap-2 text-slate-300 theme-text">
+                                <i class="fa-solid fa-database text-emerald-400"></i> Esquema de Dados (3FN)
+                            </h3>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                Abaixo está o contrato relacional implementado. O script SQL (`clientes.sql`)
+                                encontra-se no pacote do projeto para execução local no VS Code.
+                            </p>
+                            <div class="p-4 bg-black rounded-lg font-mono text-xs text-slate-400 overflow-x-auto">
+                                <span class="text-emerald-400">CREATE TABLE</span> clientes (<br>
+                                &nbsp;&nbsp;id_cliente <span class="text-blue-400">INTEGER PRIMARY KEY</span>,<br>
+                                &nbsp;&nbsp;cpf <span class="text-blue-400">VARCHAR(11) UNIQUE</span>,<br>
+                                &nbsp;&nbsp;nome <span class="text-blue-400">VARCHAR(100)</span><br>
+                                );<br><br>
+                                <span class="text-emerald-400">CREATE TABLE</span> contas (<br>
+                                &nbsp;&nbsp;id_conta <span class="text-blue-400">INTEGER PRIMARY KEY</span>,<br>
+                                &nbsp;&nbsp;numero_conta <span class="text-blue-400">VARCHAR(20)</span>,<br>
+                                &nbsp;&nbsp;id_cliente <span class="text-blue-400">INTEGER</span>,<br>
+                                &nbsp;&nbsp;<span class="text-emerald-500">FOREIGN KEY</span>(id_cliente) <span
+                                    class="text-emerald-500">REFERENCES</span> clientes(id_cliente)<br>
+                                );
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div
+                    class="flex items-center justify-between border-t border-slate-800/80 pt-6 no-print w-full theme-border">
+                    <button id="prev-btn" onclick="prevSlide()"
+                        class="flex items-center gap-2 bg-slate-850 hover:bg-slate-800 border border-slate-700/60 font-semibold text-sm px-4 py-2 rounded-lg transition-colors duration-200 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Anterior
+                    </button>
+
+                    <div class="flex gap-2.5">
+                        <button onclick="goToSlide(1)"
+                            class="dot w-3 h-3 rounded-full bg-emerald-500 transition-all duration-250"
+                            title="Ir para Slide 1"></button>
+                        <button onclick="goToSlide(2)"
+                            class="dot w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-250"
+                            title="Ir para Slide 2"></button>
+                        <button onclick="goToSlide(3)"
+                            class="dot w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-250"
+                            title="Ir para Slide 3"></button>
+                        <button onclick="goToSlide(4)"
+                            class="dot w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-250"
+                            title="Ir para Slide 4"></button>
+                        <button onclick="goToSlide(5)"
+                            class="dot w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-250"
+                            title="Ir para Slide 5"></button>
+                    </div>
+
+                    <button id="next-btn" onclick="nextSlide()"
+                        class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-sm px-4 py-2 rounded-lg transition-colors duration-200">
+                        Próximo <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="border-t border-slate-800/80 py-4 text-center text-slate-500 text-[11px] no-print theme-border">
+        <p>Escola Técnica de Brasília - ETB | LTP II | Desafio Técnico de Programação</p>
+    </footer>
+
+    <script>
+        let currentSlide = 1;
+        let sidebarCollapsed = false;
+        let currentTheme = 'dark';
+        let currentFontSizeLevel = 0; // -1, 0, 1
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar estados do localStorage
+            if (localStorage.getItem('theme')) {
+                currentTheme = localStorage.getItem('theme');
+            }
+            applyTheme();
+
+            if (localStorage.getItem('fontSizeLevel')) {
+                currentFontSizeLevel = parseInt(localStorage.getItem('fontSizeLevel'));
+            }
+            changeFontSize(currentFontSizeLevel);
+
+            // Carregar slide inicial
+            goToSlide(1);
+
+            // Adiciona evento de escuta para a seleção visual das opções do Simulado
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const questionContainer = e.target.closest('[data-questao]');
+                    if (!questionContainer) return;
+
+                    // Remover destaque de todas as opções desta questão
+                    const labels = questionContainer.querySelectorAll('.opcao-label');
+                    labels.forEach(label => {
+                        label.classList.remove('border-orange-500', 'bg-orange-500/5', 'text-orange-255');
+                        label.classList.add('border-slate-700/40', 'bg-slate-850');
+                        const letterSpan = label.querySelector('.opcao-letra');
+                        if (letterSpan) {
+                            letterSpan.classList.remove('text-orange-400');
+                            letterSpan.classList.add('text-slate-400');
+                        }
+                    });
+
+                    // Adicionar destaque na opção selecionada
+                    const selectedLabel = e.target.closest('.opcao-label');
+                    if (selectedLabel) {
+                        selectedLabel.classList.remove('border-slate-700/40', 'bg-slate-850');
+                        selectedLabel.classList.add('border-orange-500', 'bg-orange-500/5', 'text-orange-255');
+                        const letterSpan = selectedLabel.querySelector('.opcao-letra');
+                        if (letterSpan) {
+                            letterSpan.classList.remove('text-slate-400');
+                            letterSpan.classList.add('text-orange-400');
+                        }
+                    }
+                });
+            });
+        });
+
+        // Controle de Slides
+        function goToSlide(slideNum) {
+            if (slideNum < 1 || slideNum > 5) return;
+            currentSlide = slideNum;
+            updateSlideUI();
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                goToSlide(currentSlide - 1);
+            }
+        }
+
+        // Permitir navegação por teclado (Esquerda / Direita)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            }
+        });
+
+        function nextSlide() {
+            if (currentSlide < 5) {
+                goToSlide(currentSlide + 1);
+            }
+        }
+
+        function updateSlideUI() {
+            // 1. Mostrar/ocultar contêineres de slides
+            for (let i = 1; i <= 5; i++) {
+                const slide = document.getElementById(`slide-${i}`);
+                if (slide) {
+                    if (i === currentSlide) {
+                        slide.classList.remove('hidden');
+                    } else {
+                        slide.classList.add('hidden');
+                    }
+                }
+            }
+
+            // 2. Atualizar menu da barra lateral
+            for (let i = 1; i <= 5; i++) {
+                const item = document.getElementById(`sb-item-${i}`);
+                if (item) {
+                    if (i === currentSlide) {
+                        item.className = "sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-bold transition-all duration-200 border bg-emerald-500/10 border-emerald-500/30 text-emerald-400";
+                    } else {
+                        item.className = "sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30";
+                    }
+                }
+            }
+
+            // 3. Indicador de slides na barra superior
+            const slideIndicator = document.getElementById('slide-indicator');
+            if (slideIndicator) {
+                slideIndicator.innerText = `SLIDE ${currentSlide}/5`;
+            }
+
+            // 4. Marcadores circulares (dots)
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                if (index + 1 === currentSlide) {
+                    dot.className = "dot w-3 h-3 rounded-full bg-emerald-500 transition-all duration-250";
+                } else {
+                    dot.className = "dot w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-250";
+                }
+            });
+
+            // 5. Atualizar estado dos botões Anterior/Próximo
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            if (currentSlide === 1) {
+                prevBtn.disabled = true;
+                prevBtn.classList.add('opacity-40', 'cursor-not-allowed');
+            } else {
+                prevBtn.disabled = false;
+                prevBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+            }
+
+            if (currentSlide === 5) {
+                nextBtn.disabled = true;
+                nextBtn.classList.add('opacity-40', 'cursor-not-allowed');
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+            }
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            sidebarCollapsed = !sidebarCollapsed;
+            const sidebar = document.getElementById('sidebar');
+
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+            }
+        }
+
+        // Controle de Tamanho de Fonte
+        function changeFontSize(level) {
+            currentFontSizeLevel = level;
+            localStorage.setItem('fontSizeLevel', level);
+
+            const root = document.documentElement;
+            const btnDec = document.getElementById('font-btn-dec');
+            const btnNorm = document.getElementById('font-btn-norm');
+            const btnInc = document.getElementById('font-btn-inc');
+
+            // Reset classes
+            btnDec.className = "px-2.5 py-1 text-xs font-bold text-slate-400 hover:text-white transition-colors";
+            btnNorm.className = "px-2.5 py-1 text-xs font-bold text-slate-400 hover:text-white border-l border-r border-slate-700/60 transition-colors theme-border";
+            btnInc.className = "px-2.5 py-1 text-xs font-bold text-slate-400 hover:text-white transition-colors";
+
+            if (level === -1) {
+                root.style.fontSize = '14px';
+                btnDec.className = "px-2.5 py-1 text-xs font-bold text-emerald-400 transition-colors";
+            } else if (level === 1) {
+                root.style.fontSize = '18px';
+                btnInc.className = "px-2.5 py-1 text-xs font-bold text-emerald-400 transition-colors";
+            } else {
+                root.style.fontSize = '16px';
+                btnNorm.className = "px-2.5 py-1 text-xs font-bold text-emerald-400 border-l border-r border-slate-700/60 transition-colors theme-border";
+            }
+        }
+
+        // Alternador de Temas
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', currentTheme);
+            applyTheme();
+        }
+
+        function applyTheme() {
+            const themeIcon = document.getElementById('theme-icon');
+            if (currentTheme === 'light') {
+                document.body.classList.add('light-theme');
+                if (themeIcon) {
+                    themeIcon.className = "fa-solid fa-moon text-slate-500 hover:text-slate-700";
+                    themeIcon.setAttribute('title', 'Ativar Modo Escuro');
+                }
+            } else {
+                document.body.classList.remove('light-theme');
+                if (themeIcon) {
+                    themeIcon.className = "fa-solid fa-sun text-amber-400 hover:text-amber-300";
+                    themeIcon.setAttribute('title', 'Ativar Modo Claro');
+                }
+            }
+        }
+
+        // Gabarito com as respostas corretas e justificativas didáticas
+        const gabarito = {
+            1: {
+                correta: 'C',
+                justificativa: 'A JVM exige o tratamento obrigatório (Exceções Checadas / Checked) para operações de entrada e saída (I/O), rede ou conexões com bancos de dados (JDBC). Como esses agentes são externos e inerentemente incertos, o compilador nos obriga a implementar um bloco try-catch ou assinar throws para garantir que o sistema tenha um plano de contingência caso a conexão falhe, evitando um travamento inesperado.'
+            },
+            2: {
+                correta: 'C',
+                justificativa: 'O bloco finally sempre será executado, independentemente de ter ocorrido uma exceção ou se ela foi capturada/tratada. Devido a essa garantia contratual da JVM, ele é o local canônico e seguro para liberar recursos escassos e fechar conexões ativas com o banco de dados, evitando vazamento de memória (connection leaks).'
+            },
+            3: {
+                correta: 'B',
+                justificativa: 'Em Java, os blocos catch devem ser ordenados do mais específico (classe filha) para o mais genérico (classe pai). Capturar Exception (classe mãe genérica) no primeiro bloco catch absorve qualquer tipo de falha, impossibilitando que o fluxo de controle alcance o bloco SQLException (classe filha). O compilador detecta isso como código inalcançável (unreachable catch block) e gera um erro de compilação.'
+            },
+            4: {
+                correta: 'B',
+                justificativa: 'SQLException e IOException herdam diretamente de Exception (sem passar por RuntimeException), sendo classificadas como Exceções Checadas (Checked) que exigem tratamento explícito na compilação. Já NullPointerException e ArithmeticException herdam de RuntimeException, indicando bugs ou falhas de lógica do próprio desenvolvedor que devem ser resolvidas com boas práticas de código, e não apenas tratadas.'
+            },
+            5: {
+                correta: 'C',
+                justificativa: 'A cláusula throws é declarada na assinatura do método para notificar os chamadores que aquela rotina pode lançar uma determinada exceção (passando a responsabilidade de tratamento para frente). Já o comando throw é usado dentro do corpo do método para interromper o fluxo e disparar ativamente uma nova instância de exceção quando uma regra de negócio ou condição de erro é atendida.'
+            }
+        };
+
+        function validarQuestao(numeroQuestao) {
+            const container = document.querySelector(`[data-questao="${numeroQuestao}"]`);
+            if (!container) return;
+
+            const selectedRadio = container.querySelector(`input[name="q${numeroQuestao}"]:checked`);
+            const feedbackDiv = document.getElementById(`feedback-q${numeroQuestao}`);
+
+            if (!feedbackDiv) return;
+
+            if (!selectedRadio) {
+                feedbackDiv.className = "w-full text-xs p-3 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-lg font-sans";
+                feedbackDiv.innerHTML = "<i class='fa-solid fa-triangle-exclamation mr-1.5'></i> Por favor, selecione uma opção antes de responder!";
+                feedbackDiv.classList.remove('hidden');
+                return;
+            }
+
+            const respostaEstudante = selectedRadio.value;
+            const gabaritoQuestao = gabarito[numeroQuestao];
+
+            if (respostaEstudante === gabaritoQuestao.correta) {
+                feedbackDiv.className = "w-full text-xs p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-lg font-sans space-y-2";
+                feedbackDiv.innerHTML = `
+                    <div class="font-bold flex items-center gap-1.5 text-sm text-emerald-400">
+                        <i class="fa-solid fa-circle-check"></i> ✓ Resposta Correta!
+                    </div>
+                    <p class="leading-relaxed"><strong class="text-white">Gabarito Comentado:</strong> ${gabaritoQuestao.justificativa}</p>
+                `;
+                feedbackDiv.classList.remove('hidden');
+            } else {
+                feedbackDiv.className = "w-full text-xs p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg font-sans";
+                feedbackDiv.innerHTML = "<i class='fa-solid fa-circle-xmark mr-1.5'></i> ✕ Resposta Incorreta. Tente novamente!";
+                feedbackDiv.classList.remove('hidden');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
