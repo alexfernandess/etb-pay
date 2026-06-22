@@ -279,7 +279,7 @@
             <div class="flex items-center gap-4">
                 <span id="slide-indicator"
                     class="font-mono text-xs uppercase tracking-wider text-slate-400 bg-slate-800/40 border border-slate-700/60 px-3 py-1.5 rounded-lg theme-border">SLIDE
-                    1/5</span>
+                    1/6</span>
 
                 <div
                     class="flex items-center bg-slate-800/40 rounded-lg border border-slate-700/60 p-0.5 no-print theme-border">
@@ -353,6 +353,13 @@
                     <i class="fa-solid fa-database text-purple-400 text-sm min-w-[20px] text-center"></i>
                     <span class="truncate sidebar-text">Esquema de Dados (3FN)</span>
                 </button>
+
+                <button onclick="goToSlide(6)"
+                    class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-xs font-semibold transition-all duration-200 border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
+                    id="sb-item-6" title="Edital da Prova (30/06)">
+                    <i class="fa-solid fa-map-location-dot text-indigo-400 text-sm min-w-[20px] text-center"></i>
+                    <span class="truncate sidebar-text">Edital da Prova (30/06)</span>
+                </button>
             </div>
 
             <div
@@ -380,7 +387,12 @@
                             </div>
                             <h2 class="text-3xl font-bold mb-4 theme-text">Desafio: Motor de Contas ETB-Pay</h2>
                             <p class="text-slate-300 mb-6 leading-relaxed">
-                                Bem-vindos à semana de revisão final da Squad 3G. O foco agora é consolidar a Tríade do Back-End: POO, Arquitetura e Persistência. Para otimizar seus estudos para a prova, o Tech Lead está disponibilizando a versão FINAL e totalmente corrigida do Motor de Contas do ETB-Pay. O código já contempla o encapsulamento correto, a conexão com o SQLite e as blindagens com blocos Try-Catch. Baixe o projeto e utilize-o como seu material oficial de estudos.
+                                Bem-vindos à semana de revisão final da Squad 3G. O foco agora é consolidar a Tríade do
+                                Back-End: POO, Arquitetura e Persistência. Para otimizar seus estudos para a prova, o
+                                Tech Lead está disponibilizando a versão FINAL e totalmente corrigida do Motor de Contas
+                                do ETB-Pay. O código já contempla o encapsulamento correto, a conexão com o SQLite e as
+                                blindagens com blocos Try-Catch. Baixe o projeto e utilize-o como seu material oficial
+                                de estudos.
                             </p>
 
                             <div
@@ -798,10 +810,12 @@
                     <div id="slide-3" class="hidden space-y-6">
                         <section class="glass-card rounded-2xl p-8 border border-slate-700/50">
                             <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-400">
-                                <i class="fa-solid fa-magnifying-glass-bug"></i> Arquitetura Resiliente (Código de Estudo)
+                                <i class="fa-solid fa-magnifying-glass-bug"></i> Arquitetura Resiliente (Código de
+                                Estudo)
                             </h3>
                             <p class="text-slate-300 mb-6 text-sm">
-                                Ao abrir o projeto no seu ambiente local, analise como aplicamos os conceitos de resiliência na prática. O código entregue possui três pilares de defesa implementados:
+                                Ao abrir o projeto no seu ambiente local, analise como aplicamos os conceitos de
+                                resiliência na prática. O código entregue possui três pilares de defesa implementados:
                             </p>
 
                             <div class="space-y-4">
@@ -811,10 +825,13 @@
                                         <span
                                             class="bg-amber-500/20 text-amber-400 font-bold p-1.5 rounded-lg text-xs"><i
                                                 class="fa-solid fa-link"></i> PILAR 01</span>
-                                        <h4 class="font-bold text-base text-white theme-text">A Conexão Segura (ConexaoDB.java)</h4>
+                                        <h4 class="font-bold text-base text-white theme-text">A Conexão Segura
+                                            (ConexaoDB.java)</h4>
                                     </div>
                                     <p class="text-sm text-slate-300 ml-1 leading-relaxed">
-                                        Observe como a classe de conexão isola o bloco try-catch para o DriverManager. Se o driver do SQLite não for encontrado, a JVM não encerra o aplicativo abruptamente, mas retorna um erro elegante e controlado no console.
+                                        Observe como a classe de conexão isola o bloco try-catch para o DriverManager.
+                                        Se o driver do SQLite não for encontrado, a JVM não encerra o aplicativo
+                                        abruptamente, mas retorna um erro elegante e controlado no console.
                                     </p>
                                 </div>
 
@@ -824,10 +841,14 @@
                                         <span
                                             class="bg-amber-500/20 text-amber-400 font-bold p-1.5 rounded-lg text-xs"><i
                                                 class="fa-solid fa-shield-halved"></i> PILAR 02</span>
-                                        <h4 class="font-bold text-base text-white theme-text">O Escudo da POO (Conta.java)</h4>
+                                        <h4 class="font-bold text-base text-white theme-text">O Escudo da POO
+                                            (Conta.java)</h4>
                                     </div>
                                     <p class="text-sm text-slate-300 ml-1 leading-relaxed">
-                                        Analise a classe Conta. Nenhuma variável de dinheiro (saldo) está pública. O encapsulamento força o uso de Getters e Setters, garantindo que regras de negócio futuras (como impedir saque negativo) possam ser injetadas sem quebrar o sistema.
+                                        Analise a classe Conta. Nenhuma variável de dinheiro (saldo) está pública. O
+                                        encapsulamento força o uso de Getters e Setters, garantindo que regras de
+                                        negócio futuras (como impedir saque negativo) possam ser injetadas sem quebrar o
+                                        sistema.
                                     </p>
                                 </div>
 
@@ -837,10 +858,14 @@
                                         <span
                                             class="bg-amber-500/20 text-amber-400 font-bold p-1.5 rounded-lg text-xs"><i
                                                 class="fa-solid fa-database"></i> PILAR 03</span>
-                                        <h4 class="font-bold text-base text-white theme-text">Persistência Blindada (ClienteDAO.java)</h4>
+                                        <h4 class="font-bold text-base text-white theme-text">Persistência Blindada
+                                            (ClienteDAO.java)</h4>
                                     </div>
                                     <p class="text-sm text-slate-300 ml-1 leading-relaxed">
-                                        Navegue até o método de cadastro. O uso do PreparedStatement bloqueia ataques de SQL Injection, enquanto o bloco de exceção captura especificamente a SQLException, avisando o usuário caso a tabela de clientes ainda não tenha sido criada no banco.
+                                        Navegue até o método de cadastro. O uso do PreparedStatement bloqueia ataques de
+                                        SQL Injection, enquanto o bloco de exceção captura especificamente a
+                                        SQLException, avisando o usuário caso a tabela de clientes ainda não tenha sido
+                                        criada no banco.
                                     </p>
                                 </div>
                             </div>
@@ -925,6 +950,80 @@
                         </div>
                     </div>
 
+                    <div id="slide-6" class="hidden space-y-6">
+                        <section class="glass-card rounded-2xl p-8 border border-slate-700/50 space-y-6">
+                            <h3 class="text-xl font-bold flex items-center gap-2 text-emerald-400">
+                                <i class="fa-solid fa-calendar-check"></i> Edital da Prova Final - 30 de Junho
+                            </h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Squad 3G, chegou o momento de consolidarmos nossa jornada técnica. A avaliação será
+                                baseada na Tríade do Back-End Júnior. Utilize o checklist abaixo para guiar sua reta
+                                final de estudos:
+                            </p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fa-solid fa-shield-halved text-emerald-400 text-lg"></i>
+                                        <h4 class="font-bold text-base text-white theme-text">Bloco 1: POO &
+                                            Encapsulamento</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        Foco em <code>private</code>, métodos acessores (Getters/Setters), Construtores
+                                        e Proteção de Regras de Negócio (ex: evitar saldo negativo).
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fa-solid fa-database text-emerald-400 text-lg"></i>
+                                        <h4 class="font-bold text-base text-white theme-text">Bloco 2: Persistência &
+                                            JDBC</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        Entendimento do padrão DAO, <code>DriverManager</code>, <code>Connection</code>,
+                                        <code>PreparedStatement</code> (prevenção contra SQL Injection) e a diferença
+                                        entre <code>executeQuery()</code> e <code>executeUpdate()</code>.
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fa-solid fa-triangle-exclamation text-emerald-400 text-lg"></i>
+                                        <h4 class="font-bold text-base text-white theme-text">Bloco 3: Tratamento de
+                                            Exceções</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        O pilar principal. Compreender <code>try</code>, <code>catch</code>,
+                                        <code>finally</code> (para fechar conexões), a diferença entre Exceções Checadas
+                                        (ex: <code>SQLException</code>) e Não-Checadas (ex:
+                                        <code>InputMismatchException</code>), e a diferença prática entre
+                                        <code>throw</code> e <code>throws</code>.
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-800/40 border border-slate-700/60 rounded-lg p-5">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fa-solid fa-terminal text-emerald-400 text-lg"></i>
+                                        <h4 class="font-bold text-base text-white theme-text">Bloco 4: Lógica & Menus de
+                                            Console</h4>
+                                    </div>
+                                    <p class="text-sm text-slate-300 ml-1 leading-relaxed">
+                                        Estruturas de controle (<code>while</code>, <code>switch-case</code>) combinadas
+                                        com a classe <code>Scanner</code> para criar interfaces de texto resilientes.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 text-center">
+                                <button onclick="window.print()"
+                                    class="bg-emerald-500 text-slate-900 font-bold px-6 py-3 rounded-lg hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20 w-full md:w-auto">
+                                    <i class="fa-solid fa-print mr-2"></i> Baixar Edital em PDF (Checklist)
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+
                 </div>
 
                 <div
@@ -950,6 +1049,9 @@
                         <button onclick="goToSlide(5)"
                             class="dot w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-250"
                             title="Ir para Slide 5"></button>
+                        <button onclick="goToSlide(6)"
+                            class="dot w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-250"
+                            title="Ir para Slide 6"></button>
                     </div>
 
                     <button id="next-btn" onclick="nextSlide()"
@@ -1023,7 +1125,7 @@
 
         // Controle de Slides
         function goToSlide(slideNum) {
-            if (slideNum < 1 || slideNum > 5) return;
+            if (slideNum < 1 || slideNum > 6) return;
             currentSlide = slideNum;
             updateSlideUI();
         }
@@ -1044,14 +1146,14 @@
         });
 
         function nextSlide() {
-            if (currentSlide < 5) {
+            if (currentSlide < 6) {
                 goToSlide(currentSlide + 1);
             }
         }
 
         function updateSlideUI() {
             // 1. Mostrar/ocultar contêineres de slides
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const slide = document.getElementById(`slide-${i}`);
                 if (slide) {
                     if (i === currentSlide) {
@@ -1063,7 +1165,7 @@
             }
 
             // 2. Atualizar menu da barra lateral
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const item = document.getElementById(`sb-item-${i}`);
                 if (item) {
                     if (i === currentSlide) {
@@ -1077,7 +1179,7 @@
             // 3. Indicador de slides na barra superior
             const slideIndicator = document.getElementById('slide-indicator');
             if (slideIndicator) {
-                slideIndicator.innerText = `SLIDE ${currentSlide}/5`;
+                slideIndicator.innerText = `SLIDE ${currentSlide}/6`;
             }
 
             // 4. Marcadores circulares (dots)
@@ -1102,7 +1204,7 @@
                 prevBtn.classList.remove('opacity-40', 'cursor-not-allowed');
             }
 
-            if (currentSlide === 5) {
+            if (currentSlide === 6) {
                 nextBtn.disabled = true;
                 nextBtn.classList.add('opacity-40', 'cursor-not-allowed');
             } else {
