@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apostila Completa de Revisão - Java Back-End (Turma 3G)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Merriweather', serif;
+            color: #0f172a;
+        }
+
+        .print-page {
+            background-color: white;
+            max-width: 21cm;
+            min-height: 29.7cm;
+            margin: 2rem auto;
+            padding: 2cm 2.5cm;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-title {
+            font-size: 2.25rem;
+            font-weight: 900;
+            text-align: center;
+            border-bottom: 4px solid #10b981;
+            /* Emerald */
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        .print-sub {
+            font-size: 1.1rem;
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 3rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .print-section {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .print-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #10b981;
+            /* Emerald */
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            page-break-inside: avoid;
+        }
+
+        .print-card.question {
+            border-left: 5px solid #8b5cf6;
+            /* Purple for traps */
+        }
+
+        .print-field {
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            text-align: justify;
+        }
+
+        .print-field:last-child {
+            margin-bottom: 0;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            color: #0f172a;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .print-page {
+                margin: 0;
+                padding: 1.5cm 2cm;
+                box-shadow: none;
+                width: 100%;
+                max-width: none;
+                min-height: auto;
+                page-break-after: always;
+            }
+
+            .print-page:last-child {
+                page-break-after: auto;
+            }
+
+            .print-card {
+                background-color: #f8fafc !important;
+                border: 1px solid #e2e8f0 !important;
+                border-left: 5px solid #10b981 !important;
+            }
+
+            .print-card.question {
+                border-left: 5px solid #8b5cf6 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="print-page">
+        <h1 class="print-title">ROADMAP DA APROVAÇÃO — ETB-PAY</h1>
+        <div class="print-sub">Dossiê de Revisão de Java Back-End | Turma 3G</div>
+
+        <h2 class="print-section">1. Mensagem do Tech Lead</h2>
+        <div class="print-card">
+            <div class="print-field">
+                <strong>Senhores, missão cumprida!</strong> Começamos o semestre escrevendo rotinas simples e hoje vocês
+                entregam uma arquitetura bancária funcional. Deixaram de ser apenas "escritores de scripts" e passaram a
+                pensar como verdadeiros Engenheiros de Software.
+            </div>
+            <div class="print-field">
+                A curva do Java é íngreme. Ele não te perdoa, não aceita gambiarras e exige rigor estrutural. Vocês
+                dominaram a <strong>Orientação a Objetos</strong>, entendendo que o Encapsulamento é a armadura do
+                negócio. Compreenderam que softwares reais falham e que o <strong>Tratamento de Exceções</strong> é o
+                que separa um sistema amador de um sistema corporativo. E, por fim, cruzaram a ponte da
+                <strong>Persistência com JDBC</strong>, conectando o código de vocês ao banco de dados com segurança
+                máxima.
+            </div>
+            <div class="print-field">
+                Este dossiê consolida os 4 Pilares da nossa disciplina. Ele é o seu mapa definitivo para a prova e para
+                as bancas de concurso. Leiam, entendam e executem.
+            </div>
+        </div>
+
+        <h2 class="print-section">SEÇÃO A: MERGULHO TEÓRICO EXAUSTIVO</h2>
+
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-2">Pilar 1: Fundamentos e Tipagem Forte</h4>
+            <div class="print-field">O Java é uma linguagem <strong>fortemente tipada e de tipagem estática</strong>.
+                Isso significa que toda variável precisa ter seu tipo declarado no nascimento (ex:
+                <code>int idade;</code>) e o compilador monitora isso com rigor absoluto. O Java não permite que você
+                guarde um valor decimal (<code>15.5</code>) em uma variável inteira acidentalmente, pois isso geraria
+                perda de dados. Se você precisar forçar essa conversão, assumindo o risco, o Java exige a assinatura de
+                um <strong>Casting</strong> explícito (ex: <code>(int) 15.5</code>).
+            </div>
+        </div>
+
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-2">Pilar 2: Orientação a Objetos e Encapsulamento</h4>
+            <div class="print-field">A POO é a alma do Back-End. As <strong>Classes</strong> são as plantas baixas (o
+                molde), enquanto os <strong>Objetos</strong> são as casas reais construídas na memória RAM através do
+                comando <code>new</code>. Quando um objeto nasce, ele dispara automaticamente um método especial chamado
+                <strong>Construtor</strong>, usado para garantir que o objeto inicie com os valores vitais preenchidos.
+            </div>
+            <div class="print-field">A regra de ouro da arquitetura é o <strong>Encapsulamento</strong>. Nunca
+                declaramos os atributos como <code>public</code>. Marcamos o estado interno como <code>private</code>
+                para blindá-lo e expomos apenas métodos <code>public</code> (Getters e Setters) para controlá-lo. Se o
+                saldo fosse público, qualquer código malicioso poderia alterá-lo para -500. Com o Setter (ou sacar),
+                colocamos um `if` para bloquear o saque negativo.</div>
+        </div>
+    </div>
+
+    <div class="print-page">
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-2">Pilar 3: Tratamento de Exceções</h4>
+            <div class="print-field">Um software corporativo interage com a rede, discos e usuários; por isso, erros em
+                tempo de execução <strong>vão acontecer</strong>. Para que o programa não "crashe" abruptamente, usamos
+                a arquitetura: <code>try</code> (tente fazer o caminho feliz), <code>catch</code> (plano B caso a falha
+                seja capturada) e <code>finally</code> (o bloco garantido que sempre executa, ideal para fechar conexões
+                e liberar recursos).</div>
+            <div class="print-field">A JVM divide as anomalias em duas árvores críticas: As <strong>Checked
+                    Exceptions</strong> (Checadas) são falhas externas incertas, como conectar num banco
+                (<code>SQLException</code>). O compilador "checa" e te <em>obriga</em> a escrever o try-catch. Já as
+                <strong>Unchecked Exceptions</strong> (Não-checadas / Runtime) derivam de erros de lógica do programador
+                (<code>NullPointerException</code>) ou digitação do usuário. O compilador não te obriga a tratá-las, mas
+                os bons engenheiros o fazem.
+            </div>
+        </div>
+
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-2">Pilar 4: Persistência (JDBC) e Padrão DAO</h4>
+            <div class="print-field">A API JDBC é a ponte de conexão do Java. Para organizar a casa, usamos o padrão de
+                projeto <strong>DAO (Data Access Object)</strong>. A regra do DAO é isolar absolutamente toda a lógica
+                de "falar com o banco" em uma classe específica (ex: <code>ContaDAO</code>). Assim, suas telas não
+                misturam SQL com HTML ou lógicas de menu.</div>
+            <div class="print-field">Para operar, distinguimos DML de DQL: comandos que alteram o banco (INSERT, UPDATE,
+                DELETE) são disparados com <code>executeUpdate()</code>, retornando apenas o número de linhas afetadas.
+                Comandos de leitura (SELECT) usam <code>executeQuery()</code> e retornam um <code>ResultSet</code>
+                contendo os dados. Além disso, sempre usamos a classe <strong>PreparedStatement</strong> (com parâmetros
+                "<code>?</code>") em vez de concatenar strings SQL diretamente, eliminando definitivamente as
+                vulnerabilidades de <strong>SQL Injection</strong>.</div>
+        </div>
+
+        <h2 class="print-section">SEÇÃO B: ENGENHARIA REVERSA DA BANCA</h2>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q1. O Rigor da Tipagem e Casting</h4>
+            <div class="print-field"><strong>O Erro Clássico:</strong> Acreditar que variáveis numéricas no Java se
+                adaptam automaticamente como em Python, aceitando <code>int x = 10.5;</code> sem reclamar.</div>
+            <div class="print-field"><strong>A Regra (Gabarito):</strong> O Java é estático e forte. Inserir ponto
+                flutuante num tipo inteiro gera um <strong>Erro de Compilação</strong>, pois a linguagem prevê a perda
+                de dados. O programador deve obrigar a conversão através do Casting: <code>int x = (int) 10.5;</code>.
+            </div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q2. Encapsulamento: A Falácia da Variável Pública</h4>
+            <div class="print-field"><strong>O Erro Clássico:</strong> Dizer que atributos <code>public</code> aceleram
+                o código e são indicados para projetos ágeis que precisam de resultados rápidos.</div>
+            <div class="print-field"><strong>A Regra (Gabarito):</strong> Atributos públicos quebram a segurança de
+                estado da classe, permitindo corrupção direta de variáveis vitais. O encapsulamento com
+                <code>private</code> e <code>Setters</code> é inegociável, pois garante um ponto central para injeção de
+                <strong>Regras de Negócio e Validação</strong>.
+            </div>
+        </div>
+    </div>
+
+    <div class="print-page">
+        <div class="print-card question mt-0">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q3. O Comportamento do Bloco Finally</h4>
+            <div class="print-field"><strong>O Erro Clássico:</strong> Afirmar nas provas que o bloco
+                <code>finally</code> só entra em ação quando uma exceção é lançada e capturada pelo catch.
+            </div>
+            <div class="print-field"><strong>A Regra (Gabarito):</strong> O bloco <code>finally</code> é uma garantia
+                absoluta da arquitetura Java. <strong>Ele é executado independentemente de ter ocorrido erro ou
+                    não</strong>. Por isso, é o local exclusivo e seguro para realizar o fechamento de conexões abertas
+                (Connection, PreparedStatement), evitando Connection Leaks (vazamento de memória).</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q4. A Obrigatoriedade das Exceções (Checked vs Unchecked)
+            </h4>
+            <div class="print-field"><strong>O Erro Clássico:</strong> Marcar a opção que diz que o Java te obriga a
+                criar um try-catch para proteger cálculos matemáticos (divisão por zero) ou leituras de objetos nulos.
+            </div>
+            <div class="print-field"><strong>A Regra (Gabarito):</strong> Exceções de lógica (ArithmeticException ou
+                NullPointerException) são subclasses de <code>RuntimeException</code> (<strong>Unchecked</strong>). O
+                compilador não exige try-catch para elas. A obrigatoriedade do try-catch (<strong>Checked</strong>)
+                existe apenas para comunicação externa (Rede, Arquivos, JDBC).</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q5. A Diferença de Execução no JDBC (DML x DQL)</h4>
+            <div class="print-field"><strong>O Erro Clássico:</strong> Configurar um comando
+                <code>INSERT INTO clientes...</code> e pedir para a aplicação dispará-lo no banco usando o método
+                <code>executeQuery()</code>.
+            </div>
+            <div class="print-field"><strong>A Regra (Gabarito):</strong> DML (Insert, Update, Delete) altera o banco
+                sem ler tabelas, portanto exige o método <code>executeUpdate()</code>. O <code>executeQuery()</code> é
+                exclusivo para <code>SELECT</code>, pois a aplicação fica aguardando o envio da matriz de dados
+                (ResultSet) como resposta.</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q6. A Ameaça do SQL Injection</h4>
+            <div class="print-field"><strong>O Erro Clássico:</strong> Achar que concatenar strings dinâmicas
+                (<code>"SELECT * FROM contas WHERE id = " + variavelUsuario</code>) é uma prática segura desde que se
+                trate de um banco de dados local.</div>
+            <div class="print-field"><strong>A Regra (Gabarito):</strong> Concatenação de variáveis em queries abre a
+                porta para <strong>SQL Injection</strong>, permitindo que o usuário digite comandos SQL maliciosos na
+                tela. O Padrão Ouro de defesa é usar o <strong>PreparedStatement</strong> com marcadores <code>?</code>.
+                Ele pré-compila a query, forçando que o valor injetado seja tratado apenas como um dado literal
+                inofensivo.</div>
+        </div>
+    </div>
+
+</body>
+
+</html>

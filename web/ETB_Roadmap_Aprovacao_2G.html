@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apostila Completa de Revisão - Banco de Dados (Turma 2G)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Merriweather', serif;
+            color: #0f172a;
+        }
+
+        .print-page {
+            background-color: white;
+            max-width: 21cm;
+            min-height: 29.7cm;
+            margin: 2rem auto;
+            padding: 2cm 2.5cm;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-title {
+            font-size: 2.25rem;
+            font-weight: 900;
+            text-align: center;
+            border-bottom: 4px solid #1e293b;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        .print-sub {
+            font-size: 1.1rem;
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 3rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .print-section {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .print-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #3b82f6;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            page-break-inside: avoid;
+        }
+
+        .print-card.question {
+            border-left: 5px solid #8b5cf6;
+        }
+
+        .print-field {
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            text-align: justify;
+        }
+        
+        .print-field:last-child {
+            margin-bottom: 0;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .print-page {
+                margin: 0;
+                padding: 1.5cm 2cm;
+                box-shadow: none;
+                width: 100%;
+                max-width: none;
+                min-height: auto;
+                page-break-after: always;
+            }
+            .print-page:last-child {
+                page-break-after: auto;
+            }
+            .print-card {
+                background-color: #f8fafc !important;
+                border: 1px solid #e2e8f0 !important;
+                border-left: 5px solid #3b82f6 !important;
+            }
+            .print-card.question {
+                border-left: 5px solid #8b5cf6 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="print-page">
+        <h1 class="print-title">ROADMAP DA APROVAÇÃO — ETB-PAY</h1>
+        <div class="print-sub">Dossiê de Revisão de Banco de Dados | Turma 2G</div>
+
+        <h2 class="print-section">1. Mensagem do Tech Lead</h2>
+        <div class="print-card">
+            <div class="print-field">
+                <strong>Parabéns a toda a Squad 2G!</strong> Chegamos a um marco crucial do nosso desenvolvimento. Como um Engenheiro de Dados focado na excelência e em conformidade estrita com concursos públicos de alto padrão (como as exigências da banca CEBRASPE), fico imensamente orgulhoso da evolução técnica de vocês. Vocês transitaram de meros construtores de scripts soltos para arquitetos de persistência maduros, capazes de modelar estruturas relacionais complexas e altamente eficientes.
+            </div>
+            <div class="print-field">
+                Mais do que apenas salvar dados, vocês dominaram os desafios do mundo real: a extração, transformação e carga (ETL), o indispensável <strong>Saneamento de Dados (Data Cleaning)</strong> que purifica as informações essenciais para relatórios corporativos, e, o mais vital para o ETB-PAY, a estrita aderência ao <strong>Compliance e Auditorias do BACEN</strong>.
+            </div>
+            <div class="print-field">
+                Compreender os níveis de abstração e as exigências da Álgebra Relacional (como os JOINs) eleva a capacidade técnica do grupo a um nível analítico que as maiores corporações — e os certames mais rigorosos — exigem.
+            </div>
+            <div class="print-field">
+                Esta apostila consolida o conhecimento avançado em SGBDs para as nossas avaliações, funcionando como o seu verdadeiro guia de sobrevivência e aprovação. Devorem este material. Usem a tecnologia ao seu favor e dominem a banca.
+            </div>
+        </div>
+
+        <h2 class="print-section">SEÇÃO A: MERGULHO TEÓRICO EXAUSTIVO</h2>
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-2">Tópico 1: Arquitetura de SGBDs (Client-Server vs. Embedded)</h4>
+            <div class="print-field">O ecossistema dos Sistemas Gerenciadores de Banco de Dados é dividido arquiteturalmente de forma clara. Sistemas como <strong>PostgreSQL, Oracle e SQL Server</strong> adotam a arquitetura <strong>Client-Server (Cliente-Servidor)</strong>, onde o SGBD é executado de forma autônoma como um serviço daemon (processo em background) gerenciando requisições de rede assíncronas em uma porta específica (ex: 5432).</div>
+            <div class="print-field">Em contraste absoluto, o <strong>SQLite</strong>, adotado no ETB-PAY, é um banco de dados <strong>Embedded (Embutido/Serverless)</strong>. De forma cirúrgica: <strong>o SQLite NÃO roda como um serviço ou processo em background!</strong> Ele é empacotado como uma biblioteca (um arquivo .dll, .so ou .jar) diretamente integrada à aplicação host. Não há tráfego de rede TCP/IP ou overhead de comunicação de soquetes; a aplicação chama o banco através de simples chamadas de função locais, manipulando um único arquivo no disco.</div>
+            <div class="print-field"><strong>Cuidado com a Pegadinha de Concurso:</strong> Bancas (especialmente a CEBRASPE) adoram afirmar que o "SQLite é um serviço background robusto para controle assíncrono". Isso está tecnicamente <strong>ERRADO</strong>. A característica essencial do SQLite é exatamente a ausência de um processo servidor em background.</div>
+        </div>
+
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-2">Tópico 2: Os 3 Níveis de Abstração de Dados</h4>
+            <div class="print-field">O projeto de Banco de Dados Relacionais segue a consagrada arquitetura ANSI/SPARC de 3 níveis, cujo objetivo é o isolamento de complexidade.</div>
+            <div class="print-field"><strong>1. Nível Conceitual:</strong> Foco absoluto nas Regras de Negócio e no entendimento humano. É onde construímos o Modelo Entidade-Relacionamento (MER). Nele, desenhamos retângulos e losangos para definir que "Um Cliente Possui Várias Contas", independente de SGBD ou tipo de máquina. Representa o "O QUÊ" os dados significam.</div>
+            <div class="print-field"><strong>2. Nível Lógico:</strong> É a tradução do MER para o modelo estrutural tecnológico do SGBD (ex: Relacional). Aqui as entidades viram Tabelas, estabelecemos Tipos de Dados teóricos, formalizamos a Chave Primária (PK) e a Chave Estrangeira (FK). É um desenho técnico em formato de tabelas sem ainda escrever código de máquina.</div>
+            <div class="print-field"><strong>3. Nível Físico:</strong> Trata do aspecto puramente tecnológico (a máquina). É onde aplicamos os scripts DDL (Data Definition Language) com SGBD específico. Criamos índices (B-Tree, Hashing), tablespaces no HD e digitamos comandos práticos como <code>CREATE TABLE tb_clientes</code>.</div>
+        </div>
+    </div>
+
+    <div class="print-page">
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-2">Tópico 3: Álgebra Relacional e o Poder do JOIN</h4>
+            <div class="print-field">A Álgebra Relacional é a matemática teórica por trás do modelo relacional, estruturando a manipulação de dados em conjuntos (tabelas). Quando normalizamos as tabelas (evitando anomalias), "quebramos" os dados em múltiplos arquivos coesos. O problema: precisamos visualizar esses dados unidos em consultas gerenciais.</div>
+            <div class="print-field">A solução é a <strong>Operação de Junção (JOIN)</strong>. O <code>INNER JOIN</code>, o mais comum da Álgebra Relacional, não é apenas mesclar; é atuar como uma <strong>costura lógica exata</strong>. Ele cruza rigorosamente a <strong>Chave Estrangeira (FK)</strong> da tabela dependente (filha) com a <strong>Chave Primária (PK)</strong> da tabela principal (pai). Só os registros que tiverem correspondência em ambas as partições do conjunto formarão a nova linha gerada em memória durante a consulta, impedindo qualquer produto cartesiano indesejado.</div>
+        </div>
+
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-2">Tópico 4: Integridade Referencial e Restrições (CASCADE)</h4>
+            <div class="print-field">A <strong>Integridade Referencial</strong> é a principal salvaguarda de confiabilidade dentro de um banco relacional: "Nenhum registro filho pode apontar para um registro pai que não existe". Ao criar uma Foreign Key (FK), impomos essa barreira.</div>
+            <div class="print-field">Se o banco de dados tenta deletar um Cliente (Pai) que ainda tem Contas (Filhas), a integridade bloqueia a operação (comportamento padrão RESTRICT). No entanto, podemos desenhar nosso DDL com o gatilho <strong>ON DELETE CASCADE</strong> na FK. Essa configuração permite que a base continue consistente eliminando as amarras cegas: se a PK do pai for apagada, o SGBD destruirá em cascata todas as tuplas filhas atreladas a ele automaticamente.</div>
+            <div class="print-field">A falta dessa gestão cuidadosa das dependências gera o maior pesadelo dos analistas de compliance do BACEN: os <strong>Registros Órfãos</strong> (dados fantasma que apontam para IDs inexistentes), o que corrompe a auditoria inteira do sistema financeiro.</div>
+        </div>
+
+        <h2 class="print-section">SEÇÃO B: ENGENHARIA REVERSA DA BANCA</h2>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q1 (Níveis de Abstração): Conceitual vs Físico</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "O Modelo Entidade-Relacionamento (MER), devido ao detalhamento de restrições das cláusulas PRIMARY KEY e FOREIGN KEY, é categorizado como modelagem de Nível Físico."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Classificar o MER como Nível Físico e atribuir a ele a criação de cláusulas de código de banco de dados (DDL).</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> O MER pertence ao <strong>Nível Conceitual</strong>. O Conceitual ignora códigos e sintaxe (sem restrições de PK no código), focando apenas na lógica de negócios e compreensão humana através de diagramas de blocos. DDL e cláusulas de código residem no Nível Físico.</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q2 (Regras de Normalização): 1FN</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "Uma tabela de clientes de banco atende à 1ª Forma Normal (1FN) mesmo quando um campo de contato armazena três números de celular separados por vírgula em uma mesma célula de coluna."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Afirmar que a 1FN permite atributos multivalorados na mesma tupla e campo.</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> A Regra Áurea da 1FN é a <strong>Atomicidade</strong>. O dado na interseção de uma linha com coluna deve ser atômico, indivisível, contendo um, e apenas um, valor. Valores compostos (rua, bairro, cidade na mesma string) ou multivalorados (vários celulares) ferem a 1FN e devem ser extraídos para novas tabelas ou colunas.</div>
+        </div>
+    </div>
+
+    <div class="print-page">
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q3 (Regras de Normalização): 2FN</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "Se a tabela possuir uma Chave Primária Composta (ID_Produto, ID_Loja), e a coluna 'Nome do Produto' depender apenas da metade da chave (ID_Produto), a tabela ainda atende a 2FN."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Dizer que a 2FN tolera a dependência parcial da chave primária composta.</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> A 2FN estipula que a tabela deve estar na 1FN, e todos os atributos que não são chave devem depender da <strong>CHAVE PRIMÁRIA COMPLETA (INTEIRA)</strong>. Se o nome do produto depende apenas do ID do produto, ocorre "dependência parcial". A solução é extrair os dados dependentes parcialmente para uma tabela independente.</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q4 (Regras de Normalização): 3FN</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "Para um banco atender à 3FN, não tem problema armazenar o 'Nome da Agência' na tabela de 'Transações Bancárias', visto que já temos o 'Código da Agência' na mesma."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Armazenar o "Nome da Agência" gerando o dado "caroneiro".</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> A 3FN elimina a <strong>dependência transitiva</strong>. Se o "Nome da Agência" depende do "Código da Agência", que não é a Chave Primária da tabela de "Transações Bancárias", temos um atributo não-chave dependendo de outro atributo não-chave. Esse atributo caroneiro deve ser migrado para a tabela independente de Agências.</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q5 (Comandos DDL vs DML)</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "Os comandos <code>UPDATE</code>, <code>DROP</code> e <code>DELETE</code> constituem a Linguagem de Manipulação de Dados (DML)."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Categorizar a instrução de destruição estrutural (<code>DROP</code>) como manipulação de dados inseridos (DML).</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> <code>UPDATE</code> e <code>DELETE</code> manipulam as "linhas" (dados), por isso são <strong>DML</strong> (Data Manipulation Language). O comando <code>DROP</code> não mexe com o dado e sim destrói a "estrutura da tabela ou do banco", pertencendo à classe <strong>DDL</strong> (Data Definition Language) ao lado de <code>CREATE</code> e <code>ALTER</code>.</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q6 (Saneamento - Data Cleaning)</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "Em um pipeline de ETL da conta de clientes, os dados transferidos não podem sofrer tratamento em lote (bulk) utilizando a instrução <code>INSERT INTO ... SELECT</code> com <code>REPLACE</code> simultaneamente."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Negar que a instrução de sub-consulta pode carregar dados manipulados através de funções de string nativas do SGBD de forma atômica.</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> O processo massivo de Saneamento no ETB-PAY usa <code>INSERT INTO tb_nova (cpf) SELECT REPLACE(REPLACE(cpf, '-', ''), '.', '') FROM tb_suja</code>. Esta sintaxe clássica e performática limpa o lixo sintático "durante o voo", movendo de uma fonte suja para um destino limpo usando substituição por strings vazias de forma impecável.</div>
+        </div>
+    </div>
+
+    <div class="print-page">
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q7 (Consultas com INNER JOIN)</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "O código SQL adequado para alinhar dados de <code>tb_clientes</code> com <code>tb_contas</code> omite a indicação da Chave Estrangeira com a cláusula WHERE em bancos modernos, priorizando o uso simples do <code>CROSS JOIN</code>."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Recomendar o cruzamento desordenado <code>CROSS JOIN</code> (que gera um produto cartesiano catastrófico) no lugar da junção condicional <code>ON</code>.</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> A regra áurea relacional exige o <code>INNER JOIN</code> ou as variantes de OUTTER JOIN atreladas imperativamente à cláusula <code>ON</code>. Exemplo cirúrgico: <code>... FROM tb_clientes INNER JOIN tb_contas ON tb_clientes.id = tb_contas.id_cliente</code>. A falha na condição de igualdade desmorona a performance e integridade dos resultados.</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q8 (A Rasteira do SGBD Embedded)</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "O SQLite caracteriza-se por ser um SGBD embedded (embutido), funcionando como um poderoso serviço integrado em background que suporta múltiplas instâncias TCP simultâneas."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Afirmar que funciona como um serviço em background que provê conexão TCP (rede).</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> A palavra "Embedded" em SQLite significa literalmente a inexistência da camada de serviço/daemon TCP em background (o chamado Serverless). O banco é manipulado como uma biblioteca (arquivo estático local) diretamente consumido pelo programa (ex: pela aplicação Java do ETB-PAY) sob chamadas no próprio sistema operacional (Direct Disk I/O).</div>
+        </div>
+
+        <div class="print-card question">
+            <h4 class="font-bold text-lg text-purple-700 mb-2">Q9 (O Perigo dos Registros Órfãos)</h4>
+            <div class="print-field"><strong>O que a questão diz:</strong> "A exclusão de um registro na tabela principal, mesmo que efetuada sem a configuração de cláusulas como CASCADE ou RESTRICT, é garantida em compliance porque a tabela dependente não reterá o Foreign Key."</div>
+            <div class="print-field"><strong>O Erro (O Quê):</strong> Afirmar absurdamente que a exclusão não reterá o ID sem uma configuração ativa (gerando compliance falso).</div>
+            <div class="print-field"><strong>A Regra (Por Quê):</strong> Sem o <code>ON DELETE CASCADE</code> ou <code>ON DELETE RESTRICT</code> ativado, deletar um pai cria imediatamente um <strong>Registro Órfão</strong> na tabela filha (uma conta bancária atrelada a um cliente fantasma). Isso viola severamente o Compliance do BACEN ao arruinar o Princípio da Integridade Referencial, causando a corrupção lógica irremediável dos saldos e do banco.</div>
+        </div>
+
+        <h2 class="print-section">SEÇÃO C: O CHECKLIST DO EDITAL OFICIAL</h2>
+        <div class="print-card">
+            <h4 class="font-bold text-lg text-slate-800 mb-4">Mapeamento para Revisão Final (AV3)</h4>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span class="text-slate-700 font-medium text-lg">Fundamentos de SGBD (Client-Server vs. Embedded)</span>
+                </div>
+                <div class="flex items-start gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span class="text-slate-700 font-medium text-lg">Os 3 Níveis de Abstração de Dados</span>
+                </div>
+                <div class="flex items-start gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span class="text-slate-700 font-medium text-lg">Regras de Normalização Relacional (1FN, 2FN, 3FN)</span>
+                </div>
+                <div class="flex items-start gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span class="text-slate-700 font-medium text-lg">Comandos SQL: DDL, DML e DQL</span>
+                </div>
+                <div class="flex items-start gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span class="text-slate-700 font-medium text-lg">Álgebra Relacional: INNER JOIN</span>
+                </div>
+                <div class="flex items-start gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span class="text-slate-700 font-medium text-lg">Integridade Referencial e Comportamento CASCADE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
