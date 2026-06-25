@@ -200,153 +200,232 @@
 
         const slidesData = [
             {
-                title: "Fundamentos: Tipagem e Estruturas",
+                title: "Nivelamento: O Quiz da Aprovação",
                 icon: icons.strategy,
                 isQuestion: false,
                 content: `
                     <div class="flex flex-col h-full justify-center space-y-6">
                         <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50">
-                            <h3 class="text-2xl font-bold mb-2 text-emerald-700 dark:text-emerald-400">A base do Java</h3>
+                            <h3 class="text-2xl font-bold mb-2 text-emerald-700 dark:text-emerald-400">Revisão Rápida (Ping-Pong)</h3>
                             <p class="text-lg text-slate-700 dark:text-slate-300">
-                                Diferente de linguagens de script, o Java possui tipagem estática e forte. Variáveis (int, double, String) nascem e morrem com seus tipos originais. Além disso, utilizamos estruturas de controle (if, for, while) para ditar o fluxo lógico da aplicação sem depender de classes externas de entrada.
+                                Para consolidar o conhecimento antes da prova, vamos fazer uma bateria de 12 perguntas fundamentais cobrindo os 4 pilares do Back-End: Fundamentos, Orientação a Objetos, Exceções e JDBC. Pense rápido, debata com a Squad e revele a solução!
                             </p>
                         </div>
                     </div>`
             },
             {
-                title: "Desafio: O Rigor do Compilador",
+                title: "Q1. Tipos Primitivos x Classes",
                 icon: icons.code,
                 isQuestion: true,
                 content: `
                     <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Tipagem Forte</h3>
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">A Tipagem do Java</h3>
                         <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "O que acontece se tentarmos alocar diretamente um valor <code>double</code> (ex: 15.5) dentro de uma variável tipada como <code>int</code>? Por que a linguagem toma essa atitude?"
+                            "O Java é conhecido por ter uma tipagem estática e forte. O que acontece se tentarmos salvar a palavra 'ETB' dentro de uma variável do tipo <code>int</code>? Por que o compilador faz isso?"
                         </p>
                     </div>`,
                 answer: `
                     <div class="space-y-3">
                         <p class="text-lg text-slate-700 dark:text-slate-300">
-                            O Java bloqueia a ação gerando um <strong>Erro de Compilação</strong>. Por ser uma linguagem de tipagem estática e forte, ela impede que você perca dados acidentalmente (já que o .5 seria cortado). Para forçar essa ação, o desenvolvedor precisa assumir o risco realizando um 'Casting' explícito.
+                            Ocorrerá um <strong>Erro de Compilação</strong> (Type Mismatch). Como a tipagem é forte e estática, o Java verifica os tipos antes mesmo de rodar o programa para garantir que a memória seja alocada corretamente, evitando que o sistema quebre na mão do usuário final.
                         </p>
                     </div>`
             },
             {
-                title: "Teoria: Orientação a Objetos",
-                icon: icons.strategy,
-                isQuestion: false,
-                content: `
-                    <div class="flex flex-col h-full justify-center space-y-6">
-                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">De Classes a Instâncias</h3>
-                        <div class="space-y-4">
-                            <div class="bg-slate-100 dark:bg-slate-800/50 p-5 rounded-xl border-l-4 border-blue-500">
-                                <h4 class="font-bold text-lg text-blue-600 dark:text-blue-400 mb-1">Entidades (Classes)</h4>
-                                <p class="text-slate-700 dark:text-slate-300 text-sm">São os moldes do projeto (ex: classe Conta). Elas definem os Atributos (estado) e Métodos (comportamento) que o objeto terá.</p>
-                            </div>
-                            <div class="bg-slate-100 dark:bg-slate-800/50 p-5 rounded-xl border-l-4 border-purple-500">
-                                <h4 class="font-bold text-lg text-purple-600 dark:text-purple-400 mb-1">Instanciamento e a palavra "new"</h4>
-                                <p class="text-slate-700 dark:text-slate-300 text-sm">A palavra-chave <code>new</code> aloca dinamicamente espaço na memória RAM para dar vida a um objeto concreto a partir do molde.</p>
-                            </div>
-                            <div class="bg-slate-100 dark:bg-slate-800/50 p-5 rounded-xl border-l-4 border-emerald-500">
-                                <h4 class="font-bold text-lg text-emerald-600 dark:text-emerald-400 mb-1">Construtores</h4>
-                                <p class="text-slate-700 dark:text-slate-300 text-sm">Um método especial executado imediatamente quando o objeto nasce. Utilizado para forçar que o objeto seja criado já com um estado inicial válido (ex: passando o número da conta).</p>
-                            </div>
-                        </div>
-                    </div>`
-            },
-            {
-                title: "Desafio: O Escudo da POO",
+                title: "Q2. Operadores e Lógica",
                 icon: icons.code,
                 isQuestion: true,
                 content: `
                     <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Protegendo o Estado</h3>
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">A Armadilha Lógica</h3>
                         <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Por que não deixamos o atributo <code>public double saldo</code> na classe Conta e em vez disso usamos <code>private</code> com Getters e Setters?"
+                            "Um programador júnior escreveu a condição: <code>if (saldo = 100)</code>. O que há de errado com essa instrução lógica e o que ela faz na prática?"
                         </p>
                     </div>`,
                 answer: `
                     <div class="space-y-3">
                         <p class="text-lg text-slate-700 dark:text-slate-300">
-                            Para garantir o <strong>Encapsulamento</strong>. Ele protege o estado interno do objeto, permitindo que regras de negócio (como impedir saque negativo) sejam validadas dentro do método Setter (ou sacar) antes de alterar a variável.
+                            O erro está no uso de um único sinal de igual (<code>=</code>), que é o <strong>operador de atribuição</strong>. O código não está comparando, está <em>atribuindo</em> o valor 100 ao saldo. Para comparar se o saldo é igual a 100, deve-se usar o <strong>operador relacional de igualdade</strong> (<code>==</code>).
                         </p>
                     </div>`
             },
             {
-                title: "Teoria: Tratamento de Exceções",
-                icon: icons.strategy,
-                isQuestion: false,
-                content: `
-                    <div class="flex flex-col h-full justify-center space-y-6">
-                        <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50">
-                            <h3 class="text-2xl font-bold mb-2 text-emerald-700 dark:text-emerald-400">Try, Catch e Finally</h3>
-                            <p class="text-lg text-slate-700 dark:text-slate-300">
-                                Quando o código executa ações que dependem do ambiente (rede, disco), imprevistos ocorrem. O Java nos obriga a antecipar esses cenários.
-                            </p>
-                        </div>
-                        <div class="space-y-4">
-                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg border-l-4 border-amber-500 pl-4 bg-slate-100 dark:bg-slate-800/50 py-2 rounded-r-lg">
-                                <strong>Checked Exceptions:</strong> Ocorrem no momento da compilação. A JVM te <em>obriga</em> a tratá-las (ex: <code>SQLException</code> ou <code>IOException</code>).
-                            </p>
-                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg border-l-4 border-rose-500 pl-4 bg-slate-100 dark:bg-slate-800/50 py-2 rounded-r-lg">
-                                <strong>Unchecked Exceptions:</strong> Ocorrem em tempo de execução (Runtime). A JVM não obriga o tratamento, pois normalmente são falhas de lógica do programador ou input inválido (ex: <code>NullPointerException</code>, <code>InputMismatchException</code>).
-                            </p>
-                        </div>
-                    </div>`
-            },
-            {
-                title: "Desafio: Múltiplos Catchs",
+                title: "Q3. Controle de Fluxo",
                 icon: icons.code,
                 isQuestion: true,
                 content: `
                     <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Hierarquia de Exceções</h3>
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">if vs. while</h3>
                         <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Qual é a principal vantagem de usar múltiplos blocos catch (ex: um para InputMismatchException e outro para SQLException) no mesmo try?"
+                            "Ambas as estruturas avaliam uma condição booleana (verdadeiro ou falso) entre parênteses. Qual é a principal diferença de comportamento entre o <code>if</code> e o <code>while</code>?"
                         </p>
                     </div>`,
                 answer: `
                     <div class="space-y-3">
                         <p class="text-lg text-slate-700 dark:text-slate-300">
-                            Permite um tratamento <strong>específico</strong> para diferentes tipos de falha. Podemos dar um feedback amigável pro usuário no caso de erro de digitação, e um log técnico no caso de falha no banco de dados.
+                            O <code>if</code> é um desvio condicional: ele testa a condição e executa o bloco de código <strong>apenas uma vez</strong>. O <code>while</code> é um laço de repetição: ele testa a condição e executa o bloco <strong>repetidas vezes em loop</strong>, enquanto a condição permanecer verdadeira.
                         </p>
                     </div>`
             },
             {
-                title: "Teoria: Persistência com JDBC",
-                icon: icons.strategy,
-                isQuestion: false,
-                content: `
-                    <div class="flex flex-col h-full justify-center space-y-6">
-                        <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 border-l-4 border-blue-500">
-                            <h3 class="text-2xl font-bold mb-2 text-blue-600 dark:text-blue-400">A Ponte Java ↔ SQLite</h3>
-                            <p class="text-lg text-slate-700 dark:text-slate-300">
-                                Para comunicar o código Java com o banco de dados, utilizamos a API JDBC. O processo envolve o <code>DriverManager</code>, que carrega o driver do banco, e a <code>Connection</code>, que mantém o túnel aberto.
-                            </p>
-                        </div>
-                        <div class="space-y-4">
-                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
-                                <strong>Padrão DAO (Data Access Object):</strong>
-                                Para manter o código limpo e aplicar o princípio de responsabilidade única (SOLID), separamos toda a lógica que "fala com o banco" em classes DAO específicas (ex: ContaDAO).
-                            </p>
-                        </div>
-                    </div>`
-            },
-            {
-                title: "Desafio: A Ponte JDBC (DML vs DQL)",
+                title: "Q4. A Mágica da POO",
                 icon: icons.code,
                 isQuestion: true,
                 content: `
                     <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Execução de Comandos</h3>
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Classe vs. Objeto</h3>
                         <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "No Padrão DAO, a forma como disparamos o comando para o banco de dados muda de acordo com o objetivo. Qual é a diferença arquitetural e de retorno entre executar um INSERT e executar um SELECT via JDBC?"
+                            "Na Orientação a Objetos, qual é a diferença entre a <code>Classe</code> e o <code>Objeto</code>? E qual é a palavra-chave utilizada no Java para dar vida ao Objeto na memória?"
                         </p>
                     </div>`,
                 answer: `
                     <div class="space-y-3">
                         <p class="text-lg text-slate-700 dark:text-slate-300">
-                            Comandos <strong>DML</strong> (INSERT, UPDATE, DELETE) alteram o estado do banco e devem ser disparados com <code>executeUpdate()</code>, que retorna apenas um número inteiro (linhas afetadas). Já o comando <strong>DQL</strong> (SELECT) lê dados e obrigatoriamente é disparado por <code>executeQuery()</code>, que retorna um objeto complexo chamado <code>ResultSet</code>, contendo as linhas consultadas.
+                            A <strong>Classe</strong> é o molde, a planta-baixa (não ocupa espaço de dados, apenas define as regras). O <strong>Objeto</strong> é a instância, a casa construída e pronta para uso na memória RAM. A palavra-chave que dá vida ao objeto e reserva o espaço na memória é o <code>new</code>.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q5. O Nascimento da Instância",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">O Construtor</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            "Qual é a função vital do método <code>Construtor</code> dentro de uma Classe?"
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            O Construtor é um bloco de código especial que é executado <strong>automaticamente no exato momento em que o objeto nasce</strong> (quando o <code>new</code> é chamado). Sua função vital é inicializar os atributos do objeto, garantindo que ele não nasça com valores nulos ou inválidos.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q6. Polimorfismo e Assinaturas",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Sobrecarga vs. Sobrescrita</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            "Qual é a diferença entre a Sobrecarga de métodos (Overload) e a Sobrescrita de métodos (Override) na POO?"
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Sobrecarga:</strong> Ter vários métodos com o <em>mesmo nome na mesma classe</em>, mas com parâmetros diferentes (ex: vários construtores). <br><strong>Sobrescrita:</strong> Ocorre na Herança, quando a classe Filha <em>reescreve</em> um método que herdou da classe Pai, usando a mesma assinatura, mas mudando o comportamento interno.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q7. A Natureza da Falha",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Erro de Sintaxe x Exceção</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            "Esquecer um ponto-e-vírgula é considerado uma Exceção no Java? Por quê?"
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Não.</strong> Esquecer o ponto-e-vírgula é um <em>Erro de Sintaxe</em> (compilação), ou seja, o Java nem sequer gera o bytecode para rodar o programa. A <em>Exceção</em> ocorre quando o código está perfeito sintaticamente e o sistema já está rodando, mas um evento anômalo (como banco fora do ar ou usuário digitando letra em vez de número) derruba o fluxo.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q8. A Captura da Exceção",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">A Estrutura Try-Catch</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            "Como funciona a divisão de responsabilidades entre o bloco <code>try</code> e o bloco <code>catch</code> no tratamento de erros?"
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            O bloco <code>try</code> contém o "caminho feliz": o código que queremos executar, mas que pode dar problema. Se a exceção estourar dentro do try, ele interrompe a execução na hora e joga o erro para o bloco <code>catch</code>. O catch é o "plano de resgate": ele captura o erro e permite que o sistema tome uma atitude elegante em vez de travar bruscamente.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q9. A Execução Incondicional",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">O Bloco Finally</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            "Qual é a característica exclusiva do bloco <code>finally</code> e por que ele é tão utilizado no Padrão DAO (JDBC)?"
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            A característica exclusiva do <code>finally</code> é que <strong>ele será executado sempre, independentemente de ter ocorrido uma exceção no try ou não</strong>. No JDBC (DAO), usamos o finally para garantir que comandos como <code>conn.close()</code> sejam chamados para desconectar o banco, evitando vazamento de recursos mesmo que o sistema apresente falhas no meio do processo.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q10. A Ponte JDBC",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Driver JDBC</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            "O Java puro sabe se comunicar nativamente com um banco de dados MySQL ou SQLite? Para que serve o Driver JDBC?"
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            Não, o Java puro não fala a linguagem nativa dos SGBDs. O <strong>Driver JDBC</strong> (ex: <code>sqlite-jdbc.jar</code>) funciona como um "tradutor" ou "embaixador". A aplicação Java manda as ordens para a API do JDBC, e o Driver transforma essas ordens na linguagem específica que o banco de dados entende.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q11. A Organização do Código",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">O Padrão DAO</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            "Por que utilizamos o padrão de arquitetura DAO (Data Access Object) nas nossas aplicações ao invés de colocar os comandos SQL direto na classe <code>Main</code> ou de interface?"
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            Para garantir a <strong>Separação de Responsabilidades</strong>. O DAO isola completamente a lógica de persistência (comunicação com o banco de dados). Isso deixa a classe Main responsável apenas pela interação com o usuário, facilitando a manutenção e a reutilização do código, além de permitir trocar o banco de dados no futuro sem reescrever o sistema inteiro.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q12. Disparando Comandos no Banco",
+                icon: icons.code,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">DML vs. DQL</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            "Ao preparar um Statement no JDBC, usamos o <code>executeUpdate()</code> para algumas operações e o <code>executeQuery()</code> para outras. Qual é a diferença entre os dois?"
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-3">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            O <code>executeUpdate()</code> é usado para comandos que <strong>alteram os dados</strong> da tabela (INSERT, UPDATE, DELETE - DML), e retorna apenas um número (linhas afetadas). O <code>executeQuery()</code> é usado <strong>exclusivamente para leitura/consultas</strong> (SELECT - DQL), e obrigatoriamente retorna um objeto <code>ResultSet</code> contendo os dados extraídos do banco.
                         </p>
                     </div>`
             },
@@ -361,10 +440,10 @@
                             O mapa completo dos assuntos que irão cair na prova:
                         </p>
                         <ul class="space-y-4">
-                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>1. Fundamentos & Tipos Primitivos:</strong> Tipos primitivos, casting, operadores e estruturas de controle de fluxo (if, while).</li>
-                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>POO:</strong> Classes, Objetos, Construtores, Getters/Setters e Encapsulamento.</li>
-                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>Exceções:</strong> Try/Catch/Finally, Checked vs Unchecked.</li>
-                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>6. Persistência de Dados (JDBC):</strong> Integração Java-SQLite usando o Padrão DAO. Gerenciamento de Connection e a diferença crucial na execução de comandos (executeUpdate vs executeQuery).</li>
+                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>1. Fundamentos:</strong> Tipos primitivos, operadores e estruturas de controle de fluxo (if, while).</li>
+                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>2. POO:</strong> Classes, Objetos, Construtores, Polimorfismo e Encapsulamento.</li>
+                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>3. Exceções:</strong> Try/Catch/Finally e diferença de Erros de Sintaxe vs Exceções em Runtime.</li>
+                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>4. JDBC (Persistência):</strong> Integração Java-SQLite, Padrão DAO, Driver JDBC e executeUpdate vs executeQuery.</li>
                         </ul>
                     </div>`
             },
