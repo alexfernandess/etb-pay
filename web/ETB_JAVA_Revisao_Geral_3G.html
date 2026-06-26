@@ -88,6 +88,16 @@
         </div>
 
         <div class="flex items-center gap-4">
+            <div id="class-timer"
+                class="hidden sm:flex items-center gap-2 font-mono text-sm font-bold text-emerald-400 bg-slate-800/40 border border-slate-700/60 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-all select-none theme-border"
+                title="Clique: Iniciar/Pausar | Duplo clique: Zerar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <span id="timer-display">00:00:00</span>
+            </div>
             <span id="slide-counter" class="text-sm font-bold opacity-50 hidden md:block">SLIDE 1 / X</span>
 
             <!-- Controle de tamanho de fontes -->
@@ -199,281 +209,378 @@
         };
 
         const slidesData = [
-            {
-                title: "Nivelamento: O Quiz da Aprovação",
-                icon: icons.strategy,
-                isQuestion: false,
-                content: `
-                    <div class="flex flex-col h-full justify-center space-y-6">
-                        <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50">
-                            <h3 class="text-2xl font-bold mb-2 text-emerald-700 dark:text-emerald-400">Revisão Rápida (Ping-Pong)</h3>
-                            <p class="text-lg text-slate-700 dark:text-slate-300">
-                                Para consolidar o conhecimento antes da prova, vamos fazer uma bateria de 12 perguntas fundamentais cobrindo os 4 pilares do Back-End: Fundamentos, Orientação a Objetos, Exceções e JDBC. Pense rápido, debata com a Squad e revele a solução!
-                            </p>
-                        </div>
-                    </div>`
-            },
-            {
-                title: "Q1. Tipos Primitivos x Classes",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">A Tipagem do Java</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "O Java é conhecido por ter uma tipagem estática e forte. O que acontece se tentarmos salvar a palavra 'ETB' dentro de uma variável do tipo <code>int</code>? Por que o compilador faz isso?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            Ocorrerá um <strong>Erro de Compilação</strong> (Type Mismatch). Como a tipagem é forte e estática, o Java verifica os tipos antes mesmo de rodar o programa para garantir que a memória seja alocada corretamente, evitando que o sistema quebre na mão do usuário final.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q2. Operadores e Lógica",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">A Armadilha Lógica</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Um programador júnior escreveu a condição: <code>if (saldo = 100)</code>. O que há de errado com essa instrução lógica e o que ela faz na prática?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            O erro está no uso de um único sinal de igual (<code>=</code>), que é o <strong>operador de atribuição</strong>. O código não está comparando, está <em>atribuindo</em> o valor 100 ao saldo. Para comparar se o saldo é igual a 100, deve-se usar o <strong>operador relacional de igualdade</strong> (<code>==</code>).
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q3. Controle de Fluxo",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">if vs. while</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Ambas as estruturas avaliam uma condição booleana (verdadeiro ou falso) entre parênteses. Qual é a principal diferença de comportamento entre o <code>if</code> e o <code>while</code>?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            O <code>if</code> é um desvio condicional: ele testa a condição e executa o bloco de código <strong>apenas uma vez</strong>. O <code>while</code> é um laço de repetição: ele testa a condição e executa o bloco <strong>repetidas vezes em loop</strong>, enquanto a condição permanecer verdadeira.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q4. A Mágica da POO",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Classe vs. Objeto</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Na Orientação a Objetos, qual é a diferença entre a <code>Classe</code> e o <code>Objeto</code>? E qual é a palavra-chave utilizada no Java para dar vida ao Objeto na memória?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            A <strong>Classe</strong> é o molde, a planta-baixa (não ocupa espaço de dados, apenas define as regras). O <strong>Objeto</strong> é a instância, a casa construída e pronta para uso na memória RAM. A palavra-chave que dá vida ao objeto e reserva o espaço na memória é o <code>new</code>.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q5. O Nascimento da Instância",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">O Construtor</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Qual é a função vital do método <code>Construtor</code> dentro de uma Classe?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            O Construtor é um bloco de código especial que é executado <strong>automaticamente no exato momento em que o objeto nasce</strong> (quando o <code>new</code> é chamado). Sua função vital é inicializar os atributos do objeto, garantindo que ele não nasça com valores nulos ou inválidos.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q6. Polimorfismo e Assinaturas",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Sobrecarga vs. Sobrescrita</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Qual é a diferença entre a Sobrecarga de métodos (Overload) e a Sobrescrita de métodos (Override) na POO?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            <strong>Sobrecarga:</strong> Ter vários métodos com o <em>mesmo nome na mesma classe</em>, mas com parâmetros diferentes (ex: vários construtores). <br><strong>Sobrescrita:</strong> Ocorre na Herança, quando a classe Filha <em>reescreve</em> um método que herdou da classe Pai, usando a mesma assinatura, mas mudando o comportamento interno.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q7. A Natureza da Falha",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Erro de Sintaxe x Exceção</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Esquecer um ponto-e-vírgula é considerado uma Exceção no Java? Por quê?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            <strong>Não.</strong> Esquecer o ponto-e-vírgula é um <em>Erro de Sintaxe</em> (compilação), ou seja, o Java nem sequer gera o bytecode para rodar o programa. A <em>Exceção</em> ocorre quando o código está perfeito sintaticamente e o sistema já está rodando, mas um evento anômalo (como banco fora do ar ou usuário digitando letra em vez de número) derruba o fluxo.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q8. A Captura da Exceção",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">A Estrutura Try-Catch</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Como funciona a divisão de responsabilidades entre o bloco <code>try</code> e o bloco <code>catch</code> no tratamento de erros?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            O bloco <code>try</code> contém o "caminho feliz": o código que queremos executar, mas que pode dar problema. Se a exceção estourar dentro do try, ele interrompe a execução na hora e joga o erro para o bloco <code>catch</code>. O catch é o "plano de resgate": ele captura o erro e permite que o sistema tome uma atitude elegante em vez de travar bruscamente.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q9. A Execução Incondicional",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">O Bloco Finally</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Qual é a característica exclusiva do bloco <code>finally</code> e por que ele é tão utilizado no Padrão DAO (JDBC)?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            A característica exclusiva do <code>finally</code> é que <strong>ele será executado sempre, independentemente de ter ocorrido uma exceção no try ou não</strong>. No JDBC (DAO), usamos o finally para garantir que comandos como <code>conn.close()</code> sejam chamados para desconectar o banco, evitando vazamento de recursos mesmo que o sistema apresente falhas no meio do processo.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q10. A Ponte JDBC",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">Driver JDBC</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "O Java puro sabe se comunicar nativamente com um banco de dados MySQL ou SQLite? Para que serve o Driver JDBC?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            Não, o Java puro não fala a linguagem nativa dos SGBDs. O <strong>Driver JDBC</strong> (ex: <code>sqlite-jdbc.jar</code>) funciona como um "tradutor" ou "embaixador". A aplicação Java manda as ordens para a API do JDBC, e o Driver transforma essas ordens na linguagem específica que o banco de dados entende.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q11. A Organização do Código",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">O Padrão DAO</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Por que utilizamos o padrão de arquitetura DAO (Data Access Object) nas nossas aplicações ao invés de colocar os comandos SQL direto na classe <code>Main</code> ou de interface?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            Para garantir a <strong>Separação de Responsabilidades</strong>. O DAO isola completamente a lógica de persistência (comunicação com o banco de dados). Isso deixa a classe Main responsável apenas pela interação com o usuário, facilitando a manutenção e a reutilização do código, além de permitir trocar o banco de dados no futuro sem reescrever o sistema inteiro.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Q12. Disparando Comandos no Banco",
-                icon: icons.code,
-                isQuestion: true,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400">DML vs. DQL</h3>
-                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                            "Ao preparar um Statement no JDBC, usamos o <code>executeUpdate()</code> para algumas operações e o <code>executeQuery()</code> para outras. Qual é a diferença entre os dois?"
-                        </p>
-                    </div>`,
-                answer: `
-                    <div class="space-y-3">
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            O <code>executeUpdate()</code> é usado para comandos que <strong>alteram os dados</strong> da tabela (INSERT, UPDATE, DELETE - DML), e retorna apenas um número (linhas afetadas). O <code>executeQuery()</code> é usado <strong>exclusivamente para leitura/consultas</strong> (SELECT - DQL), e obrigatoriamente retorna um objeto <code>ResultSet</code> contendo os dados extraídos do banco.
-                        </p>
-                    </div>`
-            },
-            {
-                title: "Edital ETB-PAY (Java - 3G)",
-                icon: icons.exam,
-                isQuestion: false,
-                content: `
-                    <div class="space-y-6 flex flex-col justify-center h-full">
-                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Checklist da Avaliação</h3>
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            O mapa completo dos assuntos que irão cair na prova:
-                        </p>
-                        <ul class="space-y-4">
-                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>1. Fundamentos:</strong> Tipos primitivos, operadores e estruturas de controle de fluxo (if, while).</li>
-                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>2. POO:</strong> Classes, Objetos, Construtores, Polimorfismo e Encapsulamento.</li>
-                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>3. Exceções:</strong> Try/Catch/Finally e diferença de Erros de Sintaxe vs Exceções em Runtime.</li>
-                            <li class="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium bg-slate-100 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i> <strong>4. JDBC (Persistência):</strong> Integração Java-SQLite, Padrão DAO, Driver JDBC e executeUpdate vs executeQuery.</li>
-                        </ul>
-                    </div>`
-            },
-            {
-                title: "Recompensa: Projeto Final",
-                icon: icons.exam,
-                isQuestion: false,
-                content: `
-                    <div class="space-y-6 flex flex-col items-center justify-center h-full text-center">
-                        <div class="p-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 w-full max-w-2xl">
-                            <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-4">Missão Cumprida!</h3>
-                            <p class="text-lg text-slate-700 dark:text-slate-300 mb-8 mx-auto">
-                                Parabéns por concluir a trilha de revisão da Squad 3G! Consolidamos a Tríade do Back-End. Baixe o laboratório final em código para executar na IDE e, em seguida, baixe o seu <strong>Roadmap de Aprovação</strong> teórico. Eles são o seu passaporte para o topo.
-                            </p>
-                            
-                            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                                <a href="https://raw.githubusercontent.com/alexfernandess/etb-pay/main/utils/desafioJDBC.zip" target="_blank" class="w-full sm:w-auto inline-flex bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/30 hover:scale-105 hover:shadow-emerald-500/50 transition-all duration-300 items-center justify-center gap-3 uppercase tracking-wider text-xs">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                    CÓDIGO (ZIP)
-                                </a>
-                                
-                                <a href="ETB_Roadmap_Aprovacao_3G.html" target="_blank" class="w-full sm:w-auto inline-flex bg-slate-800 text-emerald-400 border border-emerald-500/30 font-bold py-3.5 px-6 rounded-xl shadow-lg hover:scale-105 hover:bg-slate-700 transition-all duration-300 items-center justify-center gap-3 uppercase tracking-wider text-xs">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                                    APOSTILA (WEB/PDF)
-                                </a>
-                            </div>
-                        </div>
-                    </div>`
-            }
-        ];
+    {
+        title: "Check-in: Retrospectiva do Bimestre",
+        icon: icons.strategy,
+        isQuestion: false,
+        content: `
+            <div class="flex flex-col h-full justify-center space-y-6 max-w-4xl mx-auto w-full">
+                <div class="p-8 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-[#1e293b] shadow-sm mb-4">
+                    <h3 class="text-3xl font-black mb-3 text-emerald-700 dark:text-emerald-400 tracking-tight">O Caminho até Aqui</h3>
+                    <p class="text-lg text-slate-800 dark:text-slate-200 leading-relaxed">
+                        Squad 3G, antes de testarmos nossos conhecimentos, vejam o tamanho da evolução de vocês neste bimestre. Deixamos os scripts simples para trás e construímos a fundação de um software corporativo real.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-6 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm border-l-4 border-l-blue-500">
+                        <h4 class="font-bold text-lg mb-1 text-blue-700 dark:text-blue-400">1. Fundamentos & Lógica</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Domínio da tipagem forte do Java e das estruturas de controle de fluxo contínuo.</p>
+                    </div>
+                    <div class="p-6 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm border-l-4 border-l-purple-500">
+                        <h4 class="font-bold text-lg mb-1 text-purple-700 dark:text-purple-400">2. Orientação a Objetos</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">A quebra de paradigma. Transformamos conceitos abstratos em Classes, Objetos e blindamos tudo com Encapsulamento.</p>
+                    </div>
+                    <div class="p-6 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm border-l-4 border-l-orange-500">
+                        <h4 class="font-bold text-lg mb-1 text-orange-700 dark:text-orange-400">3. Tratamento de Exceções</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">A armadura do código. Aprendemos a capturar falhas antes que elas destruam a experiência do usuário.</p>
+                    </div>
+                    <div class="p-6 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm border-l-4 border-l-cyan-500">
+                        <h4 class="font-bold text-lg mb-1 text-cyan-700 dark:text-cyan-400">4. Persistência (JDBC)</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">A ponte para o mundo real. Conectamos nossa aplicação Java a um banco de dados relacional (SQLite).</p>
+                    </div>
+                </div>
+            </div>`
+    },
+    {
+        title: "Q1. Fundamentos: Tipagem e Casting",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Fundamentos</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        O que acontece se tentarmos salvar diretamente um valor do tipo double (ex: 10.5) dentro de uma variável do tipo int no Java? Como o desenvolvedor deve agir se realmente desejar essa conversão?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    O Java é uma linguagem fortemente tipada. Inserir ponto flutuante num tipo inteiro gera um <strong>Erro de Compilação</strong>, pois o compilador prevê a perda de dados (a parte fracionária). O desenvolvedor deve obrigar a conversão assumindo o risco através do <strong>Casting Explícito</strong>: <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">int x = (int) 10.5;</code>.
+                </p>
+            </div>`
+    },
+    {
+        title: "Q2. Estruturas de Repetição (While vs For)",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Fundamentos</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        Qual é a principal diferença arquitetural e de caso de uso entre o laço 'while' e o laço 'for' em Java?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    O laço <strong>for</strong> é projetado para repetições com um número <strong>conhecido e definido</strong> de iterações, agrupando inicialização, condição e incremento em uma única assinatura. O laço <strong>while</strong> é utilizado para repetições <strong>indefinidas</strong>, executando o bloco continuamente enquanto uma condição for verdadeira (cenário clássico: menus interativos ou leitura de arquivos até o final).
+                </p>
+            </div>`
+    },
+    {
+        title: "Q3. Operadores e Condicionais",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Fundamentos</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        No Java, qual é a diferença entre os operadores lógicos <code>&&</code> (AND) e <code>||</code> (OR) em uma estrutura condicional 'if', e o que significa o conceito de 'Curto-circuito' (Short-circuit)?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    O operador <code>&&</code> exige que <strong>todas</strong> as condições sejam verdadeiras. O <code>||</code> exige que <strong>apenas uma</strong> seja verdadeira. O "Curto-circuito" ocorre devido à otimização da JVM: no <code>&&</code>, se a primeira condição for falsa, a segunda sequer é processada. No <code>||</code>, se a primeira for verdadeira, o restante é ignorado, poupando processamento inútil.
+                </p>
+            </div>`
+    },
+    {
+        title: "Q4. POO: A Falácia da Variável Pública",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Orientação a Objetos</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        Por que declarar atributos como públicos (public) em uma Classe, visando acelerar a codificação de um projeto ágil, é considerado uma falha crítica de design na Orientação a Objetos?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    Atributos públicos quebram a <strong>segurança de estado</strong> da classe, permitindo corrupção direta de variáveis vitais (ex: <code>conta.saldo = -500;</code>). O encapsulamento usando modificador <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">private</code> aliado a métodos <code>Setters</code> é inegociável. Ele garante um ponto central e seguro para injeção de <strong>Regras de Negócio e Validação</strong> (barrando saldos negativos, CPFs inválidos, etc).
+                </p>
+            </div>`
+    },
+    {
+        title: "Q5. Construtores e Instanciação",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Orientação a Objetos</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        O que é um Método Construtor em uma Classe Java, e o que acontece se o programador esquecer de ou simplesmente não declarar nenhum construtor explicitamente em seu código?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    O Construtor é o método estrutural acionado no exato milissegundo em que o objeto nasce na memória RAM via comando <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">new</code>. Ele é o responsável por inicializar o estado inicial do objeto. Se nenhum construtor for declarado, o Java não acusa erro; o compilador silenciosamente injeta um <strong>Construtor Padrão Vazio</strong> sem parâmetros, salvando o sistema.
+                </p>
+            </div>`
+    },
+    {
+        title: "Q6. Polimorfismo e Herança",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Orientação a Objetos</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        Explique brevemente o conceito de Herança e descreva como o Polimorfismo (via sobrescrita de métodos - @Override) torna a arquitetura de um código mais flexível.
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    A <strong>Herança</strong> promove o reuso de código (relação "É-Um"), onde Classes Filhas absorvem atributos e métodos de uma Classe Mãe. O <strong>Polimorfismo</strong> ocorre quando a Filha sobrescreve (<code>@Override</code>) um método da Mãe para mudar seu funcionamento interno. Ex: A filha <code>ContaCorrente</code> pode sobrescrever o método herdado <code>sacar()</code> para cobrar taxa, customizando o comportamento sem quebrar o ecossistema externo que o aciona.
+                </p>
+            </div>`
+    },
+    {
+        title: "Q7. Exceções: O Bloco Finally",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Tratamento de Exceções</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        Qual é a característica de execução exclusiva do bloco <code>finally</code> em uma estrutura try-catch no Java, e qual a sua utilidade primária em operações de banco de dados?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    O bloco <code>finally</code> é uma garantia absoluta do Java: <strong>Ele é executado obrigatoriamente, independentemente de ter ocorrido uma exceção no bloco try ou de ela ter sido capturada pelo catch</strong>. Devido a essa garantia inquebrável, ele é o local exclusivo e perfeito para executar operações de "limpeza", especificamente o fechamento manual de conexões vitais abertas com o banco de dados (Connection, PreparedStatement).
+                </p>
+            </div>`
+    },
+    {
+        title: "Q8. Checked vs Unchecked Exceptions",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Tratamento de Exceções</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        O compilador Java obriga a proteção com blocos try-catch para todas as possíveis exceções em potencial do sistema, como divisões matemáticas por zero ou variáveis nulas? Explique a regra.
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    Não. O Java só obriga (não compila sem) o try-catch para as <strong>Checked Exceptions</strong> (falhas de comunicação externa, como Banco de Dados ou Arquivos). As exceções oriundas de falhas lógicas e matemáticas do programador (divisão por zero ou <code>NullPointerException</code>) são <strong>Unchecked Exceptions</strong> (derivadas de RuntimeException), e o compilador não exige sua blindagem.
+                </p>
+            </div>`
+    },
+    {
+        title: "Q9. Erros de Sintaxe vs Exceções",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Tratamento de Exceções</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        Qual é a diferença fundamental entre um "Erro de Sintaxe" (Syntax Error) e uma "Exceção em Tempo de Execução" (Runtime Exception) no ecossistema de desenvolvimento Java?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    Um <strong>Erro de Sintaxe</strong> viola a gramática da linguagem (ex: esquecer de abrir chaves ou omitir ponto e vírgula). O compilador barra a construção do software imediatamente. A <strong>Exceção em Tempo de Execução</strong> ocorre quando a compilação teve sucesso absoluto, mas durante a execução (uso do software vivo) ocorre uma anomalia que quebra o fluxo e gera um crash (ex: servidor de banco cair no meio da operação).
+                </p>
+            </div>`
+    },
+    {
+        title: "Q10. JDBC: executeUpdate vs executeQuery",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Persistência de Dados</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        Qual é a diferença funcional de retorno e utilidade prática entre os métodos <code>executeUpdate()</code> e <code>executeQuery()</code> ao enviar comandos SQL através da biblioteca JDBC?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    O método <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">executeUpdate()</code> deve ser usado para comandos que <strong>alteram dados estruturais</strong> (INSERT, UPDATE, DELETE), ele retorna um valor numérico indicando quantas linhas sofreram ação. Já o método <code class="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">executeQuery()</code> é exclusivo de leitura (DQL / SELECT) pois ele solicita ao banco matrizes de informações formatadas, devolvendo um objeto do tipo <code>ResultSet</code> para interagir com a tabela.
+                </p>
+            </div>`
+    },
+    {
+        title: "Q11. A Ameaça do SQL Injection",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Persistência de Dados</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        Por que concatenar strings dinâmicas fornecidas pelo usuário diretamente na query SQL representa um risco crítico, e como o objeto <code>PreparedStatement</code> neutraliza essa vulnerabilidade?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    A concatenação direta de strings facilita o <strong>SQL Injection</strong>, ataque onde o usuário corrompe o input digitando códigos SQL de deleção para sabotar a aplicação. O <code>PreparedStatement</code> corrige o problema ao realizar uma pré-compilação inteligente baseada em marcadores curinga <code>?</code>. Ele transforma a injeção perigosa num simples texto literal inofensivo.
+                </p>
+            </div>`
+    },
+    {
+        title: "Q12. Arquitetura do Padrão DAO",
+        icon: icons.code,
+        isQuestion: true,
+        content: `
+            <div class="flex flex-col justify-center h-full max-w-4xl mx-auto w-full space-y-6">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <span class="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 px-3 py-1 rounded">QUESTÃO DE AVALIAÇÃO</span>
+                    <span>Persistência de Dados</span>
+                </div>
+                <div class="bg-white dark:bg-[#1e293b] p-8 md:p-10 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                        O que determina o Padrão de Projeto DAO (Data Access Object) e por que ele é crucial para uma estrutura robusta e segura de sistemas corporativos baseados em Banco de Dados?
+                    </p>
+                </div>
+            </div>`,
+        answer: `
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-xs">Resolução:</h4>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+                    O Padrão DAO determina o <strong>isolamento absoluto</strong> e obrigatório de todas as operações de banco de dados (lógica de inserção, drivers de conexão e comandos SQL). Ele impede que as lógicas de negócio do menu principal fiquem misturadas ou dependentes do banco (baixo acoplamento). Se futuramente a tecnologia mudar de SQLite para MySQL, a única coisa tocada será a classe DAO.
+                </p>
+            </div>`
+    },
+    {
+        title: "Edital ETB-PAY (Java - 3G)",
+        icon: icons.exam,
+        isQuestion: false,
+        content: `
+            <div class="space-y-8 flex flex-col justify-center h-full max-w-4xl mx-auto w-full">
+                <div class="p-8 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h3 class="text-3xl font-black text-blue-600 dark:text-blue-400 mb-4 tracking-tight">Checklist da Avaliação</h3>
+                    <p class="text-lg text-slate-800 dark:text-slate-200 font-medium mb-6">
+                        O mapa completo dos assuntos exigidos na prova:
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-4 text-slate-800 dark:text-slate-200 font-medium bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-2xl"></i> <span><strong>1. Fundamentos:</strong> Tipos primitivos, casting e controle de fluxo.</span></li>
+                        <li class="flex items-center gap-4 text-slate-800 dark:text-slate-200 font-medium bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-2xl"></i> <span><strong>2. POO:</strong> Classes, Objetos, Construtores, Polimorfismo e Encapsulamento.</span></li>
+                        <li class="flex items-center gap-4 text-slate-800 dark:text-slate-200 font-medium bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-2xl"></i> <span><strong>3. Exceções:</strong> Try/Catch/Finally, Checked vs Unchecked e Syntax Errors.</span></li>
+                        <li class="flex items-center gap-4 text-slate-800 dark:text-slate-200 font-medium bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700"><i class="ph-fill ph-check-circle text-emerald-500 text-2xl"></i> <span><strong>4. JDBC (Persistência):</strong> Integração, executeUpdate vs executeQuery e Padrão DAO.</span></li>
+                    </ul>
+                </div>
+            </div>`
+    },
+    {
+        title: "Recompensa: Projeto Final",
+        icon: icons.exam,
+        isQuestion: false,
+        content: `
+            <div class="space-y-6 flex flex-col items-center justify-center h-full text-center max-w-4xl mx-auto w-full">
+                <div class="p-10 rounded-2xl bg-white dark:bg-[#1e293b] border-2 border-emerald-500 shadow-sm w-full">
+                    <h3 class="text-4xl font-black text-emerald-700 dark:text-emerald-400 mb-6 tracking-tight">Missão Cumprida!</h3>
+                    <p class="text-xl text-slate-800 dark:text-slate-200 mb-10 mx-auto font-medium leading-relaxed">
+                        Parabéns por concluir os testes do Mega Simulado! Consolidamos a base do desenvolvimento back-end corporativo. O laboratório, a apostila e os desafios estão liberados.
+                    </p>
+                    
+                    <div class="flex flex-col md:flex-row flex-wrap gap-4 justify-center items-center">
+                        <a href="https://raw.githubusercontent.com/alexfernandess/etb-pay/main/utils/desafioJDBC.zip" target="_blank" class="w-full md:w-auto flex-1 whitespace-nowrap inline-flex bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-6 rounded-xl shadow-sm transition-all duration-300 items-center justify-center gap-2 uppercase text-sm tracking-wider">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            CÓDIGO (ZIP)
+                        </a>
+                        
+                        <a href="ETB_Roadmap_Aprovacao_3G.html" target="_blank" class="w-full md:w-auto flex-1 whitespace-nowrap inline-flex bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-emerald-400 border border-slate-300 dark:border-emerald-500/50 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold py-4 px-6 rounded-xl shadow-sm transition-all duration-300 items-center justify-center gap-2 uppercase text-sm tracking-wider">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            APOSTILA RESUMO
+                        </a>
+
+                        <a href="https://www.qconcursos.com/questoes-de-concursos/questoes?difficulty%5B%5D=1&discipline_ids%5B%5D=160&modality_ids%5B%5D=2&per_page=20&publication_year%5B%5D=2024&publication_year%5B%5D=2025&publication_year%5B%5D=2026&sort=newest&subject_ids%5B%5D=939&subject_ids%5B%5D=21977" target="_blank" class="w-full md:w-auto flex-1 whitespace-nowrap inline-flex bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 px-6 rounded-xl shadow-sm transition-all duration-300 items-center justify-center gap-2 uppercase text-sm tracking-wider">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                            DESAFIO QUESTÕES
+                        </a>
+                    </div>
+                </div>
+            </div>`
+    }
+];
 
         let currentSlide = 0;
         let isDarkMode = true;
@@ -615,11 +722,13 @@
 
                 DOM.answerText.innerHTML = slide.answer;
 
+                DOM.btnReveal.className = "w-full md:w-auto px-6 py-4 border-2 border-dashed border-emerald-500 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white dark:hover:text-slate-900 font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-sm uppercase tracking-wider shrink-0";
                 DOM.btnReveal.innerHTML = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
                         <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-                    </svg> Revelar Solução`;
+                    </svg> Resolução`;
             } else {
+
                 DOM.answerSection.classList.add('hidden');
             }
 
@@ -630,6 +739,19 @@
 
             renderDots();
             populateSidebar();
+        }
+
+        function toggleAnswer(id) {
+            const answerDiv = document.getElementById('ans-' + id);
+            if (answerDiv) {
+                if (answerDiv.classList.contains('hidden')) {
+                    answerDiv.classList.remove('hidden');
+                    answerDiv.classList.add('slide-transition');
+                } else {
+                    answerDiv.classList.add('hidden');
+                    answerDiv.classList.remove('slide-transition');
+                }
+            }
         }
 
         function renderDots() {
@@ -678,6 +800,44 @@
                 renderSlide();
             }
         });
+
+        // --- CONTROLE DO CRONÔMETRO ---
+        let timerInterval;
+        let totalSeconds = 0;
+        let isTimerRunning = false;
+        const timerDisplay = document.getElementById('timer-display');
+        const timerContainer = document.getElementById('class-timer');
+
+        function updateTimerDisplay() {
+            const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            if (timerDisplay) timerDisplay.textContent = `${h}:${m}:${s}`;
+        }
+
+        if (timerContainer) {
+            timerContainer.addEventListener('click', () => {
+                if (isTimerRunning) {
+                    clearInterval(timerInterval);
+                    timerContainer.classList.remove('text-emerald-400', 'border-emerald-500/50');
+                    timerContainer.classList.add('text-amber-400', 'border-amber-500/50');
+                } else {
+                    timerContainer.classList.remove('text-amber-400', 'border-amber-500/50');
+                    timerContainer.classList.add('text-emerald-400', 'border-emerald-500/50');
+                    timerInterval = setInterval(() => { totalSeconds++; updateTimerDisplay(); }, 1000);
+                }
+                isTimerRunning = !isTimerRunning;
+            });
+
+            timerContainer.addEventListener('dblclick', () => {
+                clearInterval(timerInterval);
+                totalSeconds = 0;
+                isTimerRunning = false;
+                updateTimerDisplay();
+                timerContainer.classList.remove('text-amber-400', 'border-amber-500/50');
+                timerContainer.classList.add('text-emerald-400', 'border-emerald-500/50');
+            });
+        }
 
         // Initialize
         updateTheme();
