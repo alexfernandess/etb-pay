@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Java</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 20px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #334155;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .slide-transition {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        pre {
+            border-radius: 0.5rem;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen flex flex-col bg-slate-50 text-slate-800 dark:bg-[#0f172a] dark:text-slate-100 overflow-hidden font-sans">
+
+    <header
+        class="px-6 py-4 flex justify-between items-center shadow-sm z-20 bg-white border-b border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 transition-colors shrink-0">
+        <div class="flex items-center gap-3">
+            <button id="sidebar-toggle"
+                class="bg-emerald-500 p-2 rounded-lg hover:bg-emerald-400 transition-colors focus:ring-2 focus:ring-emerald-300 shadow-md shadow-emerald-500/20"
+                title="Recolher/Expandir Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-slate-900">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+            </button>
+            <div>
+                <h1 class="font-black text-sm md:text-base uppercase tracking-tight leading-tight">ETB-PAY: Java</h1>
+                <p class="text-[10px] font-bold tracking-widest uppercase opacity-60 text-emerald-500">Desafio de Fim de Semana (QConcursos)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <span id="slide-counter" class="text-sm font-bold opacity-50 hidden md:block">SLIDE 1 / X</span>
+
+            <!-- Controle de tamanho de fontes -->
+            <div
+                class="flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg p-0.5 border border-slate-300 dark:border-slate-600 transition-colors">
+                <button onclick="changeFontSize(-1)" id="font-btn-dec"
+                    class="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors"
+                    title="Diminuir Fonte">A-</button>
+                <button onclick="changeFontSize(0)" id="font-btn-norm"
+                    class="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white border-l border-r border-slate-300 dark:border-slate-600 transition-colors"
+                    title="Fonte Padrão">A</button>
+                <button onclick="changeFontSize(1)" id="font-btn-inc"
+                    class="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors"
+                    title="Aumentar Fonte">A+</button>
+            </div>
+
+            <button id="theme-toggle"
+                class="p-2 rounded-full transition-all hover:scale-110 bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-emerald-400"
+                title="Alternar Tema">
+                <span id="theme-icon"></span>
+            </button>
+        </div>
+    </header>
+
+    <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 relative shrink-0 z-20">
+        <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 0%;">
+        </div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden relative w-full">
+
+        <aside id="sidebar"
+            class="w-72 shrink-0 bg-white dark:bg-[#1e293b] border-r border-slate-200 dark:border-slate-700 flex flex-col transition-all duration-300 absolute md:relative z-30 md:z-10 h-full transform translate-x-0">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Navegação da Sprint</h3>
+            </div>
+            <ul id="sidebar-nav" class="flex-1 overflow-y-auto p-2 space-y-1">
+            </ul>
+        </aside>
+
+        <main
+            class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden relative transition-all duration-300 w-full">
+            <div
+                class="w-full max-w-5xl h-[75vh] rounded-3xl shadow-xl overflow-hidden border flex flex-col transition-all duration-500 bg-white border-slate-200 dark:bg-[#1e293b] dark:border-slate-700 dark:shadow-emerald-900/10">
+
+                <div
+                    class="p-6 md:p-8 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4 shrink-0">
+                    <span id="slide-icon-container"></span>
+                    <h2 id="slide-title"
+                        class="text-2xl md:text-3xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">
+                    </h2>
+                </div>
+
+                <div id="slide-content-container"
+                    class="p-6 md:p-8 flex-1 overflow-y-auto slide-transition flex flex-col">
+                </div>
+
+                <div id="answer-section"
+                    class="hidden p-6 border-t border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 shrink-0">
+                    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <button id="btn-reveal"
+                            class="w-full md:w-auto px-6 py-4 border-2 border-dashed border-emerald-500 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white dark:hover:text-slate-900 font-bold rounded-xl transition-colors flex justify-center items-center gap-2 text-sm uppercase tracking-wider shrink-0">
+                            Revelar Solução
+                        </button>
+                        <div id="answer-feedback"
+                            class="hidden w-full slide-transition bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-xl flex items-start gap-4">
+                            <div id="answer-text"
+                                class="text-sm md:text-base font-medium text-slate-700 dark:text-slate-200 leading-relaxed w-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-4 flex justify-between items-center z-10 w-full max-w-5xl mx-auto shrink-0">
+                <button id="btn-prev"
+                    class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Anterior
+                </button>
+
+                <div id="dots-container" class="hidden sm:flex gap-2"></div>
+
+                <button id="btn-next"
+                    class="px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/50 active:scale-95">
+                    Próximo
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </footer>
+        </main>
+
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden"></div>
+    </div>
+
+    <script>
+        // Ícones SVG embutidos com paleta emerald
+        const icons = {
+            strategy: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+            code: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+            exam: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>`,
+            sun: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+            moon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`
+        };
+
+        const slidesData = [
+            {
+                title: "Desafio de Fim de Semana",
+                icon: icons.strategy,
+                isQuestion: false,
+                content: `
+                    <div class="flex flex-col h-full justify-center space-y-6">
+                        <div class="p-6 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/10 mb-2">
+                            <h3 class="text-2xl font-bold mb-2 text-emerald-700 dark:text-emerald-400">Maratona de Concursos</h3>
+                            <p class="text-lg text-slate-700 dark:text-slate-300">
+                                Squad 3G, o treino difícil gera um combate fácil. Reuni 10 questões reais e recentes de bancas como CESPE/CEBRASPE, Quadrix e IGEDUC. O formato é de julgamento rápido (CERTO ou ERRADO). Testem a vossa intuição de engenheiros!
+                            </p>
+                        </div>
+                    </div>`
+            },
+            {
+                title: "Q1. IGEDUC (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Tipagem do Java</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "O Java é uma linguagem de programação orientada a objetos e possui uma vasta biblioteca de rotinas e APIs. Dentre as suas características, destaca-se a tipagem estática, que confere maior segurança ao código, evitando que o tipo da variável seja alterado após sua declaração."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> O rigor da tipagem estática obriga a que uma variável declarada como <code>int</code> viva e morra como <code>int</code>, impedindo falhas críticas de memória em tempo de execução.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q2. IGEDUC (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">A Máquina Virtual</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "A linguagem de programação Java é conhecida por sua independência de plataforma, sendo capaz de executar programas em qualquer sistema que possua a Máquina Virtual Java (JVM) instalada. Essa característica é possível porque o Java compila o código para um bytecode, que é então interpretado pela JVM, diferentemente de outras linguagens que compilam direto para código nativo."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> É o famoso conceito "Write Once, Run Anywhere". O código não é compilado para Windows ou Linux, mas sim para o <code>bytecode</code> universal da JVM.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q3. IGEDUC (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">A Armadura do Código</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "Na Programação Orientada a Objetos (POO), o encapsulamento é um princípio fundamental que restringe o acesso direto aos dados de um objeto, promovendo a segurança da aplicação. Isso é feito através de propriedades privadas e métodos especiais, conhecidos como getters e setters..."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> Definição perfeita do Encapsulamento. Atributos <code>private</code> protegem o estado, enquanto métodos <code>public</code> (Get/Set) expõem as regras de negócio.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q4. CEBRASPE (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Gestão de Memória</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "Na linguagem Java, existe um mecanismo próprio de gerenciamento de memória denominado garbage collector."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> O Garbage Collector (Coletor de Lixo) é o processo da JVM que vasculha a RAM destruindo os objetos instanciados que já não estão a ser utilizados pela aplicação.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q5. Quadrix (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Mutações de Métodos</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "A sobrescrita de métodos ocorre quando uma classe herdeira redefine um método da classe-pai com uma implementação diferente."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> Ao contrário da <em>Sobrecarga</em> (mesmo método, parâmetros diferentes na mesma classe), a <em>Sobrescrita</em> (Override) altera o comportamento herdado utilizando a mesma assinatura.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q6. CEBRASPE (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Polimorfismo</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "O polimorfismo em Java permite processar objetos que derivam da mesma superclasse, direta ou indiretamente; cada objeto pode executar ações diferentes a partir da mesma chamada."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> O polimorfismo (muitas formas) permite tratar objetos de classes filhas diferentes como se fossem da classe Mãe, executando comportamentos específicos de cada uma.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q7. Quadrix (2025)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Controlo de Variáveis</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "O Java oferece uma forte tipagem estática, o que significa que os tipos de dados de variáveis devem ser explicitamente definidos em tempo de compilação, garantindo maior segurança e detecção precoce de erros."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> Ao exigir que o tipo seja declarado (ex: <code>int x;</code>), o Java deteta falhas graves diretamente na IDE, antes sequer de o programa ser executado pelo utilizador.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q8. CEBRASPE (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Flexibilidade do Código</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "O polimorfismo permite que os objetos de uma mesma superclasse tenham comportamentos diferentes a partir da chamada de um mesmo método."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> Se a classe Mãe <code>Animal</code> tem o método <code>emitirSom()</code>, a classe Filha <code>Cachorro</code> pode ladrar e a classe <code>Gato</code> pode miar através da exata mesma chamada de método.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q9. CEBRASPE (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Pegadinha da Banca</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "Na programação orientada a objetos, uma subclasse pode se tornar superclasse de outras subclasses, até um limite de cinco níveis."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: ERRADO.</strong> Não existe qualquer limite de níveis de herança na arquitetura Orientada a Objetos. Uma classe pode estender outra indefinidamente, formando hierarquias tão profundas quanto o sistema precisar.
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Q10. IBEST (2024)",
+                icon: icons.exam,
+                isQuestion: true,
+                content: `
+                    <div class="space-y-6 flex flex-col justify-center h-full">
+                        <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">O Selo Definitivo</h3>
+                        <p class="text-xl md:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100 p-6 md:p-8 bg-slate-800/40 rounded-xl border border-slate-700/60 shadow-inner">
+                            "A palavra-chave 'final' em Java é usada para declarar variáveis constantes, métodos que não podem ser sobrescritos e classes que não podem ser estendidas."
+                        </p>
+                    </div>`,
+                answer: `
+                    <div class="space-y-2">
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            <strong>Gabarito: CERTO.</strong> O <code>final</code> é o cadeado do Java. Congela o valor de uma variável (constante), proíbe a modificação de um método (impede o Override) e esteriliza uma classe (impede a Herança).
+                        </p>
+                    </div>`
+            },
+            {
+                title: "Fim do Desafio",
+                icon: icons.strategy,
+                isQuestion: false,
+                content: `
+                    <div class="space-y-6 flex flex-col items-center justify-center h-full text-center">
+                        <div class="p-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 w-full max-w-3xl">
+                            <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-4">Mente Blindada!</h3>
+                            <p class="text-lg text-slate-700 dark:text-slate-300 mb-8 mx-auto">Se chegaram até aqui e compreenderam estes conceitos cobrados por bancas oficiais, estão mais do que prontos para a nossa prova de Back-End Java. Bom fim de semana e preparem-se para a vitória!</p>
+                        </div>
+                    </div>`
+            }
+        ];
+
+        let currentSlide = 0;
+        let isDarkMode = true;
+        let currentFontSizeLevel = 0; // -1, 0, 1
+
+        function changeFontSize(level) {
+            currentFontSizeLevel = level;
+            localStorage.setItem('fontSizeLevel', level);
+
+            const root = document.documentElement;
+            const btnDec = document.getElementById('font-btn-dec');
+            const btnNorm = document.getElementById('font-btn-norm');
+            const btnInc = document.getElementById('font-btn-inc');
+
+            if (!btnDec || !btnNorm || !btnInc) return;
+
+            // Reset classes
+            btnDec.className = "px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors";
+            btnNorm.className = "px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white border-l border-r border-slate-300 dark:border-slate-600 transition-colors";
+            btnInc.className = "px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors";
+
+            if (level === -1) {
+                root.style.fontSize = '14px';
+                btnDec.className = "px-2.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 transition-colors";
+            } else if (level === 1) {
+                root.style.fontSize = '18px';
+                btnInc.className = "px-2.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 transition-colors";
+            } else {
+                root.style.fontSize = '16px';
+                btnNorm.className = "px-2.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 border-l border-r border-slate-300 dark:border-slate-600 transition-colors";
+            }
+        }
+
+        const DOM = {
+            html: document.documentElement,
+            themeToggle: document.getElementById('theme-toggle'),
+            themeIcon: document.getElementById('theme-icon'),
+            slideCounter: document.getElementById('slide-counter'),
+            progressBar: document.getElementById('progress-bar'),
+            iconContainer: document.getElementById('slide-icon-container'),
+            title: document.getElementById('slide-title'),
+            contentContainer: document.getElementById('slide-content-container'),
+            answerSection: document.getElementById('answer-section'),
+            btnReveal: document.getElementById('btn-reveal'),
+            answerFeedback: document.getElementById('answer-feedback'),
+            answerText: document.getElementById('answer-text'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next'),
+            dotsContainer: document.getElementById('dots-container'),
+            sidebarNav: document.getElementById('sidebar-nav')
+        };
+
+        function updateTheme() {
+            if (isDarkMode) {
+                DOM.html.classList.add('dark');
+                DOM.themeIcon.innerHTML = icons.sun;
+            } else {
+                DOM.html.classList.remove('dark');
+                DOM.themeIcon.innerHTML = icons.moon;
+            }
+        }
+
+        DOM.themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            updateTheme();
+        });
+
+        // --- CONTROLE DA SIDEBAR E MARGEM NEGATIVA ---
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        let isSidebarOpen = window.innerWidth >= 768;
+
+        function updateSidebarState() {
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full', 'md:-ml-72');
+                sidebarOverlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full', 'md:-ml-72');
+                sidebarOverlay.classList.add('hidden');
+            }
+        }
+
+        sidebarToggle.addEventListener('click', () => {
+            isSidebarOpen = !isSidebarOpen;
+            updateSidebarState();
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            if (window.innerWidth < 768) {
+                isSidebarOpen = false;
+                updateSidebarState();
+            }
+        });
+
+        function populateSidebar() {
+            DOM.sidebarNav.innerHTML = '';
+            slidesData.forEach((slide, index) => {
+                const li = document.createElement('li');
+                li.className = `p-3 rounded-lg cursor-pointer transition-all border-l-4 text-sm font-medium ${index === currentSlide
+                    ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 text-emerald-700 dark:text-emerald-400'
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`;
+                li.innerHTML = `<div class="flex items-center gap-3">
+                                   <div class="scale-75 opacity-70">${slide.icon}</div>
+                                   <span class="truncate">${slide.title}</span>
+                                </div>`;
+                li.addEventListener('click', () => {
+                    currentSlide = index;
+                    renderSlide();
+                    if (window.innerWidth < 768) {
+                        isSidebarOpen = false;
+                        updateSidebarState();
+                    }
+                });
+                DOM.sidebarNav.appendChild(li);
+            });
+        }
+
+        function renderSlide() {
+            const slide = slidesData[currentSlide];
+
+            DOM.contentContainer.classList.remove('slide-transition');
+            void DOM.contentContainer.offsetWidth;
+            DOM.contentContainer.classList.add('slide-transition');
+
+            DOM.iconContainer.innerHTML = slide.icon;
+            DOM.title.textContent = slide.title;
+            DOM.contentContainer.innerHTML = slide.content;
+
+            const progress = ((currentSlide + 1) / slidesData.length) * 100;
+            DOM.progressBar.style.width = `${progress}%`;
+            DOM.slideCounter.textContent = `SLIDE ${currentSlide + 1} / ${slidesData.length}`;
+
+            if (slide.isQuestion) {
+                DOM.answerSection.classList.remove('hidden');
+                DOM.btnReveal.classList.remove('hidden');
+                DOM.answerFeedback.classList.add('hidden');
+
+                DOM.answerText.innerHTML = slide.answer;
+
+                DOM.btnReveal.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg> Revelar Solução`;
+            } else {
+                DOM.answerSection.classList.add('hidden');
+            }
+
+            DOM.btnPrev.disabled = currentSlide === 0;
+            DOM.btnPrev.style.opacity = currentSlide === 0 ? '0.3' : '1';
+            DOM.btnNext.disabled = currentSlide === slidesData.length - 1;
+            DOM.btnNext.style.opacity = currentSlide === slidesData.length - 1 ? '0.3' : '1';
+
+            renderDots();
+            populateSidebar();
+        }
+
+        function renderDots() {
+            DOM.dotsContainer.innerHTML = '';
+            slidesData.forEach((_, index) => {
+                const dot = document.createElement('button');
+                dot.className = `w-2 h-2 rounded-full transition-all ${index === currentSlide ? 'w-6 bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'}`;
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    renderSlide();
+                });
+                DOM.dotsContainer.appendChild(dot);
+            });
+        }
+
+        DOM.btnPrev.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        });
+
+        DOM.btnNext.addEventListener('click', () => {
+            if (currentSlide < slidesData.length - 1) {
+                currentSlide++;
+                renderSlide();
+            }
+        });
+
+        DOM.btnReveal.addEventListener('click', () => {
+            DOM.answerFeedback.classList.remove('hidden');
+            DOM.btnReveal.classList.add('hidden');
+
+            // Re-aplicar a animação para o feedback
+            DOM.answerFeedback.classList.remove('slide-transition');
+            void DOM.answerFeedback.offsetWidth;
+            DOM.answerFeedback.classList.add('slide-transition');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentSlide < slidesData.length - 1) {
+                currentSlide++;
+                renderSlide();
+            } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        });
+
+        // Initialize
+        updateTheme();
+        renderSlide();
+        updateSidebarState();
+
+        // Responsive handling on resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                if (!isSidebarOpen) {
+                    isSidebarOpen = true;
+                    updateSidebarState();
+                }
+            } else {
+                if (isSidebarOpen) {
+                    isSidebarOpen = false;
+                    updateSidebarState();
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>
