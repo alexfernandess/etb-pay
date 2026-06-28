@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,9 +13,8 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- html2pdf para geração do arquivo final -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Funcionalidade Nativa de Impressão (window.print) -->
 
     <script>
         tailwind.config = {
@@ -26,9 +26,9 @@
                     },
                     colors: {
                         brand: {
-                            dark: '#0f172a',    
-                            panel: 'rgba(30, 41, 59, 0.6)', 
-                            border: 'rgba(51, 65, 85, 0.5)', 
+                            dark: '#0f172a',
+                            panel: 'rgba(30, 41, 59, 0.6)',
+                            border: 'rgba(51, 65, 85, 0.5)',
                         }
                     },
                     animation: {
@@ -52,14 +52,26 @@
 
     <style>
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background-color: #475569; }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #334155;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #475569;
+        }
 
         body {
             background-color: #0f172a;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.05), transparent 25%),
                 radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.05), transparent 25%);
             background-attachment: fixed;
@@ -72,35 +84,57 @@
             border: 1px solid var(--tw-colors-brand-border);
         }
 
-        /* Estilos específicos para a geração do PDF (A Prova de Falhas) */
-        
-        .pdf-header { border-bottom: 3px solid #10b981; padding-bottom: 20px; margin-bottom: 30px; text-align: center; }
-        .pdf-title { font-size: 28px; font-weight: 900; color: #0f172a; margin-bottom: 10px;}
-        .pdf-student-info { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: space-between;}
-        .pdf-score { text-align: center; margin-bottom: 30px; font-size: 18px; font-weight: bold; color: #334155; }
-        .pdf-question { margin-bottom: 25px; page-break-inside: avoid; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; padding: 15px; border-radius: 6px; background: #f8fafc;}
-        .pdf-q-title { font-weight: 700; color: #0f172a; margin-bottom: 8px; font-size: 14px;}
-        .pdf-q-text { font-size: 13px; color: #334155; margin-bottom: 12px; font-style: italic;}
-        .pdf-q-answer { font-size: 13px; color: #0f172a; background: #ecfdf5; padding: 10px; border-radius: 4px;}
+        /* Remover setas do input number */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            /* Ocultar scrollbar na impressão */
+            ::-webkit-scrollbar {
+                display: none;
+            }
+        }
     </style>
 </head>
+
 <body class="text-slate-200 antialiased min-h-screen flex flex-col">
 
     <!-- HEADER MINIMALISTA & PLACAR -->
-    <header class="sticky top-0 z-50 glass-panel border-b-0 shadow-lg shadow-black/20">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <header class="sticky top-0 z-50 glass-panel border-b-0 shadow-lg shadow-black/20 print:hidden">
+        <div
+            class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <div
+                    class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-emerald-400">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
                 </div>
                 <div>
-                    <h1 class="text-lg md:text-xl font-black tracking-tight uppercase text-white">ETB-PAY <span class="text-slate-500 font-normal">|</span> Arena de Questões</h1>
-                    <p class="text-[10px] uppercase tracking-widest text-emerald-500 font-bold" id="current-exam-label">Selecione uma Prova</p>
+                    <h1 class="text-lg md:text-xl font-black tracking-tight uppercase text-white">ETB-PAY <span
+                            class="text-slate-500 font-normal">|</span> Arena de Questões</h1>
+                    <p class="text-[10px] uppercase tracking-widest text-emerald-500 font-bold" id="current-exam-label">
+                        Selecione uma Prova</p>
                 </div>
             </div>
 
             <!-- Placar em Tempo Real -->
-            <div class="flex items-center gap-4 bg-slate-900/80 px-5 py-2.5 rounded-xl border border-slate-700 shadow-inner">
+            <div
+                class="flex items-center gap-4 bg-slate-900/80 px-5 py-2.5 rounded-xl border border-slate-700 shadow-inner">
                 <div class="flex flex-col items-center">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Acertos</span>
                     <span id="score-correct" class="text-xl font-black text-emerald-400 leading-none">0</span>
@@ -121,51 +155,107 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
-        
+
         <!-- DADOS DO ALUNO -->
-        <div id="student-info-section" class="glass-panel p-6 sm:p-8 rounded-2xl flex flex-col sm:flex-row gap-6 items-end border-t-4 border-t-emerald-500">
-            <div class="w-full flex-1">
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nome do(a) Engenheiro(a)</label>
-                <input type="text" id="student-name" placeholder="Digite seu nome completo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors">
+        <div id="student-info-section"
+            class="glass-panel p-6 sm:p-8 rounded-2xl flex flex-col gap-6 border-t-4 border-t-emerald-500 print:bg-white print:border-slate-300 print:text-black print:block">
+            <h2 class="text-xl font-bold text-white print:text-black">Identificação do Engenheiro(a) de Dados</h2>
+            <div class="flex flex-col sm:flex-row gap-6">
+                <div class="w-full flex-1">
+                    <label
+                        class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Nome
+                        do Aluno</label>
+                    <input type="text" id="student-name" placeholder="Digite seu nome completo"
+                        class="w-full bg-slate-900 print:bg-transparent border border-slate-700 print:border-slate-300 rounded-lg px-4 py-3 text-slate-200 print:text-black focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+                <div class="w-full flex-1">
+                    <label
+                        class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Matrícula</label>
+                    <input type="number" id="student-id" placeholder="Digite sua matrícula"
+                        class="w-full bg-slate-900 print:bg-transparent border border-slate-700 print:border-slate-300 rounded-lg px-4 py-3 text-slate-200 print:text-black focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
             </div>
-            <div class="w-full flex-1">
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Matrícula</label>
-                <input type="text" id="student-id" placeholder="Digite sua matrícula" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors">
+            <div class="flex flex-col sm:flex-row gap-6">
+                <div class="w-full flex-1">
+                    <label
+                        class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Disciplina</label>
+                    <div id="display-disciplina"
+                        class="w-full bg-slate-900/50 print:bg-transparent border border-slate-700/50 print:border-slate-300 rounded-lg px-4 py-3 text-slate-400 print:text-black font-bold">
+                        Banco de Dados</div>
+                </div>
+                <div class="w-full flex-1">
+                    <label
+                        class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Turma</label>
+                    <div id="display-turma"
+                        class="w-full bg-slate-900/50 print:bg-transparent border border-slate-700/50 print:border-slate-300 rounded-lg px-4 py-3 text-slate-400 print:text-black font-bold">
+                        2G</div>
+                </div>
+            </div>
+            <div id="print-date-section" class="hidden print:block w-full">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Data e Hora de
+                    Conclusão</label>
+                <div id="print-date-value"
+                    class="w-full print:bg-transparent border print:border-slate-300 rounded-lg px-4 py-3 text-black font-bold">
+                </div>
             </div>
         </div>
 
         <!-- CONTROLES DE PROVA -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center" id="exam-controls">
-            <button onclick="loadExam('java')" class="flex-1 glass-panel hover:bg-slate-700/50 transition-all duration-300 rounded-xl p-4 flex items-center justify-center gap-3 group cursor-pointer border-l-4 border-l-purple-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400 group-hover:scale-110 transition-transform"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                <span class="font-bold text-slate-200 uppercase tracking-wide text-sm">Carregar Missão Java (3G)</span>
-            </button>
-            <button onclick="loadExam('bd')" class="flex-1 glass-panel hover:bg-slate-700/50 transition-all duration-300 rounded-xl p-4 flex items-center justify-center gap-3 group cursor-pointer border-l-4 border-l-blue-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400 group-hover:scale-110 transition-transform"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-                <span class="font-bold text-slate-200 uppercase tracking-wide text-sm">Carregar Missão Banco de Dados (2G)</span>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center print:hidden" id="exam-controls">
+            <button id="btn-load-banco" onclick="loadExam('banco')" disabled
+                class="flex-1 glass-panel opacity-50 cursor-not-allowed transition-all duration-300 rounded-xl p-4 flex items-center justify-center gap-3 group border-l-4 border-l-cyan-500 max-w-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-cyan-400 group-hover:scale-110 transition-transform">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                </svg>
+                <span class="font-bold text-slate-200 uppercase tracking-wide text-sm">Carregar Missão Banco de
+                    Dados</span>
             </button>
         </div>
 
         <!-- CONTAINER DE QUESTÕES -->
         <div id="questions-container" class="flex flex-col gap-6">
             <div class="glass-panel p-12 rounded-2xl flex flex-col items-center justify-center text-center gap-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500 mb-2"><circle cx="12" cy="12" r="10"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-slate-500 mb-2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="m4.93 4.93 1.41 1.41" />
+                    <path d="m17.66 17.66 1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M20 12h2" />
+                    <path d="m6.34 17.66-1.41 1.41" />
+                    <path d="m19.07 4.93-1.41 1.41" />
+                </svg>
                 <h2 class="text-2xl font-bold text-slate-300">Aguardando Identificação</h2>
-                <p class="text-slate-500 max-w-md">Preencha seus dados acadêmicos e selecione uma disciplina para gerar o seu caderno de provas interativo.</p>
+                <p class="text-slate-500 max-w-md">Preencha seus dados acadêmicos e selecione uma disciplina para gerar
+                    o seu caderno de provas interativo.</p>
             </div>
         </div>
 
         <!-- BOTÃO GERAR PDF (INICIALMENTE OCULTO) -->
-        <div id="finish-section" class="hidden flex justify-center mt-8">
-            <button onclick="generatePDF()" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-900 font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-wide shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                Finalizar Prova e Baixar PDF
+        <div id="finish-section" class="hidden flex justify-center mt-8 print:hidden">
+            <button onclick="generatePDF()"
+                class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-900 font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-wide shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                FINALIZAR AVALIAÇÃO E GERAR O PDF
             </button>
         </div>
 
     </main>
 
-    <footer class="py-6 text-center text-slate-600 text-xs font-medium tracking-wider">
+    <footer class="py-6 text-center text-slate-600 text-xs font-medium tracking-wider print:hidden">
         ETB-PAY &copy; 2026 | SQUAD 2G & 3G | GOVERNANÇA EDUCACIONAL
     </footer>
 
@@ -173,248 +263,77 @@
     <script>
         // 1. O BANCO DE DADOS (JSON)
         // O array JSON com as 30 questões fornecido pelo avaliador CEBRASPE.
-        const bancoQuestoes = [
-            {
-                "id": 1,
-                "disciplina": "Java Back-End",
-                "assunto": "Fundamentos",
-                "enunciado": "Em Java, devido à sua tipagem estática e forte, a conversão de um tipo primitivo de maior precisão para um de menor precisão, como de double para int, não é realizada automaticamente pelo compilador, exigindo do programador o uso do mecanismo de casting explícito para evitar erros de compilação decorrentes de perda de dados.",
-                "gabarito": "Certo",
-                "comentario": "O Java preza pela segurança dos dados. O compilador bloqueia a conversão implícita de tipos maiores para menores porque isso gera perda de informação (decimais descartados ou truncamento). O desenvolvedor deve assumir o risco via casting explícito, como em: int x = (int) 15.5;"
-            },
-            {
-                "id": 2,
-                "disciplina": "Java Back-End",
-                "assunto": "Fundamentos",
-                "enunciado": "A linguagem Java permite que variáveis sejam declaradas sem um tipo definido explicitamente caso não recebam valor na inicialização, inferindo o tipo em tempo de execução para flexibilizar a alocação de memória na JVM.",
-                "gabarito": "Errado",
-                "comentario": "Java é uma linguagem de tipagem estática. Mesmo com a introdução da inferência de tipo local (palavra-chave 'var'), o compilador exige que a variável seja inicializada no momento da declaração para que o tipo seja rigidamente travado em tempo de compilação, e não em execução."
-            },
-            {
-                "id": 3,
-                "disciplina": "Java Back-End",
-                "assunto": "Fundamentos",
-                "enunciado": "Na tipagem estática da plataforma Java, o controle de integridade dos tipos ocorre predominantemente em tempo de execução, permitindo que uma variável inicialmente tipada como String possa reassumir o tipo e armazenar um objeto Integer, se a lógica algorítmica assim demandar.",
-                "gabarito": "Errado",
-                "comentario": "A checagem de tipos em Java acontece em tempo de compilação. Uma variável declarada como String fica fortemente tipada em memória e jamais poderá apontar de forma natural para um Integer. Tentativas do tipo geram erro de compilação imediato."
-            },
-            {
-                "id": 4,
-                "disciplina": "Java Back-End",
-                "assunto": "POO",
-                "enunciado": "O princípio do encapsulamento em Java é fortalecido ao declarar os atributos sensíveis de uma classe com o modificador private, restringindo o acesso externo e exigindo que a manipulação de seus valores seja centralizada em métodos públicos (getters e setters), o que viabiliza a injeção pontual de regras de validação.",
-                "gabarito": "Certo",
-                "comentario": "Correto. O encapsulamento visa esconder e proteger o estado interno do objeto. Ao usar private nos atributos e métodos públicos de acesso, o programador cria 'funis' (setters) onde validações e restrições de negócio podem ser implementadas antes de o dado ser armazenado."
-            },
-            {
-                "id": 5,
-                "disciplina": "Java Back-End",
-                "assunto": "POO",
-                "enunciado": "A declaração de atributos como public é uma prática fortemente recomendada na arquitetura de microsserviços modernos feitos em Java para otimizar o acesso aos dados em memória RAM e reduzir significativamente a sobrecarga computacional gerada por chamadas sistêmicas a métodos encapsuladores.",
-                "gabarito": "Errado",
-                "comentario": "Atributos públicos destroem a integridade da classe, violando a regra básica de encapsulamento da POO. A suposta melhoria de performance ao não usar métodos é pífia (a JVM otimiza chamadas curtas nativamente) e não justifica a grave falha arquitetural, de segurança e de manutenção gerada."
-            },
-            {
-                "id": 6,
-                "disciplina": "Java Back-End",
-                "assunto": "POO",
-                "enunciado": "Em Java, um construtor consiste em um método especial que possui exatamente o mesmo nome de sua classe de origem, e cujo objetivo primário é inicializar o estado de um objeto no momento do operador 'new', sendo obrigatório que o programador declare de forma explícita o seu tipo de retorno, ainda que seja void.",
-                "gabarito": "Errado",
-                "comentario": "Apesar de a sintaxe ser muito parecida com a de um método, a especificação da linguagem proíbe estritamente que construtores possuam qualquer definição de retorno. Se você incluir 'void' na declaração do construtor, o compilador passará a interpretá-lo como um método regular comum, e não como um construtor."
-            },
-            {
-                "id": 7,
-                "disciplina": "Java Back-End",
-                "assunto": "POO",
-                "enunciado": "O polimorfismo, aliado ao pilar da herança, autoriza o tratamento de instâncias de classes-filhas através de referências mapeadas por suas classes-pais, o que proporciona um design altamente dinâmico onde uma mesma chamada de método pode acionar execuções e comportamentos internos completamente distintos dependendo do objeto real instanciado em tempo de execução.",
-                "gabarito": "Certo",
-                "comentario": "Perfeito. Trata-se da essência do Polimorfismo. Uma variável tipada como Animal pode apontar para um Cachorro ou para um Gato. Ao chamar 'emitirSom()', o código executado será definido dinamicamente (Late Binding) baseado no objeto concreto na memória (Cachorro ou Gato)."
-            },
-            {
-                "id": 8,
-                "disciplina": "Java Back-End",
-                "assunto": "Exceções",
-                "enunciado": "Exceções do tipo Checked (verificadas) em Java, a exemplo da IOException, bloqueiam categoricamente a geração do bytecode, forçando o programador a cercar a chamada suscetível a falhas com um bloco try/catch ou, alternativamente, a propagar contratualmente o risco pela assinatura do método com a cláusula throws.",
-                "gabarito": "Certo",
-                "comentario": "As Checked Exceptions representam falhas além do controle da lógica (falta de rede, disco ausente). O compilador do Java impõe a responsabilidade ao programador de antecipar essas catástrofes tratando a falha (try-catch) ou assumindo repassar o problema (throws). Sem isso, não há compilação."
-            },
-            {
-                "id": 9,
-                "disciplina": "Java Back-End",
-                "assunto": "Exceções",
-                "enunciado": "As Unchecked Exceptions, representadas pelas classes que herdam de RuntimeException, exigem tratamento obrigatório no momento da escrita do código, visto que ilustram cenários estritamente previsíveis, tais como falhas estruturais em queries de banco de dados ou arquivos corrompidos.",
-                "gabarito": "Errado",
-                "comentario": "As exceções Unchecked (não-verificadas) NÃO são inspecionadas pelo compilador. Elas decorrem tipicamente de má qualidade de código ou bugs lógicos (ex: NullPointerException, ArithmeticException ao dividir por zero), de modo que o programador não é forçado a prever ou declarar blocos catch no código-fonte."
-            },
-            {
-                "id": 10,
-                "disciplina": "Java Back-End",
-                "assunto": "Exceções",
-                "enunciado": "O bloco finally, posicionado de forma dependente em uma estrutura try/catch, tem sua respectiva execução assegurada pela máquina virtual de forma incondicional, ocorrendo independentemente do lançamento de exceções no bloco try, sendo considerado o espaço seguro e ideal para a devolução de recursos finitos, como conexões JDBC ao pool de rede.",
-                "gabarito": "Certo",
-                "comentario": "A principal e vital utilidade do bloco finally é garantir a limpeza técnica da aplicação e prevenir vazamentos de recursos e de memória. Havendo sucesso (try íntegro) ou falha (catch executado), o finally será sempre a última etapa engatilhada, liberando a conexão de banco, arquivos e sockets de rede."
-            },
-            {
-                "id": 11,
-                "disciplina": "Java Back-End",
-                "assunto": "Exceções",
-                "enunciado": "Caso uma instrução imperativa de retorno imediato (return) seja acionada durante a execução pacífica de um bloco try, o ciclo de vida do bloco finally associado é sumariamente abortado pelo Garbage Collector para garantir que a pilha retorne o valor intencionado sem processamentos secundários atrasados.",
-                "gabarito": "Errado",
-                "comentario": "O bloco finally é soberano. Se o fluxo encontrar um 'return' dentro do try ou do catch, a JVM suspende momentaneamente o retorno, executa integralmente o conteúdo do bloco finally, e apenas depois disso, conclui a devolução do retorno inicial para o método chamador."
-            },
-            {
-                "id": 12,
-                "disciplina": "Java Back-End",
-                "assunto": "Persistência/JDBC",
-                "enunciado": "O Data Access Object (DAO) é um padrão de projeto estrutural clássico cuja intenção principal é apartar por completo o código de acesso, driver e queries de banco de dados do núcleo da aplicação, reunindo as operações de persistência e habilitando manutenções ou migrações de SGBD sem a necessidade de reescrever as regras de negócio ou as interfaces gráficas.",
-                "gabarito": "Certo",
-                "comentario": "O Padrão DAO é fundamental para a modularização orientada a objetos. Ele atua como um escudo, centralizando SQLs e transações em classes específicas. O resto do sistema invoca os métodos do DAO sem nunca saber se os dados estão indo para Oracle, Postgres, SQLite ou arquivo TXT."
-            },
-            {
-                "id": 13,
-                "disciplina": "Java Back-End",
-                "assunto": "Persistência/JDBC",
-                "enunciado": "Na infraestrutura de execução da API JDBC, estipula-se que o método executeQuery() deva ser provocado exclusivamente para realizar injeções da linguagem DML (Data Manipulation Language) que desestruturam dados na tabela (como INSERT, UPDATE e DELETE), cabendo ao método executeUpdate() as rotinas leves de pesquisa e extração via instrução SELECT.",
-                "gabarito": "Errado",
-                "comentario": "O conceito está completamente invertido. O método executeQuery() é dedicado apenas a instruções SELECT, devolvendo obrigatoriamente um objeto ResultSet com a tabela. Já o método executeUpdate() processa comandos INSERT, UPDATE ou DELETE, e devolve um int indicando quantas linhas do disco foram modificadas."
-            },
-            {
-                "id": 14,
-                "disciplina": "Java Back-End",
-                "assunto": "Persistência/JDBC",
-                "enunciado": "A adoção da interface PreparedStatement, em contraste à classe genérica Statement, é uma premissa arquitetural crítica, na medida em que viabiliza o cache do plano de execução da query pelo SGBD e aniquila as vulnerabilidades de SQL Injection, higienizando devidamente e blindando as variáveis dinâmicas inseridas pelo usuário na consulta.",
-                "gabarito": "Certo",
-                "comentario": "Corretíssimo. O PreparedStatement fragmenta a consulta. Ele envia o esqueleto rígido e imutável do SQL primeiro para o banco compilar, e apenas depois repassa os parâmetros capturados das caixas de texto usando o símbolo '?'. Isso impede que o banco confunda dados do usuário com código executável (SQL Injection)."
-            },
-            {
-                "id": 15,
-                "disciplina": "Java Back-End",
-                "assunto": "Persistência/JDBC",
-                "enunciado": "Quando uma infraestrutura Java interage com bancos relacionais utilizando drivers JDBC primitivos, a gestão de transações atômicas inexiste. Assim, cada instrução SQL tramitada de forma avulsa via PreparedStatement concretiza um auto-commit instantâneo e insubstituível, carecendo de mecanismos na linguagem para agrupar operações ou acionar rollback programático.",
-                "gabarito": "Errado",
-                "comentario": "A API JDBC provê robusto suporte transacional via controle da conexão (Connection). Por padrão, a conexão inicia com 'auto-commit' ligado (cada query é independente). Contudo, o programador pode desligá-lo com 'connection.setAutoCommit(false)', agrupar diversas operações e, ao final, comandar o commit ou acionar o rollback caso algo falhe."
-            },
-            {
-                "id": 16,
-                "disciplina": "Banco de Dados",
-                "assunto": "Arquitetura e Abstração",
-                "enunciado": "Em contrastes arquiteturais, sistemas SGBDs categorizados como Client-Server (ex: PostgreSQL) funcionam como processos e serviços isolados que demandam protocolos de rede para suportar múltiplos terminais em concorrência, enquanto sistemas modelados sob a arquitetura Embedded (ex: SQLite) dispensam rede e servidores externos, operando dentro do processo da própria aplicação-hospedeira, consumindo o banco no mesmo disco local.",
-                "gabarito": "Certo",
-                "comentario": "A definição é exata. O PostgreSQL exige instalação à parte, roda numa porta de rede e recebe conexões via sockets TCP/IP (Client-Server). O SQLite não tem instalador ou serviço de segundo plano; trata-se de um pequeno motor de biblioteca acoplado no código da aplicação que grava os dados diretamente em um arquivo nativo (Embedded)."
-            },
-            {
-                "id": 17,
-                "disciplina": "Banco de Dados",
-                "assunto": "Arquitetura e Abstração",
-                "enunciado": "A técnica de diagramação por meio do Modelo Entidade-Relacionamento (MER) reside e fundamenta-se estritamente no Nível Físico de abstração do ANSI/SPARC, pois detalha a sintaxe proprietária da DDL e parametriza minuciosamente os construtos de bytes necessários para o armazenamento das chaves em discos magnéticos.",
-                "gabarito": "Errado",
-                "comentario": "O Modelo Entidade-Relacionamento (MER) localiza-se na camada mais alta: o Nível Conceitual. É a etapa onde regras de negócio, tabelas e ligações são desenhadas em quadros e esboços voltados para o entendimento humano, ignorando qualquer especificidade de tecnologia, SGBD, tamanho físico em disco ou linguagem sintática."
-            },
-            {
-                "id": 18,
-                "disciplina": "Banco de Dados",
-                "assunto": "Arquitetura e Abstração",
-                "enunciado": "No modelo de três camadas de abstração, o Nível Lógico representa a fase em que o mapeamento conceitual preliminar de entidades é formalmente traduzido para um modelo sistêmico específico, resultando na concepção estruturada das tabelas, definição rígida dos tipos de colunas e demarcação de chaves primárias e estrangeiras adaptadas ao paradigma relacional.",
-                "gabarito": "Certo",
-                "comentario": "O Nível Lógico faz a ponte vital. Pega-se o diagrama de blocos (Nível Conceitual) e o submete às rígidas leis matemáticas do Modelo Relacional, determinando onde ficará a Chave Primária, como as Chaves Estrangeiras farão os vínculos, identificando as restrições, mas ainda sem compilar o código físico para um HD."
-            },
-            {
-                "id": 19,
-                "disciplina": "Banco de Dados",
-                "assunto": "Normalização Relacional",
-                "enunciado": "As leis teóricas da Primeira Forma Normal (1FN) sustentam o princípio fundamental da atomicidade no grid bidimensional. Por conseguinte, viola diretamente as diretrizes da 1FN o registro de uma tupla que detenha, em sua coluna 'Meios de Contato', o agrupamento de múltiplos endereços de e-mail e ramais separados por vírgula em uma única célula estrutural.",
-                "gabarito": "Certo",
-                "comentario": "Exato. A regra imperativa da 1FN condena atributos não-atômicos e multivalorados. Cada cruzamento de linha e coluna deve armazenar, obrigatoriamente, um único e isolado valor. Para consertar essa anomalia de design, os e-mails empilhados precisam ser particionados em linhas diferentes ou externalizados para uma tabela auxiliar."
-            },
-            {
-                "id": 20,
-                "disciplina": "Banco de Dados",
-                "assunto": "Normalização Relacional",
-                "enunciado": "Para o compliance completo frente à Segunda Forma Normal (2FN), admite-se a arquitetura de banco de dados em que todos os atributos não-chave detenham dependência funcional com apenas uma das chaves parciais em um cenário de Chave Primária Composta, contanto que essa relação preserve a consistência da junção em memória cache.",
-                "gabarito": "Errado",
-                "comentario": "O principal mandamento da 2FN é precisamente combater a dependência parcial. Se uma tabela possui Chave Composta (ex: ID_Aluno e ID_Curso), os demais atributos (ex: Nome_Curso) precisam depender funcionalmente da CHAVE INTEIRA e junta. Se Nome_Curso só depender do ID_Curso, a tabela fere a 2FN e deve ser quebrada."
-            },
-            {
-                "id": 21,
-                "disciplina": "Banco de Dados",
-                "assunto": "Normalização Relacional",
-                "enunciado": "Uma estrutura relacional se consagra como alinhada à Terceira Forma Normal (3FN) mediante a estrita observância da ausência de dependências transitivas, configurando um modelo em que atributos que não são chaves primárias jamais dependam logicamente, determinem ou sejam deduzidos a partir de outros atributos de mesma natureza não-chave.",
-                "gabarito": "Certo",
-                "comentario": "Correto. A 3FN elimina dependências indiretas (transitivas). Exemplo de violação da 3FN: uma tabela de cliente que tem o campo 'Bairro' e 'Frete'. Se o 'Frete' depender do 'Bairro', ele depende de um campo não-chave, gerando redundância se dezenas de clientes morarem naquele mesmo local. Tudo que não for chave primária não dita regras e tem que depender apenas dela."
-            },
-            {
-                "id": 22,
-                "disciplina": "Banco de Dados",
-                "assunto": "Normalização Relacional",
-                "enunciado": "A imposição matemática e escalável do processo de normalização impulsiona colateralmente um drástico achatamento arquitetural no ecossistema, diminuindo vertiginosamente o volume quantitativo de tabelas em um esquema para maximizar a fluidez algorítmica e erradicar o acionamento de operadores JOIN nos motores corporativos.",
-                "gabarito": "Errado",
-                "comentario": "A normalização surte o efeito arquitetural rigorosamente oposto: ela AUMENTA radicalmente o número total de tabelas. Ao decompor e desmembrar tabelas corrompidas, separando dados em blocos independentes para eliminar redundâncias e anomalias de atualização, o modelo força o desenvolvedor a utilizar fartamente os comandos de JOIN para costurar essa base particionada no ato da consulta."
-            },
-            {
-                "id": 23,
-                "disciplina": "Banco de Dados",
-                "assunto": "Comandos SQL",
-                "enunciado": "Sob o viés das sub-linguagens do SQL, os comandos que orquestram modificações arquiteturais na infraestrutura do banco de dados, tais como a criação, exclusão irrevogável ou edição do desenho de tabelas (CREATE, DROP, ALTER), são agrupados exclusivamente sob a rubrica da Linguagem de Definição de Dados (DDL).",
-                "gabarito": "Certo",
-                "comentario": "Corretíssimo. A Data Definition Language (DDL) cuida do esqueleto e da meta-estrutura, jamais interferindo ou filtrando dados e tuplas. Criar as paredes (CREATE), demolir (DROP) ou remodelar (ALTER) a casa são operações de altíssimo impacto do nível DDL."
-            },
-            {
-                "id": 24,
-                "disciplina": "Banco de Dados",
-                "assunto": "Comandos SQL",
-                "enunciado": "A instrução DELETE em SQL é classificada sem reservas no escopo da Linguagem de Definição de Dados (DDL), justificado pela sua capacidade nativa de extirpar não apenas as tuplas registradas, mas também as amarras relacionais e os objetos da tabela perante o dicionário de dados do motor relacional.",
-                "gabarito": "Errado",
-                "comentario": "Completamente incorreto. O comando DELETE diz respeito unicamente à manipulação do conteúdo (as linhas dentro de uma tabela), deixando as paredes e o esquema perfeitamente intactos; portanto, o DELETE pertence sempre à DML (Linguagem de Manipulação de Dados). O comando capaz de extirpar amarras e o objeto inteiro é o DROP, pertencente à DDL."
-            },
-            {
-                "id": 25,
-                "disciplina": "Banco de Dados",
-                "assunto": "Comandos SQL",
-                "enunciado": "Caso o projeto exija a substituição ou repaginação de uma informação isolada que já se encontra armazenada nos discos rígidos, o desenvolvedor é impelido a engatilhar a instrução UPDATE, categorizada sob a égide da Linguagem de Manipulação de Dados (DML), demandando rigorosamente o amparo da cláusula WHERE para obstruir a sobrescrita indiscriminada de todo o montante de registros preexistentes na tabela.",
-                "gabarito": "Certo",
-                "comentario": "Exato. O UPDATE altera o conteúdo de células (DML). Contudo, a ausência acidental da cláusula de filtragem WHERE provocará uma atualização sistêmica em 'chain', alterando todos os milhões de registros daquela coluna para o mesmo valor, gerando um desastre irrecuperável de dados (famoso update sem where)."
-            },
-            {
-                "id": 26,
-                "disciplina": "Banco de Dados",
-                "assunto": "Comandos SQL",
-                "enunciado": "Embora apresente uma natureza sintática dúbia, a diretiva INSERT INTO encontra o seu principal nicho de uso no momento exato de converter a tipagem de um atributo estrutural preexistente para novos tipos, o que endossa sua filiação direta à matriz dos construtos DDL.",
-                "gabarito": "Errado",
-                "comentario": "Não há dubiedade sintática. O comando INSERT INTO é exclusivamente DML, sendo a única instrução capacitada a semear novos dados brutos e tuplas virgens nas linhas da tabela. A operação responsável por alterar tipos ou reformatar colunas estruturais atende pelo comando ALTER TABLE (DDL)."
-            },
-            {
-                "id": 27,
-                "disciplina": "Banco de Dados",
-                "assunto": "Álgebra Relacional e Integridade",
-                "enunciado": "No espectro da álgebra relacional computacional e de consultas estruturadas por vínculos, o operador INNER JOIN é desenhado matematicamente para projetar tão-somente a interseção dos conjuntos; ou seja, restringe brutalmente a exibição aos pares de registros que possuam correspondência direta e verificável de chaves entre ambas as tabelas cruzadas na operação.",
-                "gabarito": "Certo",
-                "comentario": "Correto. O INNER JOIN não tolera órfãos lógicos na consulta de relatório. Se houver um registro em A que não tem vínculo compatível com os dados em B, ambos são ignorados na listagem final. Ele apresenta apenas as linhas com as chaves correspondentes exatas."
-            },
-            {
-                "id": 28,
-                "disciplina": "Banco de Dados",
-                "assunto": "Álgebra Relacional e Integridade",
-                "enunciado": "Em um contexto de relatório sistêmico, caso a inteligência de negócios demande a projeção compulsória de todas as tuplas persistidas na tabela soberana (à esquerda), tolerando de maneira forçosa a ausência de amarras na entidade adjacente (à direita) pela via da inserção visual de valores nulos, o desenvolvedor deve lançar mão do operador arquitetural CROSS JOIN.",
-                "gabarito": "Errado",
-                "comentario": "O comportamento exposto descreve detalhadamente o diagrama de Venn de um LEFT JOIN (preservação cega de todo o escopo de dados da tabela primária na esquerda, injetando valores NULL à direita se não houver relacionamento). O CROSS JOIN, diferentemente disso, executa uma multiplicação de matriz cartesiana entre absolutamente todas as linhas, misturando tudo independentemente de amarrações e ligações lógicas entre colunas."
-            },
-            {
-                "id": 29,
-                "disciplina": "Banco de Dados",
-                "assunto": "Álgebra Relacional e Integridade",
-                "enunciado": "O ecossistema de restrições de integridade referencial prevê gatilhos defensivos, a exemplo da parametrização ON DELETE CASCADE associada a uma chave estrangeira, a qual, diante de um evento destrutivo sobre a tabela matricial pai, opera de forma reativa executando o extermínio automático das tuplas dependentes na tabela filha, blindando o banco contra a proliferação assíncrona de registros órfãos.",
-                "gabarito": "Certo",
-                "comentario": "O gatilho CASCADE tem essa exata função e risco. Ele prioriza a integridade do modelo, mas em formato de 'chuva atômica'. Deletar o Departamento (pai) faz com que o banco automaticamente entre nos registros filhos e destrua por completo os Empregados (filhos) daquele departamento."
-            },
-            {
-                "id": 30,
-                "disciplina": "Banco de Dados",
-                "assunto": "Álgebra Relacional e Integridade",
-                "enunciado": "Diante da imposição da restrição de integridade referencial parametrizada sob a instrução conservadora ON DELETE RESTRICT (ou a equivalente nativa no action), a tentativa isolada do usuário de apagar um cliente-pai perante SGBD surtirá efeito imediato; porém, o motor relacional injetará compulsoriamente valores de natureza NULL no Foreign Key dos pedidos-filhos dependentes de modo a amortizar as anomalias da exclusão.",
-                "gabarito": "Errado",
-                "comentario": "Totalmente incorreto. O cenário exposto pela questão descreve a parametrização ON DELETE SET NULL. No caso rigoroso da regra RESTRICT, a blindagem de defesa atua abortando todo o processamento: o banco de dados proíbe a ação inicial por completo e exibe um erro transacional em tela, impedindo categoricamente a deleção do cliente-pai enquanto os pedidos-filhos ainda constarem atrelados no sistema, visando proteger a segurança dos dados acima de tudo."
+        const database = {
+            bd: {
+                disciplina: "Banco de Dados",
+                cargo: "Engenheiro de Dados",
+                questions: [
+                    {
+                        id: "bd_q1",
+                        assunto: "Abstração e Modelagem",
+                        enunciado: "Na modelagem de banco de dados, o projeto é dividido em três níveis de abstração: o nível conceitual (independente de tecnologia, focado na regra de negócio), o nível lógico (estruturas de tabelas) e o nível físico (detalhes de armazenamento no SGBD).",
+                        gabarito: "C",
+                        comentario: "Exato. O Conceitual é o diagrama desenhado para o cliente (MER), o Lógico é a tradução para tabelas e chaves, e o Físico é o script SQL (DDL) rodando diretamente no motor do banco."
+                    },
+                    {
+                        id: "bd_q2",
+                        assunto: "Normalização Relacional",
+                        enunciado: "Uma tabela atende à 1ª Forma Normal (1FN) mesmo quando um campo de contato armazena três números de celular separados por vírgula em uma mesma célula de coluna.",
+                        gabarito: "E",
+                        comentario: "A Regra Áurea da 1ª Forma Normal (1FN) é a Atomicidade. O dado deve ser indivisível. Valores multivalorados ferem a 1FN e devem ser extraídos para novas estruturas."
+                    },
+                    {
+                        id: "bd_q3",
+                        assunto: "Normalização Relacional",
+                        enunciado: "Se a tabela possuir uma Chave Primária Composta (ID_Produto, ID_Loja), e a coluna \"Nome do Produto\" depender apenas da metade da chave (ID_Produto), a tabela ainda atende à 2ª Forma Normal (2FN).",
+                        gabarito: "E",
+                        comentario: "A 2ª Forma Normal (2FN) estipula que todos os atributos não-chave devem depender da CHAVE PRIMÁRIA COMPLETA. Dependência parcial de chave composta viola a 2FN."
+                    },
+                    {
+                        id: "bd_q4",
+                        assunto: "Integridade Referencial",
+                        enunciado: "A exclusão de um registro na tabela principal, mesmo que efetuada sem a configuração de cláusulas como CASCADE ou RESTRICT, é garantida em compliance (conformidade) porque a tabela dependente não reterá o Foreign Key.",
+                        gabarito: "E",
+                        comentario: "Sem o ON DELETE CASCADE ou RESTRICT ativado, deletar um registro-pai cria um 'Registro Órfão' na tabela filha. Isso viola a Integridade Referencial e a conformidade (compliance) dos dados."
+                    },
+                    {
+                        id: "bd_q9",
+                        assunto: "Linguagem de Definição",
+                        enunciado: "Os comandos CREATE, ALTER e DROP são utilizados primariamente para a manipulação dos registros e consultas de dados dentro das tabelas, atuando diretamente no nível das linhas.",
+                        gabarito: "E",
+                        comentario: "Esses comandos não manipulam dados (linhas), eles manipulam a ESTRUTURA. Eles pertencem à Linguagem de Definição de Dados (DDL) e servem para criar, alterar ou destruir as tabelas em si."
+                    },
+                    {
+                        id: "bd_q10",
+                        assunto: "Comandos SQL (DML)",
+                        enunciado: "É possível popular uma tabela utilizando dados provenientes de outra tabela por meio do comando estruturado: <code>INSERT INTO tabela_destino SELECT * FROM tabela_origem;</code>, desde que as estruturas das tabelas sejam compatíveis.",
+                        gabarito: "C",
+                        comentario: "Correto. Essa é uma técnica avançada e muito útil de DML conhecida como 'Insert com Select', que permite migrar ou duplicar grandes volumes de dados de uma tabela para outra de forma rápida."
+                    },
+                    {
+                        id: "bd_q12",
+                        assunto: "Chaves Relacionais",
+                        enunciado: "A Chave Primária (Primary Key) de uma tabela tem como principal função garantir a unicidade de cada registro, não permitindo valores nulos ou valores repetidos em sua respectiva coluna.",
+                        gabarito: "C",
+                        comentario: "Perfeito. A Primary Key (PK) é a identidade (o CPF) do registro. Por definição arquitetural, ela aplica automaticamente as restrições UNIQUE (não repete) e NOT NULL (não fica vazia)."
+                    },
+                    {
+                        id: "bd_q14",
+                        assunto: "Chaves Relacionais",
+                        enunciado: "A Chave Estrangeira (Foreign Key) é o mecanismo relacional utilizado para criar vínculos entre tabelas diferentes, garantindo que o valor inserido na tabela filha exista obrigatoriamente na tabela mãe.",
+                        gabarito: "C",
+                        comentario: "Exato. A Foreign Key (FK) é o pilar dos bancos relacionais. Ela garante a amarração dos dados, impedindo que você cadastre uma venda para um 'ID de Cliente' que não existe no sistema."
+                    },
+                    {
+                        id: "bd_q15",
+                        assunto: "Tipos de Dados",
+                        enunciado: "No momento da criação de uma tabela, a escolha do tipo de dado (como VARCHAR, INT ou DATE) é opcional, pois os bancos de dados relacionais modernos deduzem o tipo automaticamente com base no primeiro dado inserido.",
+                        gabarito: "E",
+                        comentario: "Bancos de dados relacionais (SQL) possuem tipagem forte e esquema rígido. A definição do tipo de dado para cada coluna no comando <code>CREATE TABLE</code> é obrigatória e inegociável."
+                    }
+                ]
             }
-        ];
+        };
 
         // 2. ESTADO DA APLICAÇÃO
         let currentExam = null;
@@ -430,6 +349,23 @@
         const inputName = document.getElementById('student-name');
         const inputId = document.getElementById('student-id');
         const finishSection = document.getElementById('finish-section');
+        const btnLoadJava = document.getElementById('btn-load-banco');
+
+        // Validação em Tempo Real para habilitar o botão de carregar prova
+        function checkFormFields() {
+            if (inputName.value.trim() !== '' && inputId.value.trim() !== '') {
+                btnLoadJava.disabled = false;
+                btnLoadJava.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnLoadJava.classList.add('hover:bg-slate-700/50', 'cursor-pointer');
+            } else {
+                btnLoadJava.disabled = true;
+                btnLoadJava.classList.add('opacity-50', 'cursor-not-allowed');
+                btnLoadJava.classList.remove('hover:bg-slate-700/50', 'cursor-pointer');
+            }
+        }
+
+        inputName.addEventListener('input', checkFormFields);
+        inputId.addEventListener('input', checkFormFields);
 
         // 4. FUNÇÃO: CARREGAR PROVA
         function loadExam(examKey) {
@@ -450,64 +386,69 @@
             inputName.classList.add('opacity-50', 'cursor-not-allowed');
             inputId.classList.add('opacity-50', 'cursor-not-allowed');
 
-            let examDisciplina = examKey === 'java' ? "Java Back-End" : "Banco de Dados";
-            let filteredQuestions = bancoQuestoes.filter(q => q.disciplina === examDisciplina);
-            
+            const examData = database.bd;
+
             currentExam = {
-                disciplina: examKey === 'java' ? "LTP II - Java" : "Banco de Dados",
-                turma: examKey === 'java' ? "3G" : "2G",
-                cargo: examKey === 'java' ? "Engenheiro de Software" : "Engenheiro de Dados",
-                questions: filteredQuestions
+                disciplina: examData.disciplina,
+                turma: "2G",
+                cargo: examData.cargo,
+                questions: examData.questions
             };
-            
+
+            // Atualiza os dados no formulário de identificação visualmente
+            document.getElementById('display-disciplina').textContent = currentExam.disciplina;
+            document.getElementById('display-turma').textContent = currentExam.turma;
+
             // Resetar estado
             score = { correct: 0, incorrect: 0 };
             answeredQuestions.clear();
             updateScoreDisplay();
-            finishSection.classList.add('hidden');
-            
+            finishSection.classList.remove('hidden');
+
             // Atualizar Label
             examLabel.textContent = `Simulado: ${currentExam.disciplina}`;
-            
+
             // Renderizar Questões
             container.innerHTML = '';
-            
+
             currentExam.questions.forEach((q, index) => {
                 const cardHTML = `
-                    <div id="card-${q.id}" class="glass-panel rounded-2xl p-6 sm:p-8 animate-fade-in" style="animation-delay: ${index * 100}ms">
+                    <div id="card-${q.id}" class="glass-panel rounded-2xl p-6 sm:p-8 animate-fade-in print:shadow-none print:border print:border-slate-300 print:bg-white print:text-black print:mb-4" style="animation-delay: ${index * 100}ms; page-break-inside: avoid;">
                         
                         <!-- Cabeçalho da Questão -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/50 pb-4 mb-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/50 print:border-slate-300 pb-4 mb-6">
                             <div class="flex items-center gap-3">
-                                <span class="bg-slate-900 border border-slate-700 text-slate-300 font-black text-sm px-3 py-1 rounded-lg">Q${index + 1} (ID: ${q.id})</span>
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">${q.disciplina} > ${q.assunto}</span>
+                                <span class="bg-slate-900 print:bg-slate-200 border border-slate-700 print:border-slate-300 text-slate-300 print:text-black font-black text-sm px-3 py-1 rounded-lg">Q${index + 1} (ID: ${q.id})</span>
+                                <span class="text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest">${q.disciplina} > ${q.assunto}</span>
                             </div>
-                            <div class="text-[10px] text-slate-500 uppercase font-bold tracking-widest text-left sm:text-right">
+                            <div class="text-[10px] text-slate-500 print:text-slate-600 uppercase font-bold tracking-widest text-left sm:text-right">
                                 Ano: 2026 &bull; Banca: ETB &bull; Cargo: ${currentExam.cargo}
                             </div>
                         </div>
 
                         <!-- Enunciado -->
-                        <p class="text-lg md:text-xl text-slate-200 font-medium leading-relaxed mb-8">
+                        <p class="text-lg md:text-xl text-slate-200 print:text-black font-medium leading-relaxed mb-8">
                             "${q.enunciado}"
                         </p>
 
                         <!-- Alternativas (Radios) -->
                         <div class="flex flex-col sm:flex-row gap-4 mb-6">
                             <label class="flex-1 cursor-pointer relative group">
-                                <input type="radio" name="opt_${q.id}" value="Certo" class="peer sr-only">
-                                <div class="p-4 rounded-xl border-2 border-slate-600/50 bg-slate-900/50 text-center text-slate-400 font-bold transition-all duration-200 
+                                <input type="radio" name="opt_${q.id}" value="C" class="peer sr-only">
+                                <div class="p-4 rounded-xl border-2 border-slate-600/50 print:border-slate-300 bg-slate-900/50 print:bg-transparent text-center text-slate-400 print:text-slate-700 font-bold transition-all duration-200 
                                             group-hover:border-amber-500/50 group-hover:text-amber-400
-                                            peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-500">
+                                            peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-500
+                                            print:peer-checked:border-black print:peer-checked:text-black print:peer-checked:font-black">
                                     CERTO
                                 </div>
                             </label>
                             
                             <label class="flex-1 cursor-pointer relative group">
-                                <input type="radio" name="opt_${q.id}" value="Errado" class="peer sr-only">
-                                <div class="p-4 rounded-xl border-2 border-slate-600/50 bg-slate-900/50 text-center text-slate-400 font-bold transition-all duration-200 
+                                <input type="radio" name="opt_${q.id}" value="E" class="peer sr-only">
+                                <div class="p-4 rounded-xl border-2 border-slate-600/50 print:border-slate-300 bg-slate-900/50 print:bg-transparent text-center text-slate-400 print:text-slate-700 font-bold transition-all duration-200 
                                             group-hover:border-amber-500/50 group-hover:text-amber-400
-                                            peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-500">
+                                            peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-500
+                                            print:peer-checked:border-black print:peer-checked:text-black print:peer-checked:font-black">
                                     ERRADO
                                 </div>
                             </label>
@@ -516,7 +457,7 @@
                         <!-- Ações -->
                         <div class="flex justify-end">
                             <button id="btn-${q.id}" onclick="responder('${q.id}', '${q.gabarito}')" 
-                                    class="w-full sm:w-auto px-8 py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-2 uppercase tracking-wide shadow-lg shadow-amber-500/20 active:scale-95">
+                                    class="w-full sm:w-auto px-8 py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-2 uppercase tracking-wide shadow-lg shadow-amber-500/20 active:scale-95 print:hidden">
                                 Responder
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                             </button>
@@ -538,7 +479,7 @@
             if (answeredQuestions.has(questionId)) return;
 
             const selectedOpt = document.querySelector(`input[name="opt_${questionId}"]:checked`);
-            
+
             if (!selectedOpt) {
                 const btn = document.getElementById(`btn-${questionId}`);
                 btn.classList.add('animate-pulse');
@@ -548,12 +489,12 @@
 
             const valSelecionado = selectedOpt.value;
             const isCorrect = (valSelecionado === gabaritoCorreto);
-            
+
             // Travar resposta
             answeredQuestions.add(questionId);
             document.querySelectorAll(`input[name="opt_${questionId}"]`).forEach(radio => {
                 radio.disabled = true;
-                radio.parentElement.classList.remove('cursor-pointer', 'group'); 
+                radio.parentElement.classList.remove('cursor-pointer', 'group');
             });
 
             // Atualizar Placar
@@ -564,28 +505,28 @@
             // Transformar botão responder em check verde
             const btn = document.getElementById(`btn-${questionId}`);
             btn.innerHTML = 'Respondido <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-            btn.className = "w-full sm:w-auto px-8 py-3.5 bg-emerald-500/20 text-emerald-400 font-black rounded-xl border border-emerald-500/50 flex items-center justify-center gap-2 uppercase tracking-wide cursor-default";
+            btn.className = "w-full sm:w-auto px-8 py-3.5 bg-emerald-500/20 text-emerald-400 font-black rounded-xl border border-emerald-500/50 flex items-center justify-center gap-2 uppercase tracking-wide cursor-default print:hidden";
             btn.disabled = true;
 
             // Feedback UI
             const feedbackContainer = document.getElementById(`feedback-${questionId}`);
-            const questionData = currentExam.questions.find(q => q.id === questionId);
-            
+            const questionData = currentExam.questions.find(q => q.id == questionId);
+
             let feedbackSelo, bgClass, borderClass, textClass;
 
             if (isCorrect) {
-                feedbackSelo = `<div class="flex items-center gap-2 font-black text-lg text-emerald-400 mb-2 uppercase tracking-wide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Você Acertou!</div>`;
-                bgClass = 'bg-emerald-500/10';
-                borderClass = 'border-emerald-500/50';
-                textClass = 'text-emerald-100';
+                feedbackSelo = `<div class="flex items-center gap-2 font-black text-lg text-emerald-400 print:text-emerald-700 mb-2 uppercase tracking-wide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Você Acertou!</div>`;
+                bgClass = 'bg-emerald-500/10 print:bg-emerald-50';
+                borderClass = 'border-emerald-500/50 print:border-emerald-300';
+                textClass = 'text-emerald-100 print:text-emerald-900';
             } else {
-                feedbackSelo = `<div class="flex items-center gap-2 font-black text-lg text-rose-400 mb-2 uppercase tracking-wide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Você Errou!</div>`;
-                bgClass = 'bg-rose-500/10';
-                borderClass = 'border-rose-500/50';
-                textClass = 'text-rose-100';
+                feedbackSelo = `<div class="flex items-center gap-2 font-black text-lg text-rose-400 print:text-rose-700 mb-2 uppercase tracking-wide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Você Errou!</div>`;
+                bgClass = 'bg-rose-500/10 print:bg-rose-50';
+                borderClass = 'border-rose-500/50 print:border-rose-300';
+                textClass = 'text-rose-100 print:text-rose-900';
             }
 
-            const gabaritoText = gabaritoCorreto.toUpperCase();
+            const gabaritoText = gabaritoCorreto.toUpperCase() === 'C' ? 'CERTO' : 'ERRADO';
 
             feedbackContainer.innerHTML = `
                 <div class="p-5 rounded-xl border ${borderClass} ${bgClass} animate-slide-down">
@@ -598,112 +539,67 @@
                     </div>
                 </div>
             `;
-            
+
             feedbackContainer.classList.remove('hidden');
 
-            // Verifica se terminou o exame para mostrar o botão de PDF
-            if (answeredQuestions.size === currentExam.questions.length) {
-                finishSection.classList.remove('hidden');
-                finishSection.classList.add('animate-slide-down');
-                // Scroll para o botão
-                setTimeout(() => finishSection.scrollIntoView({ behavior: 'smooth' }), 500);
-            }
+            // O botão de gerar PDF já fica visível desde o início do exame
         }
 
         // 6. FUNÇÃO AUXILIAR: ATUALIZAR PLACAR
         function updateScoreDisplay() {
             scoreCorrectEl.textContent = score.correct;
             scoreIncorrectEl.textContent = score.incorrect;
-            
+
             let total = score.correct + score.incorrect;
             let rendimento = total === 0 ? 0 : Math.round((score.correct / total) * 100);
             document.getElementById('score-yield').textContent = rendimento + '%';
-            
+
             scoreCorrectEl.parentElement.classList.add('scale-110', 'transition-transform');
             setTimeout(() => scoreCorrectEl.parentElement.classList.remove('scale-110'), 200);
         }
 
-        // 7. GERAÇÃO DE PDF DE RESOLUÇÃO (BLINDADA CONTRA FALHAS DE RENDERIZAÇÃO)
+        // 7. GERAÇÃO DE PDF DE RESOLUÇÃO (NATIVA PELO NAVEGADOR)
         function generatePDF() {
-            const btn = document.querySelector('#finish-section button');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Renderizando Documento...';
-            btn.style.pointerEvents = 'none';
+            const sName = document.getElementById('student-name').value.trim();
+            const sId = document.getElementById('student-id').value.trim();
 
-            // Obter a data e hora atual
+            if (sName === '' || sId === '') {
+                alert('Preencha seus dados antes de gerar o comprovante.');
+                document.getElementById('student-name').focus();
+                return;
+            }
+
+            // Capturar a data e hora exatas
             const dataAtual = new Date();
             const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
             const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-            // Construir o conteúdo HTML do PDF
-            let htmlContent = `
-                <div style="width: 100%; max-width: 800px; margin: 0 auto; background: #ffffff; color: #0f172a; padding: 40px; font-family: 'Inter', sans-serif; box-sizing: border-box;">
-                    <div class="pdf-header" style="border-bottom: 3px solid #10b981; padding-bottom: 20px; margin-bottom: 30px; text-align: center;">
-                        <div class="pdf-title" style="font-size: 24px; font-weight: 900; color: #0f172a; margin-bottom: 15px;">ETB - Escola Técnica de Brasília</div>
-                        <div style="color: #64748b; font-size: 14px; margin-bottom: 5px;"><strong>Disciplina:</strong> ${currentExam.disciplina}</div>
-                        <div style="color: #64748b; font-size: 14px; margin-bottom: 5px;"><strong>Turma:</strong> ${currentExam.turma}</div>
-                        <div style="color: #64748b; font-size: 14px;"><strong>Data e hora:</strong> ${dataFormatada} às ${horaFormatada}</div>
-                    </div>
-                    <div class="pdf-student-info" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: flex; justify-content: space-between;">
-                        <div>
-                            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">Engenheiro(a) Avaliado(a)</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #0f172a;">${studentData.name}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">Matrícula</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #0f172a;">${studentData.id}</div>
-                        </div>
-                    </div>
-                    <div class="pdf-score" style="text-align: center; margin-bottom: 30px; font-size: 18px; font-weight: bold; color: #334155;">
-                        <span style="color: #10b981;">Acertos: ${score.correct}</span> &nbsp;|&nbsp; <span style="color: #ef4444;">Erros: ${score.incorrect}</span>
-                    </div>
-            `;
+            // Injetar no campo oculto do cabeçalho
+            const dateField = document.getElementById('print-date-value');
+            if (dateField) {
+                dateField.textContent = `${dataFormatada} às ${horaFormatada}`;
+            }
 
-            currentExam.questions.forEach((q, i) => {
-                const selectedVal = document.querySelector(`input[name="opt_${q.id}"]:checked`).value;
-                const statusColor = selectedVal === q.gabarito ? '#10b981' : '#ef4444';
-                const statusText = selectedVal === q.gabarito ? 'ACERTOU' : 'ERROU';
-                
-                htmlContent += `
-                    <div class="pdf-question" style="margin-bottom: 25px; page-break-inside: avoid; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; padding: 15px; border-radius: 6px; background: #f8fafc;">
-                        <div class="pdf-q-title" style="font-weight: 700; color: #0f172a; margin-bottom: 8px; font-size: 14px;">Questão ${i + 1} - ${q.assunto}</div>
-                        <div class="pdf-q-text" style="font-size: 13px; color: #334155; margin-bottom: 12px; font-style: italic;">"${q.enunciado}"</div>
-                        <div style="margin-bottom: 10px; font-size: 13px;">
-                            <strong>Sua Resposta:</strong> ${selectedVal.toUpperCase()} 
-                            <span style="color: ${statusColor}; font-weight: bold; margin-left: 10px;">[${statusText}]</span>
-                        </div>
-                        <div class="pdf-q-answer" style="font-size: 13px; color: #0f172a; background: #ecfdf5; padding: 10px; border-radius: 4px;">
-                            <strong style="color: #059669;">Gabarito Oficial (${q.gabarito}):</strong> ${q.comentario}
-                        </div>
-                    </div>
-                `;
-            });
-            
-            htmlContent += `</div>`; // Fechar a div principal
+            // Exibir a seção de data antes de imprimir
+            document.getElementById('print-date-section').classList.remove('hidden');
 
-            // Opções do html2pdf
-            const opt = {
-                margin:       10,
-                filename:     `ETB_Avaliacao_${studentData.id}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            // Alterar dinamicamente o title para forçar o nome do arquivo no PDF
+            const originalTitle = document.title;
+            const turmaStr = currentExam ? currentExam.turma : "Turma";
+            document.title = `ETB_${turmaStr}_${sName}_Simulado de Questoes`;
 
-            // Delay de 500ms vital para garantir que o navegador "pintou" a div escondida na memória antes de fotografar
+            // Chamar a interface nativa de impressão com um leve delay para garantir a renderização
             setTimeout(() => {
-                html2pdf().set(opt).from(htmlContent).save().then(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.style.pointerEvents = 'auto';
-                }).catch(err => {
-                    console.error("Erro na geração do PDF:", err);
-                    alert("Ocorreu um erro ao gerar o PDF. Verifique o console.");
-                    btn.innerHTML = originalHTML;
-                    btn.style.pointerEvents = 'auto';
-                });
-            }, 500);
+                window.print();
+
+                // Restaurar o title original após a impressão
+                setTimeout(() => {
+                    document.title = originalTitle;
+                }, 1000);
+            }, 100);
         }
 
     </script>
 </body>
+
 </html>

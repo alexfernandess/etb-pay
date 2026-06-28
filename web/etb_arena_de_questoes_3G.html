@@ -754,9 +754,19 @@
             // Exibir a seção de data antes de imprimir
             document.getElementById('print-date-section').classList.remove('hidden');
 
+            // Alterar dinamicamente o title para forçar o nome do arquivo no PDF
+            const originalTitle = document.title;
+            const turmaStr = currentExam ? currentExam.turma : "Turma";
+            document.title = `ETB_${turmaStr}_${sName}_Simulado de Questoes`;
+
             // Chamar a interface nativa de impressão com um leve delay para garantir a renderização
             setTimeout(() => {
                 window.print();
+                
+                // Restaurar o title original após a impressão
+                setTimeout(() => {
+                    document.title = originalTitle;
+                }, 1000);
             }, 100);
         }
 
