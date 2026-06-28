@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Arena de Questões</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Funcionalidade Nativa de Impressão (window.print) -->
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            panel: 'rgba(30, 41, 59, 0.6)',
+                            border: 'rgba(51, 65, 85, 0.5)',
+                        }
+                    },
+                    animation: {
+                        'slide-down': 'slideDown 0.4s ease-out forwards',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        slideDown: {
+                            '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #334155;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #475569;
+        }
+
+        body {
+            background-color: #0f172a;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.05), transparent 25%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: var(--tw-colors-brand-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--tw-colors-brand-border);
+        }
+
+        /* Remover setas do input number */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            /* Ocultar scrollbar na impressão */
+            ::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-slate-200 antialiased min-h-screen flex flex-col">
+
+    <!-- HEADER MINIMALISTA & PLACAR -->
+    <header class="sticky top-0 z-50 glass-panel border-b-0 shadow-lg shadow-black/20 print:hidden">
+        <div
+            class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-emerald-400">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-black tracking-tight uppercase text-white">ETB-PAY <span
+                            class="text-slate-500 font-normal">|</span> Arena de Questões</h1>
+                    <p class="text-[10px] uppercase tracking-widest text-emerald-500 font-bold" id="current-exam-label">
+                        Selecione uma Prova</p>
+                </div>
+            </div>
+
+            <!-- Placar em Tempo Real -->
+            <div
+                class="flex items-center gap-4 bg-slate-900/80 px-5 py-2.5 rounded-xl border border-slate-700 shadow-inner">
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Acertos</span>
+                    <span id="score-correct" class="text-xl font-black text-emerald-400 leading-none">0</span>
+                </div>
+                <div class="h-8 w-px bg-slate-700"></div>
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Erros</span>
+                    <span id="score-incorrect" class="text-xl font-black text-rose-400 leading-none">0</span>
+                </div>
+                <div class="h-8 w-px bg-slate-700"></div>
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Rendimento</span>
+                    <span id="score-yield" class="text-xl font-black text-blue-400 leading-none">0%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+
+        <!-- DADOS DO ALUNO -->
+        <div id="student-info-section"
+            class="glass-panel p-6 sm:p-8 rounded-2xl flex flex-col gap-6 border-t-4 border-t-emerald-500 print:bg-white print:border-slate-300 print:text-black print:block">
+            <h2 class="text-xl font-bold text-white print:text-black">Identificação do Engenheiro(a)</h2>
+            <div class="flex flex-col sm:flex-row gap-6">
+                <div class="w-full flex-1">
+                    <label
+                        class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Nome
+                        do Aluno</label>
+                    <input type="text" id="student-name" placeholder="Digite seu nome completo"
+                        class="w-full bg-slate-900 print:bg-transparent border border-slate-700 print:border-slate-300 rounded-lg px-4 py-3 text-slate-200 print:text-black focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+                <div class="w-full flex-1">
+                    <label
+                        class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Matrícula</label>
+                    <input type="number" id="student-id" placeholder="Digite sua matrícula"
+                        class="w-full bg-slate-900 print:bg-transparent border border-slate-700 print:border-slate-300 rounded-lg px-4 py-3 text-slate-200 print:text-black focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-6">
+                <div class="w-full flex-1">
+                    <label
+                        class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Disciplina</label>
+                    <div id="display-disciplina"
+                        class="w-full bg-slate-900/50 print:bg-transparent border border-slate-700/50 print:border-slate-300 rounded-lg px-4 py-3 text-slate-400 print:text-black font-bold">
+                        LTP II - Java</div>
+                </div>
+                <div class="w-full flex-1">
+                    <label
+                        class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Turma</label>
+                    <div id="display-turma"
+                        class="w-full bg-slate-900/50 print:bg-transparent border border-slate-700/50 print:border-slate-300 rounded-lg px-4 py-3 text-slate-400 print:text-black font-bold">
+                        3G</div>
+                </div>
+            </div>
+            <div id="print-date-section" class="hidden print:block w-full">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Data e Hora de
+                    Conclusão</label>
+                <div id="print-date-value"
+                    class="w-full print:bg-transparent border print:border-slate-300 rounded-lg px-4 py-3 text-black font-bold">
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLES DE PROVA -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center print:hidden" id="exam-controls">
+            <button id="btn-load-java" onclick="loadExam('java')" disabled
+                class="flex-1 glass-panel opacity-50 cursor-not-allowed transition-all duration-300 rounded-xl p-4 flex items-center justify-center gap-3 group border-l-4 border-l-purple-500 max-w-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-purple-400 group-hover:scale-110 transition-transform">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                </svg>
+                <span class="font-bold text-slate-200 uppercase tracking-wide text-sm">Carregar Missão Java</span>
+            </button>
+        </div>
+
+        <!-- CONTAINER DE QUESTÕES -->
+        <div id="questions-container" class="flex flex-col gap-6">
+            <div class="glass-panel p-12 rounded-2xl flex flex-col items-center justify-center text-center gap-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-slate-500 mb-2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="m4.93 4.93 1.41 1.41" />
+                    <path d="m17.66 17.66 1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M20 12h2" />
+                    <path d="m6.34 17.66-1.41 1.41" />
+                    <path d="m19.07 4.93-1.41 1.41" />
+                </svg>
+                <h2 class="text-2xl font-bold text-slate-300">Aguardando Identificação</h2>
+                <p class="text-slate-500 max-w-md">Preencha seus dados acadêmicos e selecione uma disciplina para gerar
+                    o seu caderno de provas interativo.</p>
+            </div>
+        </div>
+
+        <!-- BOTÃO GERAR PDF (INICIALMENTE OCULTO) -->
+        <div id="finish-section" class="hidden flex justify-center mt-8 print:hidden">
+            <button onclick="generatePDF()"
+                class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-900 font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-wide shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                FINALIZAR AVALIAÇÃO E GERAR O PDF
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="py-6 text-center text-slate-600 text-xs font-medium tracking-wider print:hidden">
+        ETB-PAY &copy; 2026 | SQUAD 2G & 3G | GOVERNANÇA EDUCACIONAL
+    </footer>
+
+    <!-- MOTOR JAVASCRIPT -->
+    <script>
+        // 1. O BANCO DE DADOS (JSON)
+        // O array JSON com as 30 questões fornecido pelo avaliador CEBRASPE.
+        const bancoQuestoes = [
+            {
+                "id": 1,
+                "disciplina": "Java Back-End",
+                "assunto": "Fundamentos",
+                "enunciado": "Ao tentar armazenar o valor numérico 15.7 diretamente em uma variável do tipo int (ex: int numero = 15.7;), o código Java apresentará um erro de compilação, pois ocorre perda de precisão das casas decimais.",
+                "gabarito": "Certo",
+                "comentario": "Em Java, a variável do tipo int armazena apenas números inteiros. Tentativas de guardar números com decimais (como 15.7) em variáveis int geram erro no compilador."
+            },
+            {
+                "id": 2,
+                "disciplina": "Java Back-End",
+                "assunto": "Fundamentos",
+                "enunciado": "O código Java `String idade = 25;` funcionará perfeitamente, pois a linguagem permite guardar números e realizar cálculos matemáticos diretamente em variáveis do tipo String.",
+                "gabarito": "Errado",
+                "comentario": "O tipo String serve para armazenar textos entre aspas (ex: String idade = \"25\";). Não é possível armazenar números puros sem aspas em uma variável String, o que gera um erro na compilação."
+            },
+            {
+                "id": 3,
+                "disciplina": "Java Back-End",
+                "assunto": "Variáveis",
+                "enunciado": "Uma variável declarada como `double preco = 10.50;` é adequada para armazenar valores que contêm casas decimais na linguagem Java.",
+                "gabarito": "Certo",
+                "comentario": "O tipo de dado primitivo double é projetado exatamente para armazenar números reais (com ponto flutuante, ou seja, casas decimais)."
+            },
+            {
+                "id": 4,
+                "disciplina": "Java Back-End",
+                "assunto": "POO",
+                "enunciado": "Em Java, se um atributo de uma classe for declarado com a palavra `private` (ex: `private int senha;`), ele só poderá ser acessado e modificado diretamente por métodos da própria classe onde foi criado.",
+                "gabarito": "Certo",
+                "comentario": "O modificador private é a base do encapsulamento. Ele protege a variável de ser alterada por partes externas do código, garantindo a segurança dos dados internos da classe."
+            },
+            {
+                "id": 5,
+                "disciplina": "Java Back-End",
+                "assunto": "POO",
+                "enunciado": "A principal utilidade dos métodos Get e Set é permitir que os programadores ignorem a segurança do objeto e tornem todos os seus atributos completamente públicos.",
+                "gabarito": "Errado",
+                "comentario": "A função dos métodos Get e Set não é desproteger, mas sim controlar de forma segura como e quando atributos privados podem ser consultados ou alterados, validando a informação antes de gravá-la."
+            },
+            {
+                "id": 6,
+                "disciplina": "Java Back-End",
+                "assunto": "POO",
+                "enunciado": "Um construtor em Java é um bloco de código que obrigatoriamente possui o mesmo nome da classe, sendo acionado automaticamente no momento em que usamos o operador `new` para criar o objeto.",
+                "gabarito": "Certo",
+                "comentario": "Exato. O construtor é a rotina inicial que \"nasce\" junto com o objeto. Se a classe chama Conta, o construtor tem que se chamar Conta() e é ele que configura os valores iniciais quando o 'new Conta()' é executado."
+            },
+            {
+                "id": 7,
+                "disciplina": "Java Back-End",
+                "assunto": "POO",
+                "enunciado": "O uso da palavra `extends` em Java, aplicada na declaração `class Cachorro extends Animal`, significa que a classe Cachorro herda os atributos e métodos da classe Animal.",
+                "gabarito": "Certo",
+                "comentario": "A palavra-chave 'extends' é usada no Java para aplicar o pilar da Herança. Com ela, a classe filha (Cachorro) ganha as características prontas da classe mãe (Animal)."
+            },
+            {
+                "id": 8,
+                "disciplina": "Java Back-End",
+                "assunto": "POO",
+                "enunciado": "No Java, uma mesma classe pode usar a palavra `extends` para herdar simultaneamente de várias classes diferentes ao mesmo tempo, como por exemplo herdar características de 'Pai' e de 'Mae' em uma única declaração.",
+                "gabarito": "Errado",
+                "comentario": "Diferente de algumas outras linguagens (como C++), o Java não permite a \"herança múltipla\" de classes. Uma classe filha no Java só pode ter UMA única classe mãe no comando extends."
+            },
+            {
+                "id": 9,
+                "disciplina": "Java Back-End",
+                "assunto": "Banco de Dados",
+                "enunciado": "Para que um sistema Java consiga se conectar e enviar dados para um banco de dados, utiliza-se a tecnologia e API padrão do Java conhecida como JDBC (Java Database Connectivity).",
+                "gabarito": "Certo",
+                "comentario": "O JDBC é o conjunto oficial de ferramentas (classes e interfaces) do Java usado para abrir conexões com bancos de dados relacionais e executar os comandos SQL."
+            },
+            {
+                "id": 10,
+                "disciplina": "Java Back-End",
+                "assunto": "Banco de Dados",
+                "enunciado": "A sigla DAO (Data Access Object) representa um padrão de projeto onde o desenvolvedor mistura e espalha todo o código de conexão com o banco de dados pelas telas e botões do sistema.",
+                "gabarito": "Errado",
+                "comentario": "A função do padrão DAO é exatamente o oposto: ele centraliza e esconde os códigos de banco de dados em um único lugar (uma classe específica), separando a persistência das regras de negócio e da tela."
+            },
+            {
+                "id": 11,
+                "disciplina": "Java Back-End",
+                "assunto": "Classes e Objetos",
+                "enunciado": "O comando `Conta c1 = new Conta();` é responsável por criar um novo objeto do tipo Conta na memória e associá-lo à variável c1, que servirá como um controle remoto para acessar esse objeto.",
+                "gabarito": "Certo",
+                "comentario": "Correto. O comando 'new' constrói o objeto físico na memória (instanciação), e a variável de referência (c1) armazena o caminho para manipular esse objeto."
+            },
+            {
+                "id": 12,
+                "disciplina": "Java Back-End",
+                "assunto": "Métodos",
+                "enunciado": "Um método que é declarado com a palavra `void` na sua assinatura (ex: `public void imprimirRelatorio()`) significa que ele deve obrigatoriamente devolver um número inteiro como resposta no final da execução.",
+                "gabarito": "Errado",
+                "comentario": "A palavra-chave 'void' significa 'vazio'. Ao usá-la, estamos indicando que o método apenas executará uma tarefa, mas NÃO retornará (devolverá) nenhum valor ou dado para quem o chamou."
+            },
+            {
+                "id": 13,
+                "disciplina": "Java Back-End",
+                "assunto": "Atributos",
+                "enunciado": "Os atributos de uma classe representam as características que o objeto terá quando for criado. Por exemplo, variáveis como `String modelo` e `int ano` seriam atributos adequados para descrever uma classe Carro.",
+                "gabarito": "Certo",
+                "comentario": "Exato. Em POO, atributos (ou variáveis de instância) descrevem o \"estado\" ou características físicas do objeto (o que ele tem), enquanto os métodos descrevem os comportamentos (o que ele faz)."
+            },
+            {
+                "id": 14,
+                "disciplina": "Java Back-End",
+                "assunto": "Condicionais",
+                "enunciado": "Na linguagem Java, o operador de igualdade duplo `==` é utilizado dentro da estrutura `if` para verificar se um número é igual a outro, como no comando `if (idade == 18)`.",
+                "gabarito": "Certo",
+                "comentario": "Na maioria das linguagens C-like, como Java, o sinal de igual único (=) é usado para atribuição (guardar um valor), e o duplo (==) é usado para testes lógicos de comparação de igualdade."
+            },
+            {
+                "id": 15,
+                "disciplina": "Java Back-End",
+                "assunto": "POO - Sobrecarga vs Sobrescrita",
+                "enunciado": "Na linguagem Java, a criação de dois métodos com o mesmo nome dentro da mesma classe, alterando apenas a quantidade ou o tipo dos parâmetros (por exemplo: <code>salvar(String texto)</code> e <code>salvar(String texto, int id)</code>), é um exemplo prático do conceito de Sobrescrita (Overriding).",
+                "gabarito": "Errado",
+                "comentario": "<strong>Análise Técnica do Erro:</strong> A afirmação inverteu os conceitos! Criar métodos com o mesmo nome na <strong>mesma classe</strong> mudando apenas os parâmetros é chamado de <strong>Sobrecarga (Overloading)</strong>. A <strong>Sobrescrita (Overriding)</strong> ocorre quando uma <strong>classe filha</strong> (através de herança) redefine um método da classe mãe usando exatamente a mesma assinatura (mesmo nome e mesmos parâmetros), geralmente acompanhada da anotação <code>@Override</code>."
+            },
+            {
+                "id": 16,
+                "disciplina": "Banco de Dados",
+                "assunto": "Comandos Básicos",
+                "enunciado": "A instrução SQL `SELECT * FROM Alunos;` exibe todas as colunas e todos os dados de registro armazenados na tabela Alunos.",
+                "gabarito": "Certo",
+                "comentario": "O comando SELECT é a instrução clássica de busca. O símbolo de asterisco (*) indica \"todas as colunas\". Assim, todo o conteúdo da tabela será listado na tela."
+            },
+            {
+                "id": 17,
+                "disciplina": "Banco de Dados",
+                "assunto": "Comandos Básicos",
+                "enunciado": "O comando `INSERT INTO` é utilizado de forma exclusiva para apagar registros antigos que já existem cadastrados no banco de dados.",
+                "gabarito": "Errado",
+                "comentario": "O INSERT INTO serve unicamente para inserir/cadastrar novos dados nas tabelas (novas linhas). O comando utilizado para apagar registros existentes é o DELETE."
+            },
+            {
+                "id": 18,
+                "disciplina": "Banco de Dados",
+                "assunto": "Comandos Básicos",
+                "enunciado": "Caso seja necessário modificar ou corrigir uma informação preexistente, como atualizar o número de telefone do cadastro de um cliente, utilizamos a instrução SQL `UPDATE`.",
+                "gabarito": "Certo",
+                "comentario": "O comando UPDATE é desenhado para atualizar o valor de campos já registrados em uma tabela sem a necessidade de apagá-los e recriá-los."
+            },
+            {
+                "id": 19,
+                "disciplina": "Banco de Dados",
+                "assunto": "Comandos Básicos",
+                "enunciado": "É uma recomendação de segurança usar a instrução `DELETE` sem a cláusula `WHERE` (ex: `DELETE FROM Clientes;`), pois isso assegura que o registro específico seja apagado de modo seguro e definitivo.",
+                "gabarito": "Errado",
+                "comentario": "A ausência do filtro WHERE (o famoso \"delete sem where\") fará com que o banco apague instantaneamente TODAS as linhas de todos os clientes da tabela, gerando uma grande perda de dados."
+            },
+            {
+                "id": 20,
+                "disciplina": "Banco de Dados",
+                "assunto": "Modelagem",
+                "enunciado": "O papel da Chave Primária (Primary Key) no modelo relacional é garantir um identificador único, fixo e exclusivo (como um RG) para diferenciar uma linha de todas as outras dentro de uma mesma tabela.",
+                "gabarito": "Certo",
+                "comentario": "A Primary Key (PK) assegura a identificação. Ela proíbe que existam registros duplicados e garante que possamos buscar o registro de maneira unívoca, como o código do cliente."
+            },
+            {
+                "id": 21,
+                "disciplina": "Banco de Dados",
+                "assunto": "Modelagem",
+                "enunciado": "Uma coluna definida na tabela como Chave Primária aceita a repetição e duplicação de seus valores de dados, desde que o banco seja corporativo e de grande porte.",
+                "gabarito": "Errado",
+                "comentario": "Nenhuma Chave Primária aceita valores repetidos (duplicidade) sob hipótese alguma. Caso o usuário tente salvar o número da PK de um cliente que já existe, o banco de dados emitirá um erro e bloqueará a operação."
+            },
+            {
+                "id": 22,
+                "disciplina": "Banco de Dados",
+                "assunto": "Modelagem",
+                "enunciado": "A Chave Estrangeira (Foreign Key) é o recurso estrutural de banco de dados usado para criar os vínculos e os relacionamentos obrigatórios entre duas tabelas distintas.",
+                "gabarito": "Certo",
+                "comentario": "A Chave Estrangeira aponta e se liga à Chave Primária de outra tabela (ex: o campo ID_Cliente na tabela Pedidos), promovendo a amarração relacional típica da tecnologia SQL."
+            },
+            {
+                "id": 23,
+                "disciplina": "Banco de Dados",
+                "assunto": "Conceitos",
+                "enunciado": "A sigla SGBD significa Sistema Gerenciador de Banco de Dados, e corresponde a softwares profissionais robustos que lidam com arquivos de dados, sendo o MySQL e o PostgreSQL exemplos famosos dessa categoria.",
+                "gabarito": "Certo",
+                "comentario": "SGBDs são os softwares motores (servidores) dedicados a cuidar do acesso, segurança e execução de comandos SQL. MySQL, Oracle, SQL Server e PostgreSQL são todos SGBDs."
+            },
+            {
+                "id": 24,
+                "disciplina": "Banco de Dados",
+                "assunto": "Categorias SQL",
+                "enunciado": "O comando `CREATE TABLE` faz parte do grupo da DML (Linguagem de Manipulação de Dados), pois sua função é inserir ou apagar linhas com dados das tabelas.",
+                "gabarito": "Errado",
+                "comentario": "O CREATE TABLE compõe o grupo da DDL (Data Definition Language). Ele não mexe no conteúdo ou nas linhas com dados, mas sim desenha a \"arquitetura\" e o molde vazio (as colunas) onde as futuras informações serão armazenadas."
+            },
+            {
+                "id": 25,
+                "disciplina": "Banco de Dados",
+                "assunto": "Tipos de Dados",
+                "enunciado": "Em ferramentas como o MySQL, o tipo de coluna `VARCHAR` é amplamente utilizado por desenvolvedores para gravar sequências de textos, como nomes e endereços, acomodando um tamanho flexível que economiza espaço em disco.",
+                "gabarito": "Certo",
+                "comentario": "O VARCHAR (Variable Character) é o tipo primário e clássico para Strings no mundo do banco de dados, sendo mais inteligente que o tipo rígido CHAR por ocupar apenas o espaço real do texto inserido."
+            },
+            {
+                "id": 26,
+                "disciplina": "Banco de Dados",
+                "assunto": "Consultas",
+                "enunciado": "A cláusula especial `WHERE` é adicionada ao final de um comando SELECT para funcionar como um filtro condicional, garantindo que o banco de dados exiba na tela apenas os registros que atendam a uma condição específica estabelecida (ex: apenas clientes da cidade de Brasília).",
+                "gabarito": "Certo",
+                "comentario": "Correto. O uso da cláusula WHERE evita que milhões de linhas irrelevantes sejam exibidas, selecionando apenas a fatia de registros que interessa àquela busca específica do programador."
+            },
+            {
+                "id": 27,
+                "disciplina": "Banco de Dados",
+                "assunto": "Estruturas",
+                "enunciado": "O perigoso comando `DROP TABLE Clientes;` atua limpando e esvaziando todas as linhas de dados da tabela, mas, por segurança, ele mantém a estrutura física da tabela intocável e vazia para usos futuros no sistema.",
+                "gabarito": "Errado",
+                "comentario": "O DROP TABLE destrói a tabela física, a estrutura, as definições e todos os seus dados internos simultaneamente e de forma permanente. O objeto simplesmente deixa de existir no sistema. O comando que apenas apaga os dados mantendo a estrutura seria o DELETE (ou TRUNCATE)."
+            },
+            {
+                "id": 28,
+                "disciplina": "Banco de Dados",
+                "assunto": "Desenho",
+                "enunciado": "O Modelo Entidade-Relacionamento (MER) refere-se a uma técnica visual e esquemática utilizada por arquitetos para desenhar caixas e losangos, planejando logicamente o banco de dados antes da criação dos códigos reais das tabelas.",
+                "gabarito": "Certo",
+                "comentario": "O MER é o diagrama de papel (a planta baixa do banco de dados). Ele não possui comandos SQL reais, servindo estritamente para arquitetar o layout e as interações de negócio a nível de modelagem conceitual."
+            },
+            {
+                "id": 29,
+                "disciplina": "Banco de Dados",
+                "assunto": "Normalização",
+                "enunciado": "Segundo a regra essencial da Primeira Forma Normal (1FN), cada cruzamento de linha com coluna deve carregar apenas um único valor isolado. Consequentemente, o ato de armazenar na mesma célula três números de telefone juntos (separados por vírgula) caracteriza uma violação do padrão relacional e da 1FN.",
+                "gabarito": "Certo",
+                "comentario": "Exato. A 1FN repudia os chamados 'atributos multivalorados'. Uma célula tem de ser atômica e guardar um dado só, de modo a possibilitar consultas precisas (como buscar todos que possuem DDD 61 sem necessidade de fatiar o texto via programação)."
+            },
+            {
+                "id": 30,
+                "disciplina": "Banco de Dados",
+                "assunto": "Álgebra Relacional",
+                "enunciado": "A instrução relacional `INNER JOIN` é acionada sempre que o desenvolvedor deseja cruzar informações contidas em duas tabelas diferentes, mesclando-as em uma única listagem na tela por intermédio das chaves que possuam correspondência direta entre si.",
+                "gabarito": "Certo",
+                "comentario": "Correto. Essa é a função clássica do JOIN. Ele alinha a tabela da esquerda com a da direita verificando o vínculo lógico (geralmente ligando a Chave Primária de uma à Chave Estrangeira da outra) para que o sistema exiba informações completas nos relatórios."
+            }
+        ];
+
+        // 2. ESTADO DA APLICAÇÃO
+        let currentExam = null;
+        let score = { correct: 0, incorrect: 0 };
+        let answeredQuestions = new Set();
+        let studentData = { name: '', id: '' };
+
+        // 3. SELETORES DOM
+        const container = document.getElementById('questions-container');
+        const scoreCorrectEl = document.getElementById('score-correct');
+        const scoreIncorrectEl = document.getElementById('score-incorrect');
+        const examLabel = document.getElementById('current-exam-label');
+        const inputName = document.getElementById('student-name');
+        const inputId = document.getElementById('student-id');
+        const finishSection = document.getElementById('finish-section');
+        const btnLoadJava = document.getElementById('btn-load-java');
+
+        // Validação em Tempo Real para habilitar o botão de carregar prova
+        function checkFormFields() {
+            if (inputName.value.trim() !== '' && inputId.value.trim() !== '') {
+                btnLoadJava.disabled = false;
+                btnLoadJava.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnLoadJava.classList.add('hover:bg-slate-700/50', 'cursor-pointer');
+            } else {
+                btnLoadJava.disabled = true;
+                btnLoadJava.classList.add('opacity-50', 'cursor-not-allowed');
+                btnLoadJava.classList.remove('hover:bg-slate-700/50', 'cursor-pointer');
+            }
+        }
+
+        inputName.addEventListener('input', checkFormFields);
+        inputId.addEventListener('input', checkFormFields);
+
+        // 4. FUNÇÃO: CARREGAR PROVA
+        function loadExam(examKey) {
+            // Validação de Identificação
+            const sName = inputName.value.trim();
+            const sId = inputId.value.trim();
+
+            if (sName === '' || sId === '') {
+                alert('Acesso Negado: Preencha seu Nome e Matrícula para gerar o caderno de prova.');
+                inputName.focus();
+                return;
+            }
+
+            // Trava os inputs
+            studentData = { name: sName, id: sId };
+            inputName.disabled = true;
+            inputId.disabled = true;
+            inputName.classList.add('opacity-50', 'cursor-not-allowed');
+            inputId.classList.add('opacity-50', 'cursor-not-allowed');
+
+            let examDisciplina = examKey === 'java' ? "Java Back-End" : "Banco de Dados";
+            let filteredQuestions = bancoQuestoes.filter(q => q.disciplina === examDisciplina);
+
+            currentExam = {
+                disciplina: examKey === 'java' ? "LTP II - Java" : "Banco de Dados",
+                turma: examKey === 'java' ? "3G" : "2G",
+                cargo: examKey === 'java' ? "Engenheiro de Software" : "Engenheiro de Dados",
+                questions: filteredQuestions
+            };
+
+            // Atualiza os dados no formulário de identificação visualmente
+            document.getElementById('display-disciplina').textContent = currentExam.disciplina;
+            document.getElementById('display-turma').textContent = currentExam.turma;
+
+            // Resetar estado
+            score = { correct: 0, incorrect: 0 };
+            answeredQuestions.clear();
+            updateScoreDisplay();
+            finishSection.classList.remove('hidden');
+
+            // Atualizar Label
+            examLabel.textContent = `Simulado: ${currentExam.disciplina}`;
+
+            // Renderizar Questões
+            container.innerHTML = '';
+
+            currentExam.questions.forEach((q, index) => {
+                const cardHTML = `
+                    <div id="card-${q.id}" class="glass-panel rounded-2xl p-6 sm:p-8 animate-fade-in print:shadow-none print:border print:border-slate-300 print:bg-white print:text-black print:mb-4" style="animation-delay: ${index * 100}ms; page-break-inside: avoid;">
+                        
+                        <!-- Cabeçalho da Questão -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/50 print:border-slate-300 pb-4 mb-6">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-slate-900 print:bg-slate-200 border border-slate-700 print:border-slate-300 text-slate-300 print:text-black font-black text-sm px-3 py-1 rounded-lg">Q${index + 1} (ID: ${q.id})</span>
+                                <span class="text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest">${q.disciplina} > ${q.assunto}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-500 print:text-slate-600 uppercase font-bold tracking-widest text-left sm:text-right">
+                                Ano: 2026 &bull; Banca: ETB &bull; Cargo: ${currentExam.cargo}
+                            </div>
+                        </div>
+
+                        <!-- Enunciado -->
+                        <p class="text-lg md:text-xl text-slate-200 print:text-black font-medium leading-relaxed mb-8">
+                            "${q.enunciado}"
+                        </p>
+
+                        <!-- Alternativas (Radios) -->
+                        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                            <label class="flex-1 cursor-pointer relative group">
+                                <input type="radio" name="opt_${q.id}" value="Certo" class="peer sr-only">
+                                <div class="p-4 rounded-xl border-2 border-slate-600/50 print:border-slate-300 bg-slate-900/50 print:bg-transparent text-center text-slate-400 print:text-slate-700 font-bold transition-all duration-200 
+                                            group-hover:border-amber-500/50 group-hover:text-amber-400
+                                            peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-500
+                                            print:peer-checked:border-black print:peer-checked:text-black print:peer-checked:font-black">
+                                    CERTO
+                                </div>
+                            </label>
+                            
+                            <label class="flex-1 cursor-pointer relative group">
+                                <input type="radio" name="opt_${q.id}" value="Errado" class="peer sr-only">
+                                <div class="p-4 rounded-xl border-2 border-slate-600/50 print:border-slate-300 bg-slate-900/50 print:bg-transparent text-center text-slate-400 print:text-slate-700 font-bold transition-all duration-200 
+                                            group-hover:border-amber-500/50 group-hover:text-amber-400
+                                            peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-500
+                                            print:peer-checked:border-black print:peer-checked:text-black print:peer-checked:font-black">
+                                    ERRADO
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Ações -->
+                        <div class="flex justify-end">
+                            <button id="btn-${q.id}" onclick="responder('${q.id}', '${q.gabarito}')" 
+                                    class="w-full sm:w-auto px-8 py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-2 uppercase tracking-wide shadow-lg shadow-amber-500/20 active:scale-95 print:hidden">
+                                Responder
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Feedback Box (Hidden by default) -->
+                        <div id="feedback-${q.id}" class="hidden mt-6 pt-6 border-t border-slate-700/50">
+                            <!-- Injected via JS -->
+                        </div>
+
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        // 5. FUNÇÃO: RESPONDER QUESTÃO
+        function responder(questionId, gabaritoCorreto) {
+            if (answeredQuestions.has(questionId)) return;
+
+            const selectedOpt = document.querySelector(`input[name="opt_${questionId}"]:checked`);
+
+            if (!selectedOpt) {
+                const btn = document.getElementById(`btn-${questionId}`);
+                btn.classList.add('animate-pulse');
+                setTimeout(() => btn.classList.remove('animate-pulse'), 500);
+                return;
+            }
+
+            const valSelecionado = selectedOpt.value;
+            const isCorrect = (valSelecionado === gabaritoCorreto);
+
+            // Travar resposta
+            answeredQuestions.add(questionId);
+            document.querySelectorAll(`input[name="opt_${questionId}"]`).forEach(radio => {
+                radio.disabled = true;
+                radio.parentElement.classList.remove('cursor-pointer', 'group');
+            });
+
+            // Atualizar Placar
+            if (isCorrect) score.correct++;
+            else score.incorrect++;
+            updateScoreDisplay();
+
+            // Transformar botão responder em check verde
+            const btn = document.getElementById(`btn-${questionId}`);
+            btn.innerHTML = 'Respondido <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            btn.className = "w-full sm:w-auto px-8 py-3.5 bg-emerald-500/20 text-emerald-400 font-black rounded-xl border border-emerald-500/50 flex items-center justify-center gap-2 uppercase tracking-wide cursor-default print:hidden";
+            btn.disabled = true;
+
+            // Feedback UI
+            const feedbackContainer = document.getElementById(`feedback-${questionId}`);
+            const questionData = currentExam.questions.find(q => q.id == questionId);
+
+            let feedbackSelo, bgClass, borderClass, textClass;
+
+            if (isCorrect) {
+                feedbackSelo = `<div class="flex items-center gap-2 font-black text-lg text-emerald-400 print:text-emerald-700 mb-2 uppercase tracking-wide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Você Acertou!</div>`;
+                bgClass = 'bg-emerald-500/10 print:bg-emerald-50';
+                borderClass = 'border-emerald-500/50 print:border-emerald-300';
+                textClass = 'text-emerald-100 print:text-emerald-900';
+            } else {
+                feedbackSelo = `<div class="flex items-center gap-2 font-black text-lg text-rose-400 print:text-rose-700 mb-2 uppercase tracking-wide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Você Errou!</div>`;
+                bgClass = 'bg-rose-500/10 print:bg-rose-50';
+                borderClass = 'border-rose-500/50 print:border-rose-300';
+                textClass = 'text-rose-100 print:text-rose-900';
+            }
+
+            const gabaritoText = gabaritoCorreto.toUpperCase();
+
+            feedbackContainer.innerHTML = `
+                <div class="p-5 rounded-xl border ${borderClass} ${bgClass} animate-slide-down">
+                    ${feedbackSelo}
+                    <div class="mt-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Gabarito Oficial: <strong class="text-white">${gabaritoText}</strong></span>
+                        <div class="mt-3 text-sm md:text-base ${textClass} leading-relaxed">
+                            ${questionData.comentario}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            feedbackContainer.classList.remove('hidden');
+
+            // O botão de gerar PDF já fica visível desde o início do exame
+        }
+
+        // 6. FUNÇÃO AUXILIAR: ATUALIZAR PLACAR
+        function updateScoreDisplay() {
+            scoreCorrectEl.textContent = score.correct;
+            scoreIncorrectEl.textContent = score.incorrect;
+
+            let total = score.correct + score.incorrect;
+            let rendimento = total === 0 ? 0 : Math.round((score.correct / total) * 100);
+            document.getElementById('score-yield').textContent = rendimento + '%';
+
+            scoreCorrectEl.parentElement.classList.add('scale-110', 'transition-transform');
+            setTimeout(() => scoreCorrectEl.parentElement.classList.remove('scale-110'), 200);
+        }
+
+        // 7. GERAÇÃO DE PDF DE RESOLUÇÃO (NATIVA PELO NAVEGADOR)
+        function generatePDF() {
+            const sName = document.getElementById('student-name').value.trim();
+            const sId = document.getElementById('student-id').value.trim();
+
+            if (sName === '' || sId === '') {
+                alert('Preencha seus dados antes de gerar o comprovante.');
+                document.getElementById('student-name').focus();
+                return;
+            }
+
+            // Capturar a data e hora exatas
+            const dataAtual = new Date();
+            const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+            const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            // Injetar no campo oculto do cabeçalho
+            const dateField = document.getElementById('print-date-value');
+            if (dateField) {
+                dateField.textContent = `${dataFormatada} às ${horaFormatada}`;
+            }
+
+            // Exibir a seção de data antes de imprimir
+            document.getElementById('print-date-section').classList.remove('hidden');
+
+            // Chamar a interface nativa de impressão com um leve delay para garantir a renderização
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }
+
+    </script>
+</body>
+
+</html>
