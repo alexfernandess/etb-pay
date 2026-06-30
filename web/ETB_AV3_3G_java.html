@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETB-PAY | Avaliação Oficial (AV3)</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Consolas', 'monospace'] },
+                    colors: {
+                        corporate: {
+                            base: '#0B1120',    /* Slate 950/Black */
+                            panel: 'rgba(15, 23, 42, 0.65)', /* Slate 900 */
+                            border: 'rgba(51, 65, 85, 0.5)', /* Slate 700 */
+                            accent: '#38bdf8',  /* Sky 400 */
+                            danger: '#ef4444',  /* Red 500 */
+                            warning: '#f59e0b', /* Amber 500 */
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--tw-colors-corporate-base); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        body {
+            background-color: #0B1120;
+            color: #f8fafc;
+            background-image: 
+                linear-gradient(to right, rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: var(--tw-colors-corporate-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--tw-colors-corporate-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Ocultar as setas de incremento do input number */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Radio Customization */
+        .radio-input:checked + .radio-label {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        /* --- ESTILOS DE IMPRESSÃO (LAUDO PDF) --- */
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; }
+            .no-print { display: none !important; }
+            .glass { background: transparent !important; border: 1px solid #cbd5e1 !important; box-shadow: none !important; backdrop-filter: none !important; }
+            .print-text-black { color: #000000 !important; }
+            .print-border { border-color: #94a3b8 !important; }
+            .print-break-avoid { page-break-inside: avoid; }
+            
+            /* Ajuste dos rádios na impressão para mostrar o que o aluno marcou */
+            .radio-input:checked + .radio-label {
+                background: #e2e8f0 !important;
+                border: 2px solid #000000 !important;
+                color: #000000 !important;
+                font-weight: 900 !important;
+            }
+            .radio-input:not(:checked) + .radio-label {
+                color: #94a3b8 !important;
+                border-color: #e2e8f0 !important;
+            }
+            .question-container { margin-bottom: 20px !important; padding: 15px !important; border: 1px solid #cbd5e1; border-radius: 8px;}
+            
+            /* Header de Impressão */
+            #print-header { display: block !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+    <!-- CABEÇALHO DO LAUDO (Visível apenas na Impressão) -->
+    <div id="print-header" class="hidden pb-6 border-b-2 border-slate-800 mb-8 pt-8 px-8">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-black text-black tracking-tighter">ETB-PAY</h1>
+                <p class="text-sm font-bold text-slate-600 uppercase tracking-widest">Laudo de Auditoria - Avaliação 3 (AV3)</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs font-bold text-slate-500 uppercase">Disciplina</p>
+                <p class="font-bold text-black">LTP II - Java Back-End</p>
+                <p class="text-xs font-bold text-slate-500 uppercase mt-2">Turma</p>
+                <p class="font-bold text-black">3G</p>
+            </div>
+        </div>
+        <div class="bg-slate-100 p-4 rounded-lg border border-slate-300 flex justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase mb-1">Engenheiro(a) Avaliado(a)</p>
+                <p id="print-name" class="font-black text-lg text-black">-</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs font-bold text-slate-500 uppercase mb-1">Matrícula</p>
+                <p id="print-id" class="font-black text-lg text-black font-mono">-</p>
+            </div>
+        </div>
+        <div class="flex justify-between mt-4 text-sm font-bold text-slate-700">
+            <p>Data/Hora: <span id="print-datetime" class="text-black">-</span></p>
+            <p>Tempo de Prova: <span id="print-totaltime" class="text-black">-</span></p>
+        </div>
+        <div class="mt-8 p-3 border border-slate-300 text-center font-bold text-xs uppercase text-slate-500 bg-slate-50">
+            Gabarito do Aluno (Respostas Registradas)
+        </div>
+    </div>
+
+    <!-- HEADER CORPORATIVO (SPA) -->
+    <header class="no-print sticky top-0 z-50 glass border-x-0 border-t-0 rounded-none px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center shrink-0">
+                <i class="ph-fill ph-shield-check text-sky-400 text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-black tracking-tight uppercase text-white">ETB-PAY <span class="text-slate-600 font-normal">|</span> AV3</h1>
+                <p id="header-status" class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Identificação Requerida</p>
+            </div>
+        </div>
+
+        <div id="exam-timer-container" class="hidden items-center gap-3 bg-slate-900/80 px-4 py-2 rounded-lg border border-slate-700 shadow-inner">
+            <i class="ph-bold ph-timer text-sky-400"></i>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:block">Duração</span>
+            <span id="stopwatch-display" class="text-xl font-black text-white font-mono tracking-wider">00:00</span>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-8 relative">
+        
+        <!-- ==========================================
+             PASSO 1: GATEKEEPER (IDENTIFICAÇÃO) 
+             ========================================== -->
+        <section id="step-1" class="absolute inset-0 px-4 py-8 animate-fade-in no-print">
+            <div class="max-w-2xl mx-auto mt-10">
+                <div class="glass p-8 md:p-12 rounded-2xl border-t-4 border-t-sky-400">
+                    <div class="text-center mb-8">
+                        <i class="ph-fill ph-lock-key text-5xl text-sky-400 mb-4"></i>
+                        <h2 class="text-3xl font-black text-white tracking-tight">Ambiente Seguro</h2>
+                        <p class="text-slate-400 mt-2">Validação de credenciais para acesso à Avaliação Oficial.</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nome Completo</label>
+                            <input type="text" id="input-name" autocomplete="off" placeholder="Nome do(a) Engenheiro(a)" 
+                                class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Matrícula</label>
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="input-id" autocomplete="off" placeholder="Apenas números" 
+                                class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all font-mono">
+                        </div>
+                        
+                        <button id="btn-unlock" disabled onclick="goToStep2()" 
+                            class="w-full mt-4 py-4 rounded-xl font-black uppercase tracking-wider text-sm transition-all duration-300 flex items-center justify-center gap-2
+                            bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed">
+                            <i class="ph-bold ph-fingerprint text-lg"></i>
+                            Acessar Ambiente de Prova
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PASSO 2: REVISÃO EXPRESSA (WARM-UP)
+             ========================================== -->
+        <section id="step-2" class="hidden absolute inset-0 px-4 py-8 animate-fade-in no-print">
+            <div class="mb-8">
+                <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                    <i class="ph-fill ph-rocket-launch text-sky-400"></i> Briefing de Missão
+                </h2>
+                <p class="text-slate-400 text-lg mt-2">Revisão Expressa. Leia o dossiê antes de disparar o cronômetro do exame.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <!-- Card 1 -->
+                <div class="glass p-6 rounded-2xl hover:border-sky-400/50 transition-colors">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-2 bg-sky-500/10 rounded-lg text-sky-400"><i class="ph-bold ph-brackets-curly text-xl"></i></div>
+                        <h3 class="text-lg font-bold text-white">Tipagem e Fundamentos</h3>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">O Java é estático e rigoroso. Atribuir decimais a inteiros (<code>double</code> em <code>int</code>) gera <strong>erro de compilação</strong> para evitar perda de dados. A coerção requer um <em>Casting</em> explícito. Além disso, strings são objetos (Classes) e não tipos primitivos.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass p-6 rounded-2xl hover:border-sky-400/50 transition-colors">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-2 bg-purple-500/10 rounded-lg text-purple-400"><i class="ph-bold ph-cube text-xl"></i></div>
+                        <h3 class="text-lg font-bold text-white">Encapsulamento (POO)</h3>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">Atributos <code>public</code> quebram a integridade do estado. A blindagem com <code>private</code> é inegociável, forçando o acesso via métodos (Getters/Setters) onde regras de negócio são aplicadas.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass p-6 rounded-2xl hover:border-emerald-500/50 transition-colors">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400"><i class="ph-bold ph-shield-warning text-xl"></i></div>
+                        <h3 class="text-lg font-bold text-white">Lógica Preventiva</h3>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">Um bom software previne falhas antes que ocorram. Erros lógicos como divisão por zero devem ser bloqueados antecipadamente com estruturas condicionais (<code>if/else</code>). Além disso, não se esqueça: o <strong>Construtor</strong> nasce junto com o objeto (via comando <code>new</code>), garantindo seu estado inicial.</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="glass p-6 rounded-2xl hover:border-amber-500/50 transition-colors">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-2 bg-amber-500/10 rounded-lg text-amber-400"><i class="ph-bold ph-database text-xl"></i></div>
+                        <h3 class="text-lg font-bold text-white">Persistência (JDBC)</h3>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">O padrão DAO centraliza e isola o código de banco. O Java puro não compreende as instruções do SQLite nativamente, precisando do <strong>Driver JDBC</strong> para atuar como o embaixador e tradutor oficial das operações de banco de dados.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-center border-t border-slate-800 pt-8 pb-10">
+                <button onclick="goToStep3()" class="group relative px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white font-black rounded-xl uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center gap-3 overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                    <i class="ph-bold ph-warning text-xl relative z-10"></i>
+                    <span class="relative z-10">Iniciar Prova Oficial e Disparar Cronômetro</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PASSO 3: TELA DE PROVA (AUDITORIA)
+             ========================================== -->
+        <section id="step-3" class="hidden pb-20 animate-fade-in w-full">
+            <div class="mb-8 no-print">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i class="ph-fill ph-file-text text-sky-400"></i> Caderno de Questões
+                </h2>
+                <p class="text-slate-400 text-sm mt-1">Julgue os itens abaixo em CERTO ou ERRADO. Respostas registradas não podem ser alteradas.</p>
+            </div>
+
+            <div id="exam-questions-container" class="space-y-6">
+                <!-- Questões injetadas via JS -->
+            </div>
+
+            <!-- PASSO 4: FINALIZAÇÃO (Botão de Deploy) -->
+            <div id="finish-exam-section" class="hidden mt-12 pt-8 border-t border-slate-800 text-center no-print animate-slide-up">
+                <div class="inline-block bg-sky-500/10 border border-sky-500/30 p-6 rounded-2xl max-w-2xl w-full">
+                    <h3 class="text-2xl font-black text-white mb-2">Auditoria Concluída</h3>
+                    <p class="text-slate-400 mb-6">Todas as respostas foram registradas no sistema. Encerre o exame para gerar o laudo em PDF para o professor.</p>
+                    
+                    <button onclick="generatePDF()" class="w-full sm:w-auto px-8 py-4 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-xl uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 mx-auto">
+                        <i class="ph-bold ph-printer text-xl"></i>
+                        Finalizar e Gerar Laudo PDF
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOTOR JAVASCRIPT -->
+    <script>
+        // --- BASE DE DADOS DE QUESTÕES (15 QUESTÕES AV3) ---
+        const questionsDB = [
+            {
+                id: 1,
+                assunto: "Tipagem e Fundamentos",
+                enunciado: "Na linguagem Java, o compilador realiza a conversão automática e silenciosa ao tentarmos atribuir um valor decimal (como 10.5) a uma variável declarada explicitamente como do tipo `int`, descartando as casas fracionárias sem gerar erros de sintaxe.",
+                gabarito: "ERRADO",
+                comentario: "O Java possui tipagem estática e forte. A tentativa de inserir um decimal em um inteiro gera Erro de Compilação. A conversão só é aceita se o desenvolvedor realizar o Casting Explícito."
+            },
+            {
+                id: 2,
+                assunto: "Orientação a Objetos (Encapsulamento)",
+                enunciado: "Para otimizar o desenvolvimento ágil de uma aplicação Java e facilitar a troca de dados entre diferentes módulos do sistema, é considerada uma prática arquitetural recomendada configurar os atributos vitais de uma classe com o modificador de visibilidade `public`.",
+                gabarito: "ERRADO",
+                comentario: "Declarar atributos como públicos quebra o princípio de Encapsulamento, permitindo que os dados sejam corrompidos externamente. O correto é usar 'private' e acessá-los de forma mediada por Getters/Setters."
+            },
+            {
+                id: 3,
+                assunto: "Fundamentos (Tipos de Dados)",
+                enunciado: "A linguagem Java é fundamentada puramente em objetos, o que significa que a plataforma não possui suporte nativo a tipos de dados primitivos estruturais (tais como `int`, `double` e `boolean`), obrigando o desenvolvedor ao uso exclusivo de Classes.",
+                gabarito: "ERRADO",
+                comentario: "O Java oferece suporte total e ostensivo a tipos primitivos por questões de alta performance e economia de memória. O uso das Classes Wrapper é opcional para cenários específicos."
+            },
+            {
+                id: 4,
+                assunto: "Controle de Fluxo (Prevenção Lógica)",
+                enunciado: "Na linguagem Java, para proteger cálculos matemáticos de falhas críticas, como uma divisão por zero, o programador deve utilizar estruturas de controle condicional (`if/else`) para verificar previamente se o divisor é igual a zero, barrando a operação indesejada.",
+                gabarito: "CERTO",
+                comentario: "Correto. Tratar falhas lógicas e aritméticas previsíveis com lógicas preventivas simples (if/else) é a forma mais performática e profissional de proteger a aplicação."
+            },
+            {
+                id: 5,
+                assunto: "Persistência de Dados (JDBC)",
+                enunciado: "O Java puro não consegue compreender ou enviar comandos nativos diretamente para o SQLite. É estritamente necessária a utilização de um Driver JDBC, que atua como um 'tradutor' oficial entre a linguagem de programação e o banco de dados.",
+                gabarito: "CERTO",
+                comentario: "O ecossistema Java requer bibliotecas externas (.jar), chamadas de Drivers JDBC, para traduzir as instruções neutras da API JDBC para a linguagem proprietária do banco alvo (SQLite, MySQL, Oracle, etc)."
+            },
+            {
+                id: 6,
+                assunto: "Orientação a Objetos (Instanciação)",
+                enunciado: "O método Construtor de uma classe, responsável por configurar o estado inicial das variáveis, é acionado de forma automática e exclusiva no exato momento em que o objeto nasce na memória RAM através da utilização do operador `new`.",
+                gabarito: "CERTO",
+                comentario: "Correto. O Construtor nunca é chamado isoladamente como um método normal; o seu acionamento é vinculado exclusivamente à diretiva 'new', que aloca espaço físico na memória."
+            },
+            {
+                id: 7,
+                assunto: "Padrões de Projeto (DAO)",
+                enunciado: "O padrão de projeto arquitetural DAO (Data Access Object) determina que as instruções SQL e as regras de conexão de banco de dados devem ser integradas diretamente às classes de interface gráfica (as telas do Swing), centralizando assim o código.",
+                gabarito: "ERRADO",
+                comentario: "O DAO prega exatamente o oposto: a segregação total de responsabilidades. Ele isola as instruções de banco em classes puras, impedindo que os arquivos de Interface Gráfica sejam poluídos com SQL."
+            },
+            {
+                id: 8,
+                assunto: "Orientação a Objetos (Herança)",
+                enunciado: "O modelo arquitetural de herança na linguagem Java suporta a chamada \"herança múltipla\" direta, permitindo que uma única classe filha utilize a palavra reservada `extends` para herdar simultaneamente de duas ou mais superclasses distintas na mesma declaração.",
+                gabarito: "ERRADO",
+                comentario: "O Java foi projetado para evitar as ambiguidades da herança múltipla. Uma classe só pode ter o comando 'extends' apontando para uma única classe mãe."
+            },
+            {
+                id: 9,
+                assunto: "Operadores Lógicos e Relacionais",
+                enunciado: "O operador `==` é utilizado no Java para atribuir um valor a uma variável, enquanto o operador `=` é empregado estritamente para realizar comparações lógicas de igualdade dentro de estruturas condicionais como o `if`.",
+                gabarito: "ERRADO",
+                comentario: "Houve inversão dos operadores. O sinal `=` único realiza atribuição (gravação de valor). O duplo sinal `==` é empregado nas expressões lógicas e relacionais para verificar igualdade."
+            },
+            {
+                id: 10,
+                assunto: "Orientação a Objetos (Métodos)",
+                enunciado: "A assinatura de um método contendo a palavra reservada `void` (ex: `public void processarPagamento()`) indica explicitamente ao compilador que o método executará uma rotina interna sem devolver nenhum valor ou dado como resposta ao final de sua execução.",
+                gabarito: "CERTO",
+                comentario: "A palavra 'void' indica um método de procedimento vazio de retorno. Ele cumpre o seu papel (alterar uma variável ou imprimir no console) mas não entrega resposta ao bloco que o chamou."
+            },
+            {
+                id: 11,
+                assunto: "Fundamentos (O Tipo String)",
+                enunciado: "Diferente de estruturas numéricas simples, na linguagem Java o tipo `String` (utilizado para armazenar textos) NÃO é classificado como um tipo primitivo, mas sim como uma Classe, o que significa que textos são instanciados e manipulados como Objetos.",
+                gabarito: "CERTO",
+                comentario: "Perfeito. Tipos primitivos (int, double, boolean) começam com letra minúscula e guardam apenas o valor. A `String` começa com maiúscula porque é uma Classe nativa do Java, o que nos permite utilizar métodos utilitários nela (como .length() ou .equals())."
+            },
+            {
+                id: 12,
+                assunto: "Orientação a Objetos (Associação)",
+                enunciado: "Na modelagem de sistemas orientados a objetos, a associação permite que uma classe utilize outra como atributo estrutural. Por exemplo, uma classe `Conta` pode possuir um atributo do tipo `Cliente`, estabelecendo um vínculo direto entre as duas entidades na memória.",
+                gabarito: "CERTO",
+                comentario: "Correto. Essa é a essência da Associação (relação 'Tem-um'). Em vez de misturar e repetir os dados de cadastro do usuário dentro da conta, a classe Conta guarda apenas uma referência para um objeto isolado do tipo Cliente."
+            },
+            {
+                id: 13,
+                assunto: "Orientação a Objetos (Conceitos Básicos)",
+                enunciado: "Na arquitetura de Orientação a Objetos, a 'Classe' é considerada a instância viva e física alocada na memória RAM, enquanto o 'Objeto' atua unicamente como o molde teórico ou planta-baixa que descreve a estrutura do sistema.",
+                gabarito: "ERRADO",
+                comentario: "Os conceitos estão invertidos. A Classe é a estrutura de código teórico (o molde). O Objeto é o produto material gerado a partir do molde, ganhando vida na memória e operando na aplicação."
+            },
+            {
+                id: 14,
+                assunto: "Banco de Dados (SQLite)",
+                enunciado: "O SQLite é classificado como um Sistema Gerenciador de Banco de Dados (SGBD) que opera de forma embarcada à aplicação, dispensando a instalação paralela de servidores de dados pesados e retendo suas tabelas e informações diretamente num arquivo local (.db).",
+                gabarito: "CERTO",
+                comentario: "Exato. A grande característica do SQLite é não depender de conexões com servidores externos pesados (como MySQL ou SQL Server). Ele reside no mesmo escopo local da aplicação."
+            },
+            {
+                id: 15,
+                assunto: "Operadores e Controle de Estado",
+                enunciado: "A instrução `saldo++` é uma notação abreviada e otimizada oferecida pela sintaxe do Java para incrementar o valor base da variável `saldo` adicionando +1 a ela de forma imediata.",
+                gabarito: "CERTO",
+                comentario: "Correto. O operador de incremento `++` atua adicionando uma unidade imediata ao valor de uma variável primitiva, sendo extensamente utilizado para controlar os contadores num laço `for`."
+            }
+        ];
+
+        // --- ESTADO GLOBAL ---
+        let student = { name: '', id: '' };
+        let timerSeconds = 0;
+        let timerInterval = null;
+        let totalQuestions = questionsDB.length;
+        let answeredCount = 0;
+
+        // --- DOM ELEMENTS ---
+        const elInputName = document.getElementById('input-name');
+        const elInputId = document.getElementById('input-id');
+        const elBtnUnlock = document.getElementById('btn-unlock');
+        
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const step3 = document.getElementById('step-3');
+        
+        const headerStatus = document.getElementById('header-status');
+        const examTimerContainer = document.getElementById('exam-timer-container');
+        const stopwatchDisplay = document.getElementById('stopwatch-display');
+        const questionsContainer = document.getElementById('exam-questions-container');
+        const finishSection = document.getElementById('finish-exam-section');
+
+        // --- PASSO 1: VALIDAÇÃO GATEKEEPER ---
+        function checkGatekeeper() {
+            const n = elInputName.value.trim();
+            const i = elInputId.value.trim();
+
+            if (n.length > 2 && i.length > 2) {
+                elBtnUnlock.disabled = false;
+                elBtnUnlock.classList.remove('bg-slate-800', 'text-slate-500', 'cursor-not-allowed');
+                elBtnUnlock.classList.add('bg-sky-600', 'text-white', 'hover:bg-sky-500', 'shadow-[0_0_15px_rgba(56,189,248,0.4)]', 'cursor-pointer');
+            } else {
+                elBtnUnlock.disabled = true;
+                elBtnUnlock.classList.add('bg-slate-800', 'text-slate-500', 'cursor-not-allowed');
+                elBtnUnlock.classList.remove('bg-sky-600', 'text-white', 'hover:bg-sky-500', 'shadow-[0_0_15px_rgba(56,189,248,0.4)]', 'cursor-pointer');
+            }
+        }
+        elInputName.addEventListener('input', checkGatekeeper);
+        elInputId.addEventListener('input', checkGatekeeper);
+
+        function goToStep2() {
+            student.name = elInputName.value.trim().toUpperCase();
+            student.id = elInputId.value.trim();
+            
+            // Popula laudo de impressão oculto
+            document.getElementById('print-name').textContent = student.name;
+            document.getElementById('print-id').textContent = student.id;
+            
+            headerStatus.textContent = "Briefing de Missão";
+            headerStatus.classList.remove('text-slate-400');
+            headerStatus.classList.add('text-sky-400');
+
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+        }
+
+        // --- PASSO 2 -> PASSO 3: INICIAR PROVA E CRONÔMETRO ---
+        function goToStep3() {
+            step2.classList.add('hidden');
+            step3.classList.remove('hidden');
+            
+            headerStatus.textContent = "Exame em Progresso";
+            examTimerContainer.classList.remove('hidden');
+            examTimerContainer.classList.add('flex');
+
+            renderQuestions();
+            startTimer();
+        }
+
+        // --- CRONÔMETRO ---
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+                const s = (timerSeconds % 60).toString().padStart(2, '0');
+                stopwatchDisplay.textContent = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            return stopwatchDisplay.textContent;
+        }
+
+        // --- RENDERIZAÇÃO DAS QUESTÕES ---
+        function renderQuestions() {
+            questionsContainer.innerHTML = '';
+            
+            questionsDB.forEach((q, index) => {
+                const html = `
+                    <div class="glass print-break-avoid question-container rounded-2xl p-6 border-l-4 border-l-sky-500 mb-6 transition-all duration-300" id="q-card-${q.id}">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs px-3 py-1 rounded-md print-border print-text-black">Questão ${index + 1}</span>
+                            <span class="text-[10px] font-bold text-sky-400 uppercase tracking-widest print-text-black">${q.assunto}</span>
+                        </div>
+                        
+                        <p class="text-base md:text-lg text-slate-200 leading-relaxed mb-6 print-text-black">
+                            ${q.enunciado}
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                            <label class="flex-1 relative cursor-pointer group">
+                                <input type="radio" name="opt_${q.id}" value="CERTO" class="radio-input peer sr-only">
+                                <div class="p-3 rounded-lg border border-slate-600 bg-slate-900/40 text-center text-slate-400 font-bold transition-all peer-checked:border-sky-400 peer-checked:text-sky-400 print-border print-text-black radio-label">
+                                    CERTO
+                                </div>
+                            </label>
+                            
+                            <label class="flex-1 relative cursor-pointer group">
+                                <input type="radio" name="opt_${q.id}" value="ERRADO" class="radio-input peer sr-only">
+                                <div class="p-3 rounded-lg border border-slate-600 bg-slate-900/40 text-center text-slate-400 font-bold transition-all peer-checked:border-sky-400 peer-checked:text-sky-400 print-border print-text-black radio-label">
+                                    ERRADO
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="flex justify-end no-print">
+                            <button id="btn-ans-${q.id}" onclick="registerAnswer(${q.id})" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 font-bold rounded-lg transition-colors text-sm uppercase tracking-wider flex items-center gap-2">
+                                <i class="ph-bold ph-check"></i> Registrar Resposta
+                            </button>
+                        </div>
+                    </div>
+                `;
+                questionsContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // --- REGISTRAR RESPOSTA (ANTI-CHEAT / AUDITORIA) ---
+        function registerAnswer(qId) {
+            const selectedOpt = document.querySelector(`input[name="opt_${qId}"]:checked`);
+            
+            if (!selectedOpt) {
+                // Shake button gently
+                const btn = document.getElementById(`btn-ans-${qId}`);
+                btn.classList.add('translate-x-1');
+                setTimeout(() => btn.classList.remove('translate-x-1'), 100);
+                setTimeout(() => btn.classList.add('-translate-x-1'), 200);
+                setTimeout(() => btn.classList.remove('-translate-x-1'), 300);
+                return;
+            }
+
+            // Lock the radios
+            document.querySelectorAll(`input[name="opt_${qId}"]`).forEach(r => {
+                r.disabled = true;
+                r.parentElement.classList.remove('cursor-pointer', 'group');
+            });
+
+            // Update button visual (No Correct/Incorrect feedback)
+            const btn = document.getElementById(`btn-ans-${qId}`);
+            btn.innerHTML = '<i class="ph-fill ph-lock-key"></i> Resposta Registrada';
+            btn.className = "px-6 py-2.5 bg-sky-500/20 text-sky-400 border border-sky-500/50 font-bold rounded-lg cursor-not-allowed text-sm uppercase tracking-wider flex items-center gap-2";
+            btn.disabled = true;
+            btn.onclick = null;
+
+            answeredCount++;
+
+            // Fade border color slightly to indicate completion
+            document.getElementById(`q-card-${qId}`).classList.replace('border-l-sky-500', 'border-l-slate-600');
+
+            if (answeredCount === totalQuestions) {
+                finishSection.classList.remove('hidden');
+                setTimeout(() => finishSection.scrollIntoView({ behavior: 'smooth' }), 300);
+            }
+        }
+
+        // --- PASSO 4: FINALIZAR E GERAR LAUDO PDF ---
+        function generatePDF() {
+            const finalTime = stopTimer();
+            
+            // Injetar Data e Tempo no Header de Impressão
+            const now = new Date();
+            document.getElementById('print-datetime').textContent = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('print-totaltime').textContent = finalTime;
+
+            // Alterar o title para nome do arquivo
+            const originalTitle = document.title;
+            const safeName = student.name.replace(/[^a-zA-Z0-9]/g, '_');
+            document.title = `ETB_AV3_3G_${safeName}_Java`;
+
+            // Pequeno delay para garantir renderização do titulo
+            setTimeout(() => {
+                window.print();
+                
+                // Restaurar title
+                setTimeout(() => {
+                    document.title = originalTitle;
+                }, 1000);
+            }, 200);
+        }
+
+    </script>
+</body>
+</html>
