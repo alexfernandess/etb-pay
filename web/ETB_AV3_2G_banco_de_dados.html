@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação 3 | ETB-PAY</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Configuração do Tailwind -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            panel: 'rgba(30, 41, 59, 0.6)',
+                            border: 'rgba(51, 65, 85, 0.5)',
+                        }
+                    },
+                    animation: {
+                        'slide-down': 'slideDown 0.4s ease-out forwards',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        slideDown: {
+                            '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #334155;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #475569;
+        }
+
+        body {
+            background-color: #0f172a;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.05), transparent 25%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: var(--tw-colors-brand-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--tw-colors-brand-border);
+        }
+
+        /* Remover setas do input number */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            /* Ocultar scrollbar na impressão */
+            ::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-slate-200 antialiased min-h-screen flex flex-col">
+
+    <!-- HEADER MINIMALISTA & PLACAR -->
+    <header class="sticky top-0 z-50 glass-panel border-b-0 shadow-lg shadow-black/20 print:hidden">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-emerald-400">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-black tracking-tight uppercase text-white">ETB-PAY <span
+                            class="text-slate-500 font-normal">|</span> Avaliação Oficial</h1>
+                    <p class="text-[10px] uppercase tracking-widest text-emerald-500 font-bold" id="current-exam-label">
+                        Selecione a Prova</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap justify-center">
+                <!-- Cronômetro de Prova (Único Controle Ativo) -->
+                <div class="flex items-center gap-3 bg-slate-900/80 px-5 py-2.5 rounded-xl border border-slate-700 shadow-inner print:hidden">
+                    <div class="flex flex-col items-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tempo Decorrido</span>
+                        <span id="stopwatch-display" class="text-2xl font-black text-slate-400 font-mono leading-none tracking-widest transition-colors duration-300">00:00</span>
+                    </div>
+                    <div class="h-8 w-px bg-slate-700 mx-2"></div>
+                    <div class="flex gap-2">
+                        <button onclick="toggleStopwatch()" id="btn-stopwatch-toggle" class="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-emerald-400 transition-colors" title="Play/Pause">
+                            <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="block"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            <svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="hidden"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+
+        <!-- DADOS DO ALUNO -->
+        <div id="student-info-section"
+            class="glass-panel p-6 sm:p-8 rounded-2xl flex flex-col gap-6 border-t-4 border-t-emerald-500 print:bg-white print:border-slate-300 print:text-black print:block">
+            <h2 class="text-xl font-bold text-white print:text-black">Identificação do Engenheiro(a) de Dados</h2>
+            <div class="flex flex-col sm:flex-row gap-6">
+                <div class="w-full flex-1">
+                    <label class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Nome do Aluno</label>
+                    <input type="text" id="student-name" placeholder="Digite seu nome completo"
+                        class="w-full bg-slate-900 print:bg-transparent border border-slate-700 print:border-slate-300 rounded-lg px-4 py-3 text-slate-200 print:text-black focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+                <div class="w-full flex-1">
+                    <label class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Matrícula</label>
+                    <input type="number" id="student-id" placeholder="Digite sua matrícula"
+                        class="w-full bg-slate-900 print:bg-transparent border border-slate-700 print:border-slate-300 rounded-lg px-4 py-3 text-slate-200 print:text-black focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-6">
+                <div class="w-full flex-1">
+                    <label class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Avaliação Oficial</label>
+                    <div id="display-disciplina" class="w-full bg-slate-900/50 print:bg-transparent border border-slate-700/50 print:border-slate-300 rounded-lg px-4 py-3 text-slate-400 print:text-black font-bold">
+                        AV3 - Banco de Dados</div>
+                </div>
+                <div class="w-full flex-1">
+                    <label class="block text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest mb-2">Turma</label>
+                    <div id="display-turma" class="w-full bg-slate-900/50 print:bg-transparent border border-slate-700/50 print:border-slate-300 rounded-lg px-4 py-3 text-slate-400 print:text-black font-bold">
+                        2G</div>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-6 mt-6 hidden print:flex w-full">
+                <div id="print-date-section" class="w-full flex-1">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Data e Hora de Conclusão</label>
+                    <div id="print-date-value" class="w-full print:bg-transparent border print:border-slate-300 rounded-lg px-4 py-3 text-black font-bold"></div>
+                </div>
+                <div id="print-time-section" class="w-full flex-1">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Tempo Total de Prova</label>
+                    <div id="print-time-value" class="w-full print:bg-transparent border print:border-slate-300 rounded-lg px-4 py-3 text-black font-bold"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLES DE PROVA -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center print:hidden" id="exam-controls">
+            <button id="btn-load-banco" onclick="loadExam('banco')" disabled
+                class="flex-1 glass-panel opacity-50 cursor-not-allowed transition-all duration-300 rounded-xl p-4 flex items-center justify-center gap-3 group border-l-4 border-l-cyan-500 max-w-md shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-cyan-400 group-hover:scale-110 transition-transform">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                </svg>
+                <span class="font-bold text-slate-200 uppercase tracking-wide text-sm">Carregar Avaliação 3 (Iniciar Prova)</span>
+            </button>
+        </div>
+
+        <!-- CONTAINER DE QUESTÕES -->
+        <div id="questions-container" class="flex flex-col gap-6">
+            <div class="glass-panel p-12 rounded-2xl flex flex-col items-center justify-center text-center gap-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-slate-500 mb-2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="m4.93 4.93 1.41 1.41" />
+                    <path d="m17.66 17.66 1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M20 12h2" />
+                    <path d="m6.34 17.66-1.41 1.41" />
+                    <path d="m19.07 4.93-1.41 1.41" />
+                </svg>
+                <h2 class="text-2xl font-bold text-slate-300">Aguardando Identificação</h2>
+                <p class="text-slate-500 max-w-md">Preencha seus dados acadêmicos para habilitar e gerar o seu caderno de provas oficial.</p>
+            </div>
+        </div>
+
+        <!-- BOTÃO GERAR PDF (INICIALMENTE OCULTO) -->
+        <div id="finish-section" class="hidden flex justify-center mt-8 print:hidden">
+            <button onclick="generatePDF()"
+                class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-900 font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-wide shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                FINALIZAR AVALIAÇÃO E GERAR O PDF
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="py-6 text-center text-slate-600 text-xs font-medium tracking-wider print:hidden">
+        ETB-PAY &copy; 2026 | SQUAD 2G | GOVERNANÇA EDUCACIONAL
+    </footer>
+
+    <!-- MOTOR JAVASCRIPT -->
+    <script>
+        // 1. O BANCO DE DADOS (JSON) - Questões da AV3 (Turma 2G) - Textos Parafraseados
+        const database = {
+            bd: {
+                disciplina: "Banco de Dados (AV3)",
+                cargo: "Engenheiro de Dados",
+                questions: [
+                    {
+                        id: "av3_q1",
+                        assunto: "Arquitetura SGBD",
+                        enunciado: "Em contraste com SGBDs relacionais convencionais, a exemplo do PostgreSQL, o SQLite empregado no ETB-PAY destaca-se por atuar como um serviço acoplado em background, demandando um processo servidor contínuo para escutar e responder a chamadas de rede.",
+                        gabarito: "E",
+                        comentario: "O SQLite é um SGBD Embedded/Serverless. Ele não roda como serviço em background e não trafega em rede TCP/IP; ele manipula um arquivo local diretamente."
+                    },
+                    {
+                        id: "av3_q2",
+                        assunto: "Abstração de Dados",
+                        enunciado: "A arquitetura de banco de dados segmenta-se em níveis de abstração. O Modelo Entidade-Relacionamento (MER), cuja finalidade é representar regras de negócio e facilitar a compreensão humana sem amarras de código, classifica-se tecnicamente no Nível Lógico.",
+                        gabarito: "E",
+                        comentario: "O MER pertence ao Nível Conceitual, e não ao Lógico. O Nível Lógico já envolve o desenho estrutural de tabelas teóricas e chaves (PK/FK)."
+                    },
+                    {
+                        id: "av3_q3",
+                        assunto: "Normalização Relacional (1FN)",
+                        enunciado: "O princípio fundamental da 1ª Forma Normal (1FN) é a atomicidade. Consequentemente, para que uma tabela relacional esteja na 1FN, seus atributos devem ser estritamente indivisíveis, vetando-se a inserção de dados multivalorados (ex: múltiplos e-mails na mesma coluna) para um único registro.",
+                        gabarito: "C",
+                        comentario: "Exato. A 1FN exige atomicidade. Valores multivalorados (vários celulares) ferem a 1FN e devem ser extraídos para novas tabelas."
+                    },
+                    {
+                        id: "av3_q4",
+                        assunto: "Normalização Relacional (2FN)",
+                        enunciado: "Considerando as regras de normalização, uma tabela detentora de Chave Primária Composta será considerada aderente à 2ª Forma Normal (2FN) ainda que possua atributos não-chave dependentes de apenas uma fração dessa chave.",
+                        gabarito: "E",
+                        comentario: "A 2FN proíbe expressamente a dependência parcial. Todos os atributos não-chave devem depender da chave primária completa (inteira), e não de apenas um pedaço dela."
+                    },
+                    {
+                        id: "av3_q5",
+                        assunto: "Integridade Referencial",
+                        enunciado: "Sendo a integridade referencial essencial em SGBDs relacionais, a eliminação de um registro-pai, caso ocorra sem a salvaguarda das regras ON DELETE CASCADE ou RESTRICT, resultará em registros órfãos na entidade-filha, ferindo diretamente o compliance do sistema.",
+                        gabarito: "C",
+                        comentario: "Correto. Sem a proteção de chave estrangeira (CASCADE ou RESTRICT ativados), a exclusão de um registro 'Pai' corrompe a base e gera registros órfãos na tabela 'Filha'."
+                    },
+                    {
+                        id: "av3_q6",
+                        assunto: "Comandos SQL (DDL vs DML)",
+                        enunciado: "Dentro do dialeto SQL, as instruções estruturais CREATE, ALTER e DROP são agrupadas na categoria de Linguagem de Manipulação de Dados (DML), visto que atuam na modificação direta das tuplas inseridas no banco.",
+                        gabarito: "E",
+                        comentario: "Os comandos CREATE, ALTER e DROP pertencem à DDL (Linguagem de Definição), pois manipulam a estrutura (as tabelas em si), e não as linhas de dados (registros)."
+                    },
+                    {
+                        id: "av3_q7",
+                        assunto: "Comandos SQL (DDL)",
+                        enunciado: "Dada a natureza de tipagem forte e esquema estruturado dos bancos relacionais clássicos, a especificação formal do tipo de dado de cada atributo (ex: VARCHAR, NUMERIC) é imperativa ao se executar a instrução DDL CREATE TABLE.",
+                        gabarito: "C",
+                        comentario: "Correto. A definição estrutural e de tipos de dados rigorosos no comando DDL (CREATE TABLE) é inegociável em bancos relacionais padronizados."
+                    },
+                    {
+                        id: "av3_q8",
+                        assunto: "Comandos SQL (DML)",
+                        enunciado: "O emprego da sintaxe INSERT INTO tabela_destino SELECT * FROM tabela_origem é considerado um recurso válido da Linguagem de Manipulação de Dados (DML), frequentemente aplicado em rotinas de ETL para transferir e popular registros em massa entre tabelas.",
+                        gabarito: "C",
+                        comentario: "Exato. O uso dinâmico do INSERT INTO ... SELECT é uma das ferramentas mais potentes de DML para processos de migração interna (ETL) e manipulação de dados em massa."
+                    },
+                    {
+                        id: "av3_q9",
+                        assunto: "Comandos SQL (DQL)",
+                        enunciado: "Integrando a Linguagem de Consulta de Dados (DQL), a instrução SELECT possui o objetivo estrito de projetar e recuperar informações da base de dados, sendo incapaz de aplicar alterações nas estruturas físicas ou nos dados gravados.",
+                        gabarito: "C",
+                        comentario: "Perfeito. O comando SELECT atua puramente na consulta (leitura) dos dados, retornando painéis de visualização sem alterar, deletar ou destruir as informações físicas."
+                    },
+                    {
+                        id: "av3_q10",
+                        assunto: "Comandos SQL (DML vs DDL)",
+                        enunciado: "No contexto de limpeza de dados, ao utilizar a instrução UPDATE tb_clientes SET cpf = REPLACE(cpf, '-', ''), realiza-se uma operação classificada como DDL, uma vez que altera o formato da coluna persistida no banco.",
+                        gabarito: "E",
+                        comentario: "O UPDATE é o comando clássico da DML (Linguagem de Manipulação), pois altera apenas o valor do dado contido na linha, independentemente de estar usando a função interna REPLACE. Ele nunca altera a estrutura física (DDL) da tabela."
+                    },
+                    {
+                        id: "av3_q11",
+                        assunto: "Comandos SQL (DELETE vs DROP)",
+                        enunciado: "Conquanto ambos deletem conteúdo, a instrução DELETE atua sobre as tuplas da tabela (caracterizando-se como DML), ao passo que a instrução DROP elimina a própria fundação estrutural do objeto no banco de dados, sendo tipificada como DDL.",
+                        gabarito: "C",
+                        comentario: "Correto. O DELETE limpa a 'massa de dados' mantendo a tabela existindo de pé (DML). O DROP destrói a própria 'parede e fundação' da tabela no banco (DDL)."
+                    },
+                    {
+                        id: "av3_q12",
+                        assunto: "Normalização Relacional (1FN)",
+                        enunciado: "A condição de atomicidade, pilar da 1ª Forma Normal, é plenamente respeitada se o projetista unificar dados de logradouro, bairro e CEP em uma única coluna do tipo string denominada 'Endereço_Completo'.",
+                        gabarito: "E",
+                        comentario: "Fere a 1FN. Agrupar rua, bairro e CEP em uma única coluna cria um dado 'composto'. A atomicidade exige que cada elemento possua sua própria coluna autônoma (coluna CEP, coluna Rua, etc)."
+                    },
+                    {
+                        id: "av3_q13",
+                        assunto: "Abstração de Dados",
+                        enunciado: "O Nível Lógico na abstração de dados é o estágio em que o modelo conceitual de negócios é mapeado para o paradigma relacional, definindo-se efetivamente as entidades como tabelas, suas tipagens primárias e a demarcação das Chaves (PK e FK).",
+                        gabarito: "C",
+                        comentario: "Perfeito. O Nível Lógico é a 'planta de engenharia'. Nele abandonamos os losangos do MER e começamos a estruturar tabelas e chaves relacionais, antes de rodar o código SQL na máquina."
+                    },
+                    {
+                        id: "av3_q14",
+                        assunto: "Saneamento e Comandos",
+                        enunciado: "Se durante um processo de Data Cleaning houver a necessidade de higienizar dados previamente inseridos (ex: remover hifens e pontos de CPFs), o Engenheiro de Dados deve acionar a instrução estrutural ALTER TABLE em conjunto com funções de string.",
+                        gabarito: "E",
+                        comentario: "O ALTER TABLE serve para modificar a estrutura da tabela (adicionar/remover colunas). Para alterar o valor do dado inserido usando REPLACE, o comando obrigatório é o UPDATE (DML)."
+                    },
+                    {
+                        id: "av3_q15",
+                        assunto: "Arquitetura SGBD",
+                        enunciado: "A arquitetura de um SGBD Embedded, a exemplo do SQLite, exige imperativamente que o administrador instale e configure um serviço de banco de dados ativo (daemon) no servidor hospedeiro para gerir as requisições de persistência.",
+                        gabarito: "E",
+                        comentario: "É o exato oposto. SGBDs Embedded (Serverless) não possuem nem requerem instalação de uma instância de servidor. O banco funciona através de uma biblioteca leve e em um simples arquivo estático no disco."
+                    }
+                ]
+            }
+        };
+
+        // 2. ESTADO DA APLICAÇÃO
+        let currentExam = null;
+        let answeredQuestions = new Set();
+        let studentData = { name: '', id: '' };
+
+        // 3. SELETORES DOM
+        const container = document.getElementById('questions-container');
+        const examLabel = document.getElementById('current-exam-label');
+        const inputName = document.getElementById('student-name');
+        const inputId = document.getElementById('student-id');
+        const finishSection = document.getElementById('finish-section');
+        const btnLoadJava = document.getElementById('btn-load-banco');
+
+        // Validação em Tempo Real para habilitar o botão de carregar prova
+        function checkFormFields() {
+            if (inputName.value.trim() !== '' && inputId.value.trim() !== '') {
+                btnLoadJava.disabled = false;
+                btnLoadJava.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnLoadJava.classList.add('hover:bg-cyan-700/50', 'cursor-pointer');
+            } else {
+                btnLoadJava.disabled = true;
+                btnLoadJava.classList.add('opacity-50', 'cursor-not-allowed');
+                btnLoadJava.classList.remove('hover:bg-cyan-700/50', 'cursor-pointer');
+            }
+        }
+
+        inputName.addEventListener('input', checkFormFields);
+        inputId.addEventListener('input', checkFormFields);
+
+        // 4. FUNÇÃO: CARREGAR PROVA E CRONÔMETRO
+        let stopwatchInterval = null;
+        let stopwatchSeconds = 0;
+        let isStopwatchRunning = false;
+
+        function updateStopwatchDisplay() {
+            const display = document.getElementById('stopwatch-display');
+            const hrs = Math.floor(stopwatchSeconds / 3600);
+            const mins = Math.floor((stopwatchSeconds % 3600) / 60);
+            const secs = stopwatchSeconds % 60;
+            
+            let timeString = '';
+            if (hrs > 0) {
+                timeString += String(hrs).padStart(2, '0') + ':';
+            }
+            timeString += String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            
+            display.textContent = timeString;
+        }
+
+        function toggleStopwatch() {
+            const display = document.getElementById('stopwatch-display');
+            const iconPlay = document.getElementById('icon-play');
+            const iconPause = document.getElementById('icon-pause');
+
+            if (isStopwatchRunning) {
+                // Pause
+                clearInterval(stopwatchInterval);
+                isStopwatchRunning = false;
+                
+                iconPlay.classList.remove('hidden');
+                iconPlay.classList.add('block');
+                iconPause.classList.remove('block');
+                iconPause.classList.add('hidden');
+                
+                display.classList.remove('text-emerald-400', 'animate-pulse');
+                display.classList.add('text-slate-400');
+            } else {
+                // Play
+                isStopwatchRunning = true;
+                
+                iconPlay.classList.remove('block');
+                iconPlay.classList.add('hidden');
+                iconPause.classList.remove('hidden');
+                iconPause.classList.add('block');
+                
+                display.classList.remove('text-slate-400');
+                display.classList.add('text-emerald-400', 'animate-pulse');
+                
+                stopwatchInterval = setInterval(() => {
+                    stopwatchSeconds++;
+                    updateStopwatchDisplay();
+                }, 1000);
+            }
+        }
+
+        function resetStopwatch() {
+            if (isStopwatchRunning) {
+                toggleStopwatch(); // pausa
+            }
+            stopwatchSeconds = 0;
+            updateStopwatchDisplay();
+        }
+
+        function loadExam(examKey) {
+            // Validação de Identificação
+            const sName = inputName.value.trim();
+            const sId = inputId.value.trim();
+
+            if (sName === '' || sId === '') {
+                alert('Acesso Negado: Preencha seu Nome e Matrícula para gerar o caderno de prova.');
+                inputName.focus();
+                return;
+            }
+
+            // Trava os inputs
+            studentData = { name: sName, id: sId };
+            inputName.disabled = true;
+            inputId.disabled = true;
+            inputName.classList.add('opacity-50', 'cursor-not-allowed');
+            inputId.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const examData = database.bd;
+
+            currentExam = {
+                disciplina: examData.disciplina,
+                turma: "2G",
+                cargo: examData.cargo,
+                questions: examData.questions
+            };
+
+            // Atualiza os dados no formulário de identificação visualmente
+            document.getElementById('display-disciplina').textContent = currentExam.disciplina;
+            document.getElementById('display-turma').textContent = currentExam.turma;
+
+            // Resetar estado
+            answeredQuestions.clear();
+            finishSection.classList.remove('hidden');
+
+            // Atualizar Label
+            examLabel.textContent = currentExam.disciplina;
+
+            // INICIAR CRONÔMETRO AUTOMATICAMENTE
+            if (!isStopwatchRunning) {
+                toggleStopwatch();
+            }
+
+            // Renderizar Questões
+            container.innerHTML = '';
+
+            currentExam.questions.forEach((q, index) => {
+                const cardHTML = `
+                    <div id="card-${q.id}" class="glass-panel rounded-2xl p-6 sm:p-8 animate-fade-in print:shadow-none print:border print:border-slate-300 print:bg-white print:text-black print:mb-4" style="animation-delay: ${index * 100}ms; page-break-inside: avoid;">
+                        
+                        <!-- Cabeçalho da Questão -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/50 print:border-slate-300 pb-4 mb-6">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-slate-900 print:bg-slate-200 border border-slate-700 print:border-slate-300 text-slate-300 print:text-black font-black text-sm px-3 py-1 rounded-lg">Q${index + 1}</span>
+                                <span class="text-xs font-bold text-slate-400 print:text-slate-600 uppercase tracking-widest">${q.assunto}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-500 print:text-slate-600 uppercase font-bold tracking-widest text-left sm:text-right">
+                                Avaliação AV3 &bull; Banca: ETB &bull; Cargo: ${currentExam.cargo}
+                            </div>
+                        </div>
+
+                        <!-- Enunciado -->
+                        <p class="text-lg md:text-xl text-slate-200 print:text-black font-medium leading-relaxed mb-8">
+                            "${q.enunciado}"
+                        </p>
+
+                        <!-- Alternativas (Radios) -->
+                        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                            <label class="flex-1 cursor-pointer relative group">
+                                <input type="radio" name="opt_${q.id}" value="C" class="peer sr-only">
+                                <div class="p-4 rounded-xl border-2 border-slate-600/50 print:border-slate-400 bg-slate-900/50 print:bg-transparent text-center text-slate-400 print:text-slate-700 font-bold transition-all duration-200 
+                                            group-hover:border-cyan-500/50 group-hover:text-cyan-400
+                                            peer-checked:border-cyan-500 peer-checked:bg-cyan-500/10 peer-checked:text-cyan-500
+                                            print:peer-checked:border-black print:peer-checked:text-black print:peer-checked:font-black print:peer-checked:bg-slate-100">
+                                    CERTO
+                                </div>
+                            </label>
+                            
+                            <label class="flex-1 cursor-pointer relative group">
+                                <input type="radio" name="opt_${q.id}" value="E" class="peer sr-only">
+                                <div class="p-4 rounded-xl border-2 border-slate-600/50 print:border-slate-400 bg-slate-900/50 print:bg-transparent text-center text-slate-400 print:text-slate-700 font-bold transition-all duration-200 
+                                            group-hover:border-cyan-500/50 group-hover:text-cyan-400
+                                            peer-checked:border-cyan-500 peer-checked:bg-cyan-500/10 peer-checked:text-cyan-500
+                                            print:peer-checked:border-black print:peer-checked:text-black print:peer-checked:font-black print:peer-checked:bg-slate-100">
+                                    ERRADO
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Ações -->
+                        <div class="flex justify-end">
+                            <button id="btn-${q.id}" onclick="responder('${q.id}')" 
+                                    class="w-full sm:w-auto px-8 py-3.5 bg-cyan-600 hover:bg-cyan-500 text-white font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-2 uppercase tracking-wide shadow-lg shadow-cyan-900/50 active:scale-95 print:hidden">
+                                Responder
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+            
+            // Oculta os botões de carregar para focar no exame
+            document.getElementById('exam-controls').classList.add('hidden');
+        }
+
+        // 5. FUNÇÃO: REGISTRAR RESPOSTA (SEM FEEDBACK IMEDIATO)
+        function responder(questionId) {
+            if (answeredQuestions.has(questionId)) return;
+
+            const selectedOpt = document.querySelector(`input[name="opt_${questionId}"]:checked`);
+
+            if (!selectedOpt) {
+                const btn = document.getElementById(`btn-${questionId}`);
+                btn.classList.add('animate-pulse');
+                setTimeout(() => btn.classList.remove('animate-pulse'), 500);
+                return;
+            }
+
+            // Travar resposta
+            answeredQuestions.add(questionId);
+            document.querySelectorAll(`input[name="opt_${questionId}"]`).forEach(radio => {
+                radio.disabled = true;
+                radio.parentElement.classList.remove('cursor-pointer', 'group');
+            });
+
+            // Transformar botão responder em indicador de registro visual neutro
+            const btn = document.getElementById(`btn-${questionId}`);
+            btn.innerHTML = 'Registrado <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            btn.className = "w-full sm:w-auto px-8 py-3.5 bg-blue-500/20 text-blue-400 font-black rounded-xl border border-blue-500/50 flex items-center justify-center gap-2 uppercase tracking-wide cursor-default print:hidden";
+            btn.disabled = true;
+            
+            // Em uma prova real, não disparamos score nem exibimos caixas de gabarito para evitar cola e manter a lisura do processo.
+        }
+
+        // 6. GERAÇÃO DE PDF DE RESOLUÇÃO (FORMATO PROVA ENTREGUE)
+        function generatePDF() {
+            const sName = document.getElementById('student-name').value.trim();
+            const sId = document.getElementById('student-id').value.trim();
+
+            if (sName === '' || sId === '') {
+                alert('Preencha seus dados antes de gerar a prova para entrega.');
+                document.getElementById('student-name').focus();
+                return;
+            }
+
+            // Validar se todas as questões foram respondidas
+            const totalQuestions = currentExam.questions.length;
+            if (answeredQuestions.size < totalQuestions) {
+                const confirmSubmit = confirm(`Atenção: Você respondeu apenas ${answeredQuestions.size} de ${totalQuestions} questões.\nTem certeza que deseja finalizar a prova com questões em branco?`);
+                if (!confirmSubmit) return;
+            }
+
+            // Capturar a data e hora exatas
+            const dataAtual = new Date();
+            const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+            const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            // Injetar no campo oculto do cabeçalho
+            const dateField = document.getElementById('print-date-value');
+            if (dateField) {
+                dateField.textContent = `${dataFormatada} às ${horaFormatada}`;
+            }
+
+            // Pausar o cronômetro automaticamente se estiver rodando
+            if (isStopwatchRunning) {
+                toggleStopwatch();
+            }
+
+            // Injetar tempo de prova no HTML
+            const timeString = document.getElementById('stopwatch-display').textContent;
+            const timeField = document.getElementById('print-time-value');
+            if (timeField) {
+                timeField.textContent = timeString;
+            }
+
+            // Exibir a seção de data antes de imprimir
+            document.getElementById('print-date-section').classList.remove('hidden');
+
+            // Alterar dinamicamente o title para forçar o nome do arquivo no PDF padronizado para entrega
+            const originalTitle = document.title;
+            const turmaStr = currentExam ? currentExam.turma : "Turma";
+            
+            // Padronizando nome conforme exigência do repositório/drive
+            document.title = `ETB_AV3_${turmaStr}_${sName}_Banco_De_Dados`;
+
+            // Chamar a interface nativa de impressão com um leve delay
+            setTimeout(() => {
+                window.print();
+
+                // Restaurar o title original
+                setTimeout(() => {
+                    document.title = originalTitle;
+                }, 1000);
+            }, 100);
+        }
+
+    </script>
+</body>
+
+</html>
